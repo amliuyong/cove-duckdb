@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "tool": "archify",
+  "toolVersion": "3.2.0",
+  "command": "finalize",
+  "type": "architecture",
+  "quality": "showcase",
+  "status": "pass",
+  "gates": {
+    "validate": "pass",
+    "deliver": "pass",
+    "check": "pass",
+    "browser-check": "pass"
+  },
+  "specification": {
+    "sha256": "7817c7a2b1de335599f9fed5c0236f71ed610ced1b0273c5f6915aae4ff830f8",
+    "bytes": 7782
+  },
+  "artifact": {
+    "sha256": "b1d1ce153a67bb0a004cc70ba2c76b6cdf78402bd7601922e0f016cfe74328c6",
+    "bytes": 837023
+  },
+  "validation": {
+    "checksPassed": 9,
+    "checkCount": 9,
+    "compositionProfile": "showcase",
+    "compositionStatus": "pass",
+    "errors": 0,
+    "warnings": 0
+  },
+  "finishedAt": "2026-10-20T06:47:15.380Z"
+}

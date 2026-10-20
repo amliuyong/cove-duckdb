@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-20",
+  "svg_validation": "pass",
+  "browser_render": "pass",
+  "visual_review": "pass",
+  "runtime_acceptance": "NOT_RUN",
+  "viewports": [
+    {
+      "asset": "docs/assets/architecture.svg",
+      "width": 1440,
+      "height": 1100,
+      "evidence": "complete Chromium screenshot; no DOM overflow measurement claimed"
+    },
+    {
+      "asset": "logo-light.svg + logo-dark.svg",
+      "width": 800,
+      "height": 520,
+      "scroll_width": 800,
+      "scroll_height": 520
+    }
+  ],
+  "files": {
+    "docs/assets/architecture.svg": {
+      "sha256": "ce8dc1c567b4fe721a532ad7cc5749a23aacb2f99c61d2440911cc27bf0f2f51",
+      "bytes": 14299
+    },
+    "docs/assets/icon.svg": {
+      "sha256": "395fd862f483ae16641995d362b209676674ab0534f8b4c027d2906940a680db",
+      "bytes": 829
+    },
+    "docs/assets/logo-light.svg": {
+      "sha256": "9451f26b4e8de1fc1767155613cf8f4cdeadfb6f6f5faac8fc8589e09f8ea758",
+      "bytes": 1168
+    },
+    "docs/assets/logo-dark.svg": {
+      "sha256": "bc35cc00d5cf2fa1bb1d1d829fa9fbc262e1d3eea977a2d798cd9560f5626ca6",
+      "bytes": 1167
+    },
+    "docs/design/evidence/architecture-svg.png": {
+      "sha256": "6e62d2c37a0921ca992ab2acbcc9c1c89daf65050c4d3b3812be34d1c02f9b1a",
+      "bytes": 222813
+    },
+    "docs/design/evidence/logos.png": {
+      "sha256": "1900def3e562eb9d244a0583a8815c5798b025915c38943b47936e11f7058a15",
+      "bytes": 29947
+    }
+  },
+  "architecture_visual_review": {
+    "status": "pass",
+    "inspected": "docs/design/evidence/architecture-svg.png",
+    "viewport": [
+      1440,
+      1100
+    ],
+    "scope": "Integrated Query Editor and controlled receipt-read path; actual complete screenshot inspected"
+  },
+  "logo_evidence_date": "2026-10-15_UNCHANGED_ASSETS"
+}

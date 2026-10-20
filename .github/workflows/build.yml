@@ -1,0 +1,54 @@
+name: Development artifacts
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    env:
+      # Suites run against the AWS documentation example account and never call AWS.
+      COVE_ACCOUNT: "123456789012"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install hash-locked dependencies
+        run: |
+          python3 -m venv "$RUNNER_TEMP/cove-build"
+          "$RUNNER_TEMP/cove-build/bin/python" -m pip install --require-hashes --only-binary=:all: \
+            -r examples/orders/requirements.lock -r runtime/build-requirements.lock \
+            -r runtime/aws-requirements.lock
+      - name: Build and validate exact source
+        run: |
+          "$RUNNER_TEMP/cove-build/bin/python" scripts/build_release.py --output "$RUNNER_TEMP/cove-artifacts"
+          "$RUNNER_TEMP/cove-build/bin/python" scripts/build_control.py --output "$RUNNER_TEMP/cove-control"
+      - name: Check the Query Editor in Chromium
+        run: |
+          "$RUNNER_TEMP/cove-build/bin/python" -m pip install --require-hashes --only-binary=:all: \
+            -r runtime/editor-requirements.lock
+          "$RUNNER_TEMP/cove-build/bin/python" -m playwright install --with-deps chromium
+          PYTHONPATH=src "$RUNNER_TEMP/cove-build/bin/python" -m unittest discover -s tests/editor -v \
+            > "$RUNNER_TEMP/cove-editor-browser.log" 2>&1
+          "$RUNNER_TEMP/cove-build/bin/python" scripts/build_editor.py --output "$RUNNER_TEMP/cove-editor"
+      - name: Retain source-bound artifacts and logs
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: cove-duckdb-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/cove-artifacts/manifest.json
+            ${{ runner.temp }}/cove-artifacts/wheel/
+            ${{ runner.temp }}/cove-artifacts/*.tar
+            ${{ runner.temp }}/cove-artifacts/*.log
+            ${{ runner.temp }}/cove-artifacts/third-party/
+            ${{ runner.temp }}/cove-control/manifest.json
+            ${{ runner.temp }}/cove-control/control.zip
+            ${{ runner.temp }}/cove-control/*.log
+            ${{ runner.temp }}/cove-editor/manifest.json
+            ${{ runner.temp }}/cove-editor/editor.zip
+            ${{ runner.temp }}/cove-editor-browser.log
+          if-no-files-found: error

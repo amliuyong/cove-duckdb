@@ -1,0 +1,9 @@
+{
+  "storage_repository": "cove-duckdb-images",
+  "storage_digest": "sha256:8ec8ab61eac30db2e8d0210986ccfa02590e40aa74eda61f5e8775fa747aa3d9",
+  "architecture": "arm64",
+  "credential_provider": "container-role",
+  "native_secret_provider": "credential_chain",
+  "native_secret_refresh": "auto",
+  "maximum_open_databases": 2
+}

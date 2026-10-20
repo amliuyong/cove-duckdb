@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Query Editor · Cove DuckDB</title>
+  <link rel="stylesheet" href="/query-editor/app.css">
+  <script src="/query-editor/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Cove DuckDB 首页"><span class="brand-mark">C</span>Cove DuckDB</a>
+    <span class="product">Query Editor</span>
+    <a class="nav-link small muted" href="/admin.html">Admin Console</a>
+    <span id="connection-status" class="connection-status">未连接</span>
+    <button id="disconnect" class="quiet" type="button" disabled>断开连接</button>
+  </header>
+  <main>
+    <section id="connection" class="connection-panel" aria-labelledby="connection-title">
+      <div><h1 id="connection-title">连接数据空间</h1><p>用具有查询权限的 API Key 查看目录、执行只读 SQL。</p></div>
+      <form id="connect-form" autocomplete="off">
+        <label>数据空间<input id="space" name="space" required maxlength="128" placeholder="例如 analytics" spellcheck="false"></label>
+        <label>API Key<input id="api-key" name="api-key" type="password" required autocomplete="off" placeholder="仅在此页面会话中使用"></label>
+        <button id="connect" type="submit" class="primary">连接</button>
+      </form>
+      <p class="privacy-note">API Key 只保留在当前页面内存中。断开连接或刷新页面后需重新输入。</p>
+    </section>
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <section id="workspace" class="workspace" hidden>
+      <aside class="sidebar">
+        <div class="section-heading"><h2>授权目录</h2><button id="refresh-catalog" class="quiet" type="button">刷新</button></div>
+        <input id="catalog-filter" type="search" aria-label="筛选数据集" placeholder="搜索数据集或列…">
+        <div id="catalog" class="catalog"></div>
+        <div class="section-heading history-heading"><h2>查询历史</h2><button id="refresh-history" class="quiet" type="button">刷新</button></div>
+        <p class="small muted">历史和结果由服务端保留策略管理。</p>
+        <div id="history" class="history"></div>
+      </aside>
+      <section class="editor-column" aria-label="SQL 编辑与查询结果">
+        <div class="editor-card">
+          <div class="section-heading"><h2>SQL</h2><span class="small muted">Ctrl / ⌘ + Enter 执行 · Ctrl + Space 补全</span></div>
+          <label for="sql" class="sr-only">只读 SQL</label>
+          <div class="sql-editor">
+            <pre id="sql-highlight" aria-hidden="true"></pre>
+            <textarea id="sql" wrap="off" spellcheck="false" maxlength="65536" aria-describedby="sql-hint" placeholder="SELECT * FROM dwd.orders LIMIT 100;"></textarea>
+          </div>
+          <div id="completion" class="completion" role="listbox" aria-label="SQL 补全" hidden></div>
+          <div class="query-options">
+            <label>读取方式<select id="consistency"><option value="published">发布版本</option><option value="current">当前状态</option><option value="after_write">同步写入之后</option><option value="after_ingestion">接入提交之后</option></select></label>
+            <label id="condition-label">Release ID（可选）<input id="condition-id" maxlength="128" spellcheck="false" placeholder="留空读取当前发布版本"></label>
+            <label>最多返回<input id="max-rows" type="number" min="1" max="10000" value="1000"></label>
+            <label>超时（秒）<input id="timeout" type="number" min="1" max="300" value="30"></label>
+          </div>
+          <div class="editor-actions">
+            <button id="run" type="button" class="primary">执行查询</button>
+            <button id="explain" type="button">查看计划</button>
+            <button id="retry-submit" type="button" hidden>核对原提交</button>
+            <button id="cancel" type="button" class="danger" disabled>取消查询</button>
+            <span id="sql-hint" class="small muted">有选中内容时只执行选中的 SQL。</span>
+          </div>
+        </div>
+        <section class="results-card" aria-labelledby="results-title">
+          <div class="section-heading"><h2 id="results-title">查询结果</h2><div class="result-actions"><button id="refresh-query" class="quiet" type="button" disabled>核对状态</button><button id="restore-sql" class="quiet" type="button" disabled>载入 SQL</button><button id="export" type="button" disabled>导出 JSON</button></div></div>
+          <div id="query-meta" class="query-meta"><span class="muted">执行查询后，在这里查看结果。</span></div>
+          <div id="versions" class="versions"></div>
+          <div id="result-message" class="result-message"></div>
+          <div id="results" class="table-scroll"></div>
+          <div class="pagination"><span id="page-info" class="small muted"></span><button id="previous-page" type="button" disabled>上一页</button><button id="next-page" type="button" disabled>下一页</button></div>
+        </section>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

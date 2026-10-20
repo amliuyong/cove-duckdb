@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Cove DuckDB：AWS 数据接入与分析架构",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "output": "docs/design/architecture.html"
+  },
+  "components": [
+    {
+      "id": "product-clients",
+      "type": "frontend",
+      "label": "Query Editor 与应用",
+      "sublabel": "S3 / CloudFront · HTTPS",
+      "tag": "API 不缓存 · 页面内存 Key",
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        200,
+        96
+      ]
+    },
+    {
+      "id": "api-entry",
+      "type": "cloud",
+      "label": "API Gateway",
+      "sublabel": "HTTP API · Bearer API Key",
+      "pos": [
+        350,
+        40
+      ],
+      "size": [
+        200,
+        96
+      ]
+    },
+    {
+      "id": "api-intake",
+      "type": "backend",
+      "label": "接入 Lambda",
+      "sublabel": "校验 · 幂等 · 直接排队",
+      "pos": [
+        630,
+        40
+      ],
+      "size": [
+        210,
+        112
+      ],
+      "tag": "先保存 S3 接入原文"
+    },
+    {
+      "id": "control-store",
+      "type": "database",
+      "label": "DynamoDB 控制面",
+      "sublabel": "单表 · Key / Pipeline / Job",
+      "pos": [
+        40,
+        210
+      ],
+      "size": [
+        220,
+        112
+      ]
+    },
+    {
+      "id": "write-queue",
+      "type": "messagebus",
+      "label": "SQS FIFO",
+      "sublabel": "按数据空间串行排队",
+      "pos": [
+        980,
+        40
+      ],
+      "size": [
+        220,
+        96
+      ]
+    },
+    {
+      "id": "warehouse-writer",
+      "type": "backend",
+      "label": "ECS 写者 Service",
+      "sublabel": "唯一许可 · 公平事务调度",
+      "pos": [
+        980,
+        210
+      ],
+      "size": [
+        220,
+        112
+      ],
+      "tag": "同步写 / FIFO / 分块导入"
+    },
+    {
+      "id": "s3-warehouse",
+      "type": "database",
+      "label": "S3 原生数据库",
+      "sublabel": "SlateDB · SST / WAL / manifest",
+      "tag": "ODS / DWD / DWS / ADS",
+      "pos": [
+        980,
+        430
+      ],
+      "size": [
+        220,
+        112
+      ]
+    },
+    {
+      "id": "query-readers",
+      "type": "backend",
+      "label": "查询私网链路",
+      "sublabel": "VPC Link / ALB → ECS",
+      "pos": [
+        350,
+        430
+      ],
+      "size": [
+        200,
+        112
+      ],
+      "tag": "只读快照 · 发布 / 提交后"
+    },
+    {
+      "id": "job-staging",
+      "type": "cloud",
+      "label": "S3 计算文件",
+      "sublabel": "固定输入 · 代码版本 · 暂存",
+      "tag": "Parquet + 输入 / 分块清单",
+      "pos": [
+        630,
+        430
+      ],
+      "size": [
+        220,
+        112
+      ]
+    },
+    {
+      "id": "control-functions",
+      "type": "backend",
+      "label": "控制与环境构建",
+      "sublabel": "Authorizer · 管理 / 构建",
+      "tag": "Lambda / CodeBuild → ECR",
+      "pos": [
+        350,
+        210
+      ],
+      "size": [
+        200,
+        112
+      ]
+    },
+    {
+      "id": "compute-tasks",
+      "type": "backend",
+      "label": "SQL / Python 执行器",
+      "sublabel": "Lambda Invoke / ECS RunTask",
+      "tag": "固定输入 · Parquet 暂存",
+      "pos": [
+        630,
+        640
+      ],
+      "size": [
+        220,
+        112
+      ]
+    },
+    {
+      "id": "sync-proxy",
+      "type": "backend",
+      "label": "同步写 Lambda",
+      "sublabel": "独立 VPC / IAM · 有界等待",
+      "tag": "原生提交后返回回执",
+      "pos": [
+        630,
+        210
+      ],
+      "size": [
+        220,
+        112
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "client-api",
+      "from": "product-clients",
+      "to": "api-entry",
+      "label": "Bearer · /v1/*",
+      "variant": "emphasis"
+    },
+    {
+      "id": "write-api",
+      "from": "api-entry",
+      "to": "api-intake",
+      "label": "异步接入",
+      "variant": "emphasis"
+    },
+    {
+      "id": "enqueue-batches",
+      "from": "api-intake",
+      "to": "write-queue",
+      "label": "直接发送批次",
+      "variant": "emphasis"
+    },
+    {
+      "id": "control-access",
+      "from": "api-entry",
+      "to": "control-functions",
+      "label": "认证 / 管理",
+      "variant": "security",
+      "labelDy": 24
+    },
+    {
+      "id": "consume-batches",
+      "from": "write-queue",
+      "to": "warehouse-writer",
+      "label": "批量消费",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "id": "commit-warehouse",
+      "from": "warehouse-writer",
+      "to": "s3-warehouse",
+      "label": "单库事务提交",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "id": "query-routing",
+      "from": "api-entry",
+      "to": "query-readers",
+      "label": "VPC Link / ALB",
+      "fromSide": "top",
+      "toSide": "top",
+      "via": [
+        [
+          450,
+          16
+        ],
+        [
+          16,
+          16
+        ],
+        [
+          16,
+          376
+        ],
+        [
+          450,
+          376
+        ]
+      ]
+    },
+    {
+      "id": "read-warehouse",
+      "from": "query-readers",
+      "to": "s3-warehouse",
+      "label": "只读访问",
+      "fromSide": "bottom",
+      "toSide": "bottom",
+      "via": [
+        [
+          450,
+          800
+        ],
+        [
+          1090,
+          800
+        ]
+      ]
+    },
+    {
+      "id": "receipt-read",
+      "from": "query-readers",
+      "to": "warehouse-writer",
+      "label": "私网 Lambda / 提交后复制",
+      "variant": "security",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [
+        [
+          573,
+          486
+        ],
+        [
+          573,
+          770
+        ],
+        [
+          956,
+          770
+        ],
+        [
+          956,
+          266
+        ]
+      ],
+      "labelAt": [
+        640,
+        770
+      ]
+    },
+    {
+      "id": "stage-compute",
+      "from": "compute-tasks",
+      "to": "job-staging",
+      "label": "计算文件读写",
+      "fromSide": "top",
+      "toSide": "bottom",
+      "labelAt": [
+        740,
+        590
+      ]
+    },
+    {
+      "id": "load-staged",
+      "from": "job-staging",
+      "to": "warehouse-writer",
+      "label": "分块导入新版本",
+      "variant": "dashed"
+    },
+    {
+      "id": "control-ddb",
+      "from": "control-functions",
+      "to": "control-store",
+      "label": "SDK 读写"
+    },
+    {
+      "id": "schedule-compute",
+      "from": "control-functions",
+      "to": "compute-tasks",
+      "label": "Invoke / RunTask",
+      "variant": "dashed"
+    },
+    {
+      "id": "sync-api",
+      "from": "api-entry",
+      "to": "sync-proxy",
+      "label": "同步表写入",
+      "variant": "emphasis"
+    },
+    {
+      "id": "sync-writer",
+      "from": "sync-proxy",
+      "to": "warehouse-writer",
+      "label": "8082 · 原生回执",
+      "variant": "emphasis"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "入口与控制",
+      "items": [
+        "浏览器 → CloudFront → Gateway",
+        "/v1/* 不缓存 · Bearer 原样转发",
+        "各 Lambda 使用独立 IAM 权限"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "服务与任务",
+      "items": [
+        "独立同步 Lambda 经 8082 联系许可写者",
+        "同步 / FIFO / 导入共享提交序号",
+        "查询每次使用新进程，只暂存引用的数据集"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "环境构建与执行",
+      "items": [
+        "CodeBuild 解析依赖，固定 ECR 镜像",
+        "数字 Lambda / ECS revision 独立绑定",
+        "产物分块导入，由写者发布新版本"
+      ]
+    }
+  ]
+}

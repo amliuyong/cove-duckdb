@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+<title id="title">Cove DuckDB icon</title>
+<desc id="desc">An original duck and water mark with three data strokes.</desc>
+<g>
+  <rect width="128" height="128" rx="30" fill="#104c58"/>
+  <ellipse cx="62" cy="83" rx="36" ry="22" fill="#e8faf2"/>
+  <path d="M60 75V52c0-10 8-18 18-18h8v45z" fill="#e8faf2"/>
+  <circle cx="82" cy="45" r="21" fill="#e8faf2"/>
+  <path d="M98 44h15c7 0 10 3 10 6s-3 6-10 6H98z" fill="#f5ad45"/>
+  <circle cx="86" cy="40" r="3" fill="#104c58"/>
+  <path d="M45 77h21M45 85h27M45 93h17" stroke="#087f80" stroke-width="5" stroke-linecap="round"/>
+  <path d="M21 110c7-5 14-5 21 0s14 5 21 0 14-5 21 0 14 5 21 0"
+        fill="none" stroke="#57c8bf" stroke-width="4" stroke-linecap="round"/>
+</g>
+</svg>

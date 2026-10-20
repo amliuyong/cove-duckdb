@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Console · Cove DuckDB</title>
+  <link rel="stylesheet" href="/admin/app.css">
+  <script src="/admin/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/admin.html" aria-label="Cove DuckDB Admin Console"><span class="brand-mark">C</span>Cove DuckDB</a>
+    <span class="product">Admin Console</span>
+    <a class="nav-link" href="/">Query Editor</a>
+    <span id="connection-status" class="connection-status">未连接</span>
+    <button id="disconnect" class="quiet" type="button" disabled>断开连接</button>
+  </header>
+  <main>
+    <section id="connection" class="connection-panel" aria-labelledby="connection-title">
+      <div><h1 id="connection-title">连接管理控制台</h1><p>输入数据空间和 API Key。各页面按服务端授权读取；权限不足时显示服务端的拒绝结果。</p></div>
+      <form id="connect-form" autocomplete="off">
+        <label>数据空间<input id="space" name="space" required maxlength="128" placeholder="例如 analytics" spellcheck="false"></label>
+        <label>API Key<input id="api-key" name="api-key" type="password" required autocomplete="off" placeholder="仅在此页面会话中使用"></label>
+        <button id="connect" type="submit" class="primary">连接</button>
+      </form>
+      <p class="privacy-note">API Key 只保留在当前页面内存中。断开连接、离开或刷新页面后需重新输入。</p>
+    </section>
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <div id="pending" class="pending" role="alert" hidden>
+      <div id="pending-detail" class="pending-detail" data-dynamic></div>
+      <div class="actions"><button id="pending-retry" type="button" class="primary">核对原请求</button><button id="pending-drop" type="button" class="quiet">放弃原请求</button></div>
+    </div>
+    <section id="workspace" class="workspace" hidden>
+      <nav class="tabs" aria-label="管理功能">
+        <a href="#overview" data-tab="overview">概览</a>
+        <a href="#keys" data-tab="keys">API Keys</a>
+        <a href="#pipelines" data-tab="pipelines">流水线</a>
+        <a href="#environments" data-tab="environments">运行环境</a>
+        <a href="#audit" data-tab="audit">审计</a>
+        <a href="#trace" data-tab="trace">诊断</a>
+        <a href="#retention" data-tab="retention">保留与回收</a>
+        <a href="#quotas" data-tab="quotas">配额与成本</a>
+      </nav>
+
+      <section id="panel-overview" class="panel" data-panel="overview" hidden>
+        <div class="card">
+          <div class="section-heading"><h2>空间概览</h2><div class="actions"><label class="inline"><input id="overview-auto" type="checkbox">每 15 秒自动刷新</label><button id="overview-refresh" type="button">刷新</button></div></div>
+          <div id="overview-meta" class="meta" data-dynamic></div>
+          <div id="overview-cards" class="cards" data-dynamic></div>
+        </div>
+        <div class="card">
+          <div class="section-heading"><h2>数据集</h2></div>
+          <div id="overview-datasets" class="table-scroll" data-dynamic></div>
+        </div>
+        <div class="card">
+          <div class="section-heading"><h2>指标</h2></div>
+          <div id="metrics-meta" class="meta" data-dynamic></div>
+          <div id="overview-metrics" class="table-scroll" data-dynamic></div>
+        </div>
+      </section>
+
+      <section id="panel-keys" class="panel" data-panel="keys" hidden>
+        <div id="token-panel" class="card token-panel" hidden>
+          <h2>新令牌（只显示这一次）</h2>
+          <p class="small">隐藏后无法再次取得。令牌不会出现在列表中，也不会保存到浏览器存储。</p>
+          <div id="token-key" class="meta" data-dynamic></div>
+          <div class="token-row"><input id="token-value" readonly aria-label="新 API Key 令牌" spellcheck="false" autocomplete="off"><button id="token-copy" type="button">复制</button><button id="token-hide" type="button" class="primary">我已保存，隐藏</button></div>
+        </div>
+        <div class="card">
+          <div class="section-heading"><h2>API Keys</h2><button id="keys-refresh" type="button">刷新</button></div>
+          <div id="keys-table" class="table-scroll" data-dynamic></div>
+        </div>
+        <form id="key-form" class="card" autocomplete="off">
+          <div class="section-heading"><h2 id="key-form-title">创建 API Key</h2><button id="key-rotate-cancel" type="button" class="quiet" hidden>取消轮换</button></div>
+          <div class="form-grid">
+            <label>名称<input id="key-name" maxlength="256" required spellcheck="false"></label>
+            <label>到期时间（UTC）<input id="key-expires" type="datetime-local" step="1" required></label>
+          </div>
+          <fieldset id="key-scopes" class="scopes"><legend>权限范围</legend></fieldset>
+          <div class="actions"><button id="key-submit" type="submit" class="primary">创建</button><span class="small muted">令牌只在创建或轮换成功后显示一次。</span></div>
+        </form>
+      </section>
+
+      <section id="panel-pipelines" class="panel split" data-panel="pipelines" hidden>
+        <aside class="card sidebar">
+          <div class="section-heading"><h2>流水线</h2><button id="pipelines-refresh" type="button" class="quiet">刷新</button></div>
+          <button id="pipeline-new" type="button">新建流水线</button>
+          <div id="pipeline-list" class="list" data-dynamic></div>
+        </aside>
+        <div class="column">
+          <div class="card">
+            <div class="section-heading"><h2>流水线详情</h2><button id="pipeline-reload" type="button" class="quiet" disabled>重新加载</button></div>
+            <div id="pipeline-summary" class="meta" data-dynamic></div>
+          </div>
+          <div id="pipeline-editor" class="card" data-detail hidden>
+            <div class="section-heading"><h2>定义（JSON）</h2><span class="small muted">API 接收解析后的流水线 JSON；浏览器不解析 YAML。</span></div>
+            <label for="definition" class="sr-only">流水线定义 JSON</label>
+            <textarea id="definition" class="code" spellcheck="false" rows="16"></textarea>
+            <div class="section-heading subheading"><h2>代码文件</h2></div>
+            <div id="file-list" class="table-scroll" data-dynamic></div>
+            <div class="inline-form"><input id="file-new-path" maxlength="512" spellcheck="false" placeholder="新文件路径，例如 sql/new_task.sql" aria-label="新文件路径"><button id="file-add" type="button">新增文件</button></div>
+            <div id="file-editor" data-detail hidden>
+              <div id="file-meta" class="meta" data-dynamic></div>
+              <label for="file-content" class="sr-only">文件内容</label>
+              <textarea id="file-content" class="code" spellcheck="false" rows="14"></textarea>
+            </div>
+            <div class="actions"><button id="pipeline-save" type="button" class="primary">保存草稿</button><button id="pipeline-validate" type="button">校验草稿</button><button id="pipeline-publish" type="button">发布版本</button></div>
+            <div id="validation" class="result-block" data-dynamic></div>
+            <div id="publish-result" class="result-block" data-dynamic></div>
+          </div>
+          <div id="dag-card" class="card" data-detail hidden>
+            <div class="section-heading"><h2>DAG 预览</h2><span class="small muted">由编辑器中的定义在浏览器内计算，未经服务端校验。</span></div>
+            <div id="dag" class="dag" data-dynamic></div>
+            <div class="section-heading subheading"><h2>参数</h2></div>
+            <div id="parameters" class="table-scroll" data-dynamic></div>
+          </div>
+          <div id="versions-card" class="card" data-detail hidden>
+            <div class="section-heading"><h2>版本</h2><button id="versions-refresh" type="button" class="quiet">刷新</button></div>
+            <div id="versions" class="table-scroll" data-dynamic></div>
+          </div>
+          <form id="schedule-form" class="card" data-detail hidden autocomplete="off">
+            <div class="section-heading"><h2>调度</h2></div>
+            <div class="form-grid four">
+              <label>调度方<select id="schedule-owner"><option value="none">none</option><option value="cove">cove</option><option value="external">external</option></select></label>
+              <label>表达式<input id="schedule-expression" maxlength="256" spellcheck="false" placeholder="rate(1 hour) / cron(…)"></label>
+              <label>时区<input id="schedule-timezone" maxlength="128" spellcheck="false" placeholder="UTC"></label>
+              <label>状态<select id="schedule-state"><option value="PAUSED">PAUSED</option><option value="ENABLED">ENABLED</option></select></label>
+            </div>
+            <div class="actions"><button id="schedule-save" type="submit" class="primary">保存调度</button><button id="schedule-pause" type="button">暂停</button></div>
+          </form>
+          <div id="runs-card" class="card" data-detail hidden>
+            <div class="section-heading"><h2>运行</h2><button id="runs-refresh" type="button" class="quiet">刷新</button></div>
+            <div id="runs" class="table-scroll" data-dynamic></div>
+            <div class="section-heading subheading"><h2>启动运行</h2></div>
+            <div class="form-grid four">
+              <label>版本<select id="run-version" data-dynamic></select></label>
+              <label>模式<select id="run-mode"><option value="snapshot">snapshot</option><option value="backfill">backfill</option></select></label>
+              <label class="wide">参数（JSON 对象，可留空）<textarea id="run-parameters" class="code small-code" rows="3" spellcheck="false"></textarea></label>
+              <label class="wide">回填分区（JSON 数组）<textarea id="run-partitions" class="code small-code" rows="3" spellcheck="false" disabled></textarea></label>
+            </div>
+            <div class="actions"><button id="run-start" type="button" class="primary">启动运行</button></div>
+            <div id="run-view" data-detail hidden>
+              <div class="section-heading subheading"><h2>运行详情</h2><div class="actions"><button id="run-refresh" type="button" class="quiet">核对状态</button><button id="run-retry" type="button">重试运行</button><button id="run-cancel" type="button" class="danger">取消运行</button></div></div>
+              <div id="run-result" class="result-block" data-dynamic></div>
+              <div id="run-detail" data-dynamic></div>
+            </div>
+          </div>
+          <div id="trial-card" class="card" data-detail hidden>
+            <div class="section-heading"><h2>样本试运行</h2><span class="small muted">只运行一个任务的样本，输出经校验但不发布。</span></div>
+            <div class="form-grid four">
+              <label>版本<select id="trial-version" data-dynamic></select></label>
+              <label>任务<select id="trial-task" data-dynamic></select></label>
+              <label>样本行数<input id="trial-rows" type="number" min="1" max="10000" value="100"></label>
+              <label class="wide">参数（JSON 对象，可留空）<textarea id="trial-parameters" class="code small-code" rows="3" spellcheck="false"></textarea></label>
+            </div>
+            <div class="actions"><button id="trial-start" type="button" class="primary">启动试运行</button></div>
+            <div id="trial-view" data-detail hidden>
+              <div class="section-heading subheading"><h2>试运行详情</h2><div class="actions"><button id="trial-refresh" type="button" class="quiet">核对状态</button><button id="trial-preview-button" type="button">查看样本</button><button id="trial-cancel" type="button" class="danger">取消试运行</button></div></div>
+              <div id="trial-result" class="result-block" data-dynamic></div>
+              <div id="trial-detail" data-dynamic></div>
+              <div id="trial-preview" class="table-scroll" data-dynamic></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel-environments" class="panel" data-panel="environments" hidden>
+        <div class="card">
+          <div class="section-heading"><h2>运行环境</h2><button id="environments-refresh" type="button">刷新</button></div>
+          <div id="environments" class="table-scroll" data-dynamic></div>
+        </div>
+        <div id="environment-card" class="card" data-detail hidden>
+          <div class="section-heading"><h2>环境版本详情</h2><div class="actions"><button id="environment-refresh" type="button" class="quiet">核对状态</button><button id="environment-build" type="button" class="primary">构建</button></div></div>
+          <div id="environment-detail" data-dynamic></div>
+        </div>
+        <form id="environment-form" class="card" autocomplete="off">
+          <div class="section-heading"><h2>创建环境版本</h2><span class="small muted">Python 3.12 · linux_arm64 · binary_wheels</span></div>
+          <div class="form-grid">
+            <label>环境 ID<input id="environment-id" maxlength="128" required spellcheck="false"></label>
+            <label>版本<input id="environment-version" maxlength="128" required spellcheck="false" placeholder="例如 v1"></label>
+            <label class="wide">依赖（requirements 格式）<textarea id="environment-requirements" class="code" rows="6" spellcheck="false" required></textarea></label>
+          </div>
+          <div class="actions"><button id="environment-create" type="submit" class="primary">创建</button></div>
+        </form>
+      </section>
+
+      <section id="panel-audit" class="panel" data-panel="audit" hidden>
+        <form id="audit-form" class="card inline-form" autocomplete="off">
+          <label>操作<select id="audit-action"><option value="">全部操作</option></select></label>
+          <button id="audit-search" type="submit" class="primary">查询</button>
+        </form>
+        <div class="card">
+          <div id="audit-table" class="table-scroll" data-dynamic></div>
+          <div class="pagination"><span id="audit-page" class="small muted" data-dynamic></span><button id="audit-first" type="button" disabled>第一页</button><button id="audit-next" type="button" disabled>下一页</button></div>
+        </div>
+      </section>
+
+      <section id="panel-trace" class="panel" data-panel="trace" hidden>
+        <form id="trace-form" class="card" autocomplete="off">
+          <div class="form-grid four">
+            <label>类型<select id="trace-kind"><option value="run">run</option><option value="ingestion">ingestion</option><option value="query">query</option><option value="release">release</option></select></label>
+            <label>ID<input id="trace-id" maxlength="128" required spellcheck="false"></label>
+            <label>pipeline_id（run 必填）<input id="trace-pipeline" maxlength="128" spellcheck="false"></label>
+            <div class="actions bottom"><button id="trace-submit" type="submit" class="primary">追踪</button></div>
+          </div>
+        </form>
+        <div class="card">
+          <div id="trace-meta" class="meta" data-dynamic></div>
+          <div id="trace-nodes" class="nodes" data-dynamic></div>
+        </div>
+      </section>
+
+      <section id="panel-retention" class="panel" data-panel="retention" hidden>
+        <div class="card">
+          <div class="section-heading"><h2>保留策略</h2><button id="retention-refresh" type="button">刷新</button></div>
+          <div id="retention-meta" class="meta" data-dynamic></div>
+          <div id="retention-policy" class="table-scroll" data-dynamic></div>
+        </div>
+        <form id="retention-form" class="card" autocomplete="off">
+          <div class="section-heading"><h2>更新策略</h2><span class="small muted">按载入时的修订条件写入；时长单位为秒。</span></div>
+          <div id="retention-fields" class="form-grid four">
+            <label>状态<select id="retention-state"><option value="DISABLED">DISABLED</option><option value="ENABLED">ENABLED</option></select></label>
+          </div>
+          <div class="actions"><button id="retention-save" type="submit" class="primary">保存策略</button></div>
+        </form>
+        <div class="card">
+          <div class="section-heading"><h2>保留锁定</h2></div>
+          <div id="holds" class="table-scroll" data-dynamic></div>
+          <form id="hold-form" autocomplete="off">
+            <div class="form-grid four">
+              <label>目标类型<select id="hold-kind"><option value="release">release</option><option value="pipeline_version">pipeline_version</option><option value="run">run</option><option value="ingestion">ingestion</option><option value="environment">environment</option></select></label>
+              <label>目标 ID<input id="hold-id" maxlength="128" required spellcheck="false"></label>
+              <label>pipeline_id（可选）<input id="hold-pipeline" maxlength="128" spellcheck="false"></label>
+              <label>数据集（可选）<input id="hold-dataset" maxlength="256" spellcheck="false" placeholder="dwd.orders"></label>
+              <label class="wide">原因<input id="hold-reason" maxlength="256" required></label>
+              <label>到期时间（UTC）<input id="hold-expires" type="datetime-local" step="1" required></label>
+            </div>
+            <div class="actions"><button id="hold-submit" type="submit" class="primary">放置锁定</button></div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="section-heading"><h2>回收</h2></div>
+          <form id="collection-form" class="inline-form" autocomplete="off">
+            <label class="inline"><input id="collection-dry-run" type="checkbox" checked>演练（只列出，不删除）</label>
+            <button id="collection-submit" type="submit" class="primary">请求回收</button>
+          </form>
+          <div id="collections" class="table-scroll" data-dynamic></div>
+          <div id="collection-view" data-detail hidden>
+            <div class="section-heading subheading"><h2>回收报告</h2><button id="collection-refresh" type="button" class="quiet">核对状态</button></div>
+            <div id="collection-detail" data-dynamic></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-heading"><h2>分类与规则</h2></div>
+          <div id="retention-categories" class="table-scroll" data-dynamic></div>
+        </div>
+      </section>
+
+      <section id="panel-quotas" class="panel" data-panel="quotas" hidden>
+        <div class="card">
+          <div class="section-heading"><h2>配额</h2><button id="quotas-refresh" type="button">刷新</button></div>
+          <div id="quota-meta" class="meta" data-dynamic></div>
+          <div id="quota-policy" data-dynamic></div>
+          <div id="quota-usage" class="table-scroll" data-dynamic></div>
+        </div>
+        <form id="cost-form" class="card inline-form" autocomplete="off">
+          <label>开始（UTC，可选）<input id="cost-since" type="datetime-local" step="1"></label>
+          <label>结束（UTC，可选）<input id="cost-until" type="datetime-local" step="1"></label>
+          <button id="cost-submit" type="submit" class="primary">查询成本</button>
+        </form>
+        <div class="card">
+          <div class="section-heading"><h2>成本估算</h2></div>
+          <div id="cost-meta" class="meta" data-dynamic></div>
+          <div id="cost-totals" class="table-scroll" data-dynamic></div>
+          <div id="cost-lines" class="table-scroll" data-dynamic></div>
+          <div id="cost-excluded" data-dynamic></div>
+        </div>
+      </section>
+    </section>
+  </main>
+</body>
+</html>

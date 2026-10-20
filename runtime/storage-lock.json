@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "platform": "linux_arm64",
+  "architecture": "aarch64",
+  "duckdb": {
+    "version": "1.5.6",
+    "source_repository": "https://github.com/duckdb/duckdb",
+    "source_commit": "069cc9f9b5be802405797faecc284961b07c70ef",
+    "wheel_url": "https://files.pythonhosted.org/packages/53/04/f65ccfaa5a833f2e570c4a140f03c8f95da416da9fe8ed08401f81f8242a/duckdb-1.5.6-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl",
+    "wheel_sha256": "ce89a1025a5317ebe9c520876c48032b5247ac574865486648b1a004f6009875"
+  },
+  "object_storage": {
+    "source_repository": "https://github.com/dentiny/duckdb-object-storage",
+    "source_commit": "f096ca13244cb586e04ce04417cadfdd5d18cc0c",
+    "extension_ci_tools_commit": "3fd6109fc01555673b7c7123eba8d0d143fe8ce4",
+    "cargo_lock_sha256": "7868bf113aadeddf0430d98d4de14afd5d7e4cf23074866ff2172a1f691b5ae4",
+    "dependencies": {
+      "slatedb": "0.17.0",
+      "slatedb-common": "0.17.0",
+      "opendal": "0.59.4",
+      "object_store": "0.14.2",
+      "object_store_opendal": "0.60.3",
+      "tokio": "1.53.2",
+      "foyer": "0.22.6"
+    }
+  },
+  "extensions": [
+    {
+      "name": "httpfs",
+      "url": "https://extensions.duckdb.org/v1.5.6/linux_arm64/httpfs.duckdb_extension.gz",
+      "archive_sha256": "b18472a0e85cbf15ca4ebbe335173f87b62a074cd0f26072d4c756205c6239d0",
+      "sha256": "ae940d800b7f938a4848d0eebcffb28dda0bbed76987f11dc55faa6d1a86db0d",
+      "source_repository": "https://github.com/duckdb/duckdb-httpfs",
+      "extension_version": "4bc690d"
+    },
+    {
+      "name": "aws",
+      "url": "https://extensions.duckdb.org/v1.5.6/linux_arm64/aws.duckdb_extension.gz",
+      "archive_sha256": "7be5627a03495959bc033755fe4184db6cbc1d391c16790d3dad06fc14c79606",
+      "sha256": "2f19aa1213bb15091282cbcee498a742980c0b625e0a2ae370ec4f335986ef27",
+      "source_repository": "https://github.com/duckdb/duckdb-aws",
+      "extension_version": "28c853c"
+    }
+  ],
+  "runtime_base": "python:3.12.14-slim-trixie@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f",
+  "build_tools": {
+    "cmake": "3.31.6",
+    "ninja": "1.13.0",
+    "rustc": "1.96.1",
+    "cargo": "1.96.1",
+    "gcc": "13.3.0"
+  },
+  "aws": {
+    "region": "us-west-2",
+    "credential_provider": "instance"
+  }
+}

@@ -1,0 +1,7 @@
+# Example runtime and local SQL/Python demonstration, Python 3.12 on linux/arm64.
+pandas==2.2.3
+numpy==2.2.6
+pyarrow==24.0.0
+duckdb==1.5.2
+PyYAML==6.0.1
+jsonschema==4.25.1

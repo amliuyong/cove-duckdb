@@ -1,0 +1,105 @@
+spec_version: 1
+pipeline_id: orders
+name: Orders SQL and Python pipeline
+schedule:
+  owner: cove
+  expression: "rate(1 minute)"
+  timezone: UTC
+max_active_runs: 1
+coalesce_pending: true
+parameters:
+  high_value_threshold:
+    type: decimal_string
+    default: "500.00"
+    minimum: "0"
+tasks:
+  - task_id: clean_orders
+    language: sql
+    processing: {mode: full}
+    executor: writer
+    entrypoint: sql/clean_orders.sql
+    resource_profile: writer_short
+    timeout_seconds: 30
+    max_attempts: 3
+    inputs:
+      events:
+        dataset: ods.orders
+        selection: snapshot
+    output:
+      dataset: dwd.orders
+      write_mode: versioned_replace
+      key_columns: [order_id]
+      allow_empty: true
+      schema:
+        - {name: order_id, type: BIGINT, nullable: false}
+        - {name: order_date, type: DATE, nullable: false}
+        - {name: amount, type: "DECIMAL(18,2)", nullable: false}
+  - task_id: score_orders
+    language: python
+    processing: {mode: full}
+    executor: lambda
+    entrypoint: python/score_orders.py
+    runtime_environment: {environment_id: pandas-demo, version: v1}
+    resource_profile: python_lambda_standard
+    input_mode: local_files
+    timeout_seconds: 300
+    max_attempts: 3
+    depends_on: [clean_orders]
+    inputs:
+      orders:
+        task: clean_orders
+        selection: snapshot
+    output:
+      dataset: dwd.order_scores
+      write_mode: versioned_replace
+      key_columns: [order_id]
+      allow_empty: true
+      schema:
+        - {name: order_id, type: BIGINT, nullable: false}
+        - {name: high_value, type: BOOLEAN, nullable: false}
+        - {name: value_band, type: VARCHAR, nullable: false}
+  - task_id: daily_sales
+    language: sql
+    processing: {mode: full}
+    executor: ecs_task
+    entrypoint: sql/daily_sales.sql
+    runtime_environment: {environment_id: sql-demo, version: v1}
+    resource_profile: sql_ecs_medium
+    input_mode: local_files
+    timeout_seconds: 3600
+    max_attempts: 3
+    depends_on: [clean_orders, score_orders]
+    inputs:
+      orders: {task: clean_orders, selection: snapshot}
+      scores: {task: score_orders, selection: snapshot}
+    output:
+      dataset: dws.daily_sales
+      write_mode: versioned_replace
+      key_columns: [order_date]
+      allow_empty: true
+      schema:
+        - {name: order_date, type: DATE, nullable: false}
+        - {name: revenue, type: "DECIMAL(38,2)", nullable: false}
+        - {name: order_count, type: BIGINT, nullable: false}
+        - {name: high_value_count, type: BIGINT, nullable: false}
+  - task_id: dashboard
+    language: sql
+    processing: {mode: full}
+    executor: writer
+    entrypoint: sql/dashboard.sql
+    resource_profile: writer_short
+    timeout_seconds: 30
+    max_attempts: 3
+    depends_on: [daily_sales]
+    inputs:
+      daily: {task: daily_sales, selection: snapshot}
+    output:
+      dataset: ads.dashboard
+      write_mode: versioned_replace
+      key_columns: [order_date]
+      allow_empty: true
+      schema:
+        - {name: order_date, type: DATE, nullable: false}
+        - {name: revenue, type: "DECIMAL(38,2)", nullable: false}
+        - {name: order_count, type: BIGINT, nullable: false}
+        - {name: high_value_count, type: BIGINT, nullable: false}

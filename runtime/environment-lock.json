@@ -1,0 +1,15 @@
+{
+  "base_image": "public.ecr.aws/lambda/python@sha256:9672c8fa29ab0fc33c5b2b22ffe91e99c075d6fc67cc606fcd702a8adee3c5a8",
+  "python_version": "3.12.15",
+  "python_abi": "cp312",
+  "architecture": "arm64",
+  "platform": "linux_arm64",
+  "maximum_wheel_bytes": 536870912,
+  "maximum_image_bytes": 1073741824,
+  "maximum_packages": 128,
+  "build_profile": "binary_wheels",
+  "approved_index": "https://pypi.org/simple",
+  "builder_image": "aws/codebuild/amazonlinux-aarch64-standard:3.0-26.10.06",
+  "approved_licenses": ["Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC", "MIT", "MPL-2.0", "PSF-2.0"],
+  "approved_license_classifiers": ["License :: OSI Approved :: Apache Software License", "License :: OSI Approved :: BSD License", "License :: OSI Approved :: ISC License (ISCL)", "License :: OSI Approved :: MIT License", "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)", "License :: OSI Approved :: Python Software Foundation License"]
+}

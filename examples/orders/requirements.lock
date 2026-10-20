@@ -1,0 +1,12 @@
+# Python 3.12 / Linux arm64; resolved 2026-10-15.
+# Exact downloaded wheel hashes; regenerate for a different ABI or architecture.
+-r ../../runtime/contracts-requirements.lock
+duckdb==1.5.2 --hash=sha256:ce0b8141a10d37ecef729c45bc41d334854013f4389f1488bd6035c5579aaac1
+numpy==2.2.6 --hash=sha256:f2618db89be1b4e05f7a1a847a9c1c0abd63e63a1607d892dd54668dd92faf87
+pandas==2.2.3 --hash=sha256:5de54125a92bb4d1c051c0659e6fcb75256bf799a732a87184e5ea503965bce3
+pyarrow==24.0.0 --hash=sha256:1617043b99bd33e5318ae18eb2919af09c71322ef1ca46566cdafc6e6712fb66
+python-dateutil==2.9.0.post0 --hash=sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427
+pytz==2026.5 --hash=sha256:e658af3757f9e26a9d25dd2aff38335acd92bc9104f890a894b2c1ba28311b03
+pyyaml==6.0.1 --hash=sha256:a08c6f0fe150303c1c6b71ebcd7213c2858041a7e01975da3a99aed1e7a378ef
+six==1.17.0 --hash=sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274
+tzdata==2026.5 --hash=sha256:b683bd1b6659ddcd810ff02ad09ba821d4bf1065072805063eb35c49617905ac

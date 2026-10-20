@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "bd027f24-05c1-48be-a1a7-c815e1718b87",
+  "status": "current",
+  "command": "deliver",
+  "type": "architecture",
+  "input": "/home/ubuntu/my/cove-duckdb/docs/design/architecture.json",
+  "output": "/home/ubuntu/my/cove-duckdb/docs/design/architecture.html",
+  "specification": {
+    "sha256": "7817c7a2b1de335599f9fed5c0236f71ed610ced1b0273c5f6915aae4ff830f8",
+    "bytes": 7782
+  },
+  "artifact": {
+    "sha256": "b1d1ce153a67bb0a004cc70ba2c76b6cdf78402bd7601922e0f016cfe74328c6",
+    "bytes": 837023
+  }
+}

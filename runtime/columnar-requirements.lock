@@ -1,0 +1,2 @@
+# Python 3.12 / Linux arm64 Parquet export; wheel verified in the orders closure.
+pyarrow==24.0.0 --hash=sha256:1617043b99bd33e5318ae18eb2919af09c71322ef1ca46566cdafc6e6712fb66

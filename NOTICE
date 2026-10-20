@@ -1,0 +1,17 @@
+Cove DuckDB
+Copyright 2026 Cove DuckDB contributors
+
+This repository contains the Cove DuckDB source code, product
+documentation, engineering designs, and original brand assets,
+licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party components keep their own licenses. See
+THIRD_PARTY_NOTICES.md for the native storage stack, the Python
+distributions bundled in the release artifacts, and the generated
+architecture viewer.
+
+Generated interactive architecture viewers include Archify runtime code:
+Copyright (c) 2026 tt-a1i (Archify)
+Copyright (c) 2025 Cocoon AI
+These portions retain their MIT license. See THIRD_PARTY_NOTICES.md
+and third_party/archify.LICENSE.
