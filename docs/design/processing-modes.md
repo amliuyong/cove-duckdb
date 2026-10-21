@@ -1,8 +1,8 @@
 # 每个任务独立选择增量、分区重算或全量
 
-适用版本：1.0.0。处理模式是任务级配置，SQL/Python、Lambda/ECS 都适用。模式不会由平台仅根据 SQL 中出现 GROUP BY 或 agg 自动推断。
+适用版本：1.1.0。处理模式是任务级配置，SQL/Python、Lambda/ECS 都适用。模式不会由平台仅根据 SQL 中出现 GROUP BY 或 agg 自动推断。
 
-[机器合同 v1](../../src/cove_duckdb/contracts/v1/contracts.schema.json) 批准 full + versioned_replace、源版本/键状态 incremental + merge_keys、partition_recompute + replace_partitions。1.0.0 尚未定义增量生成完整镜像或通用聚合状态所需的完整状态输入/输出合同，发布校验拒绝未批准的组合。
+[机器合同 v1](../../src/cove_duckdb/contracts/v1/contracts.schema.json) 批准 full + versioned_replace、源版本/键状态 incremental + merge_keys、partition_recompute + replace_partitions。1.1.0 尚未定义增量生成完整镜像或通用聚合状态所需的完整状态输入/输出合同，发布校验拒绝未批准的组合。
 
 ## 1. 计算范围与输出更新分开定义
 
@@ -61,7 +61,7 @@ tasks:
 
 增量清洗按 `(source_version, ingestion_sequence)` 选择每个键最新事件，并与绑定的 key_state 比较。新到达的旧 source_version 不覆盖较新的业务状态。首次运行必须 full bootstrap，构建数据和版本/tombstone 状态后，才能开始增量。
 
-bootstrap 使用固定的完整事件历史与空键状态初始化；删除键也进入 tombstone 状态。无法获得完整历史或合格的初始状态时拒绝 bootstrap。代码、参数或状态 schema 改变时，使用完整重算/重新 bootstrap。1.0.0 不迁移旧状态，也不提供向后兼容；破坏性升级后按新 generation 重建状态，见[安装部署手册](../installation.md#10-破坏性升级)。多输入关联还要声明维表变更影响的事实键/分区，无法确定时采用 full 回退或失败。
+bootstrap 使用固定的完整事件历史与空键状态初始化；删除键也进入 tombstone 状态。无法获得完整历史或合格的初始状态时拒绝 bootstrap。代码、参数或状态 schema 改变时，使用完整重算/重新 bootstrap。不迁移旧状态，也不提供向后兼容；破坏性升级后按新 generation 重建状态，见[安装部署手册](../installation.md#10-破坏性升级)。多输入关联还要声明维表变更影响的事实键/分区，无法确定时采用 full 回退或失败。
 
 Python context 在普通合同基础上增加：
 
@@ -91,9 +91,9 @@ Python context 在普通合同基础上增加：
 
 allow_empty 判断更新后的实际目标/替换分区是否为空，不能据 delta 行数拒绝一个保留非空目标的 no-op。大量删除使目标变为空时，发布前仍检查空目标策略。
 
-为了保持旧 release 可读，1.0.0 先从 expected_previous_release 构建独立未发布 generation，再分块应用 UPSERT/DELETE；键状态与 tombstone 也写入该 generation 的状态账本。完整核对后，用同一发布事务切换目标指针、状态指针和处理水位。发布资格、epoch、取消和分块幂等规则仍遵循[流水线合同](pipeline-design.md)。
+为了保持旧 release 可读，1.1.0 先从 expected_previous_release 构建独立未发布 generation，再分块应用 UPSERT/DELETE；键状态与 tombstone 也写入该 generation 的状态账本。完整核对后，用同一发布事务切换目标指针、状态指针和处理水位。发布资格、epoch、取消和分块幂等规则仍遵循[流水线合同](pipeline-design.md)。
 
-这意味着增量计算不等于增量物理写入：复制上一 generation、导出固定输入和物化结果仍有成本，必须测量并计入调度预算。不能承诺每次仅写变更行。1.0.0 不使用 overlay / copy-on-write 等未验证的增量存储机制；采用它们需要单独设计读取、整理和回收语义。
+这意味着增量计算不等于增量物理写入：复制上一 generation、导出固定输入和物化结果仍有成本，必须测量并计入调度预算。不能承诺每次仅写变更行。1.1.0 不使用 overlay / copy-on-write 等未验证的增量存储机制；采用它们需要单独设计读取、整理和回收语义。
 
 ## 5. 聚合如何选择
 

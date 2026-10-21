@@ -1,6 +1,6 @@
 # Cove DuckDB 安装部署手册
 
-本手册跟随当前源码，面向在自己的 AWS 账号和商业区域（partition `aws`）中安装和运维 Cove DuckDB 的运维人员，涵盖以下内容：
+本手册适用于 1.1.0，面向在自己的 AWS 账号和商业区域（partition `aws`）中安装和运维 Cove DuckDB 的运维人员，涵盖以下内容：
 
 - 准备部署主机与原生存储镜像；
 - 构建 release；
@@ -16,7 +16,7 @@
 部署主机满足第 3 节的前置条件，账号中也已有原生存储镜像（第 4 节）时，仓库根目录的 `install.sh` 可以用一条命令完成第 3.4 节到第 8 节的工作：
 
 ```bash
-git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git checkout --detach origin/main
+git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git checkout --detach v1.1.0
 ./install.sh fresh --environment prod --account <12 位账号 ID> --region <目标区域> \
   --space sales_prod --token-output /secure/path/sales_prod-admin.token
 ```
@@ -45,16 +45,16 @@ git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git 
 
 ## 1. 支持范围
 
-| 维度 | 已发布 tag 与当前源码 |
+| 维度 | 1.1.0 |
 | --- | --- |
 | AWS 账号 | 任意单个账号。账号 ID 不写在源码中：服务由栈注入 `COVE_ACCOUNT`，运维工具以 `COVE_ACCOUNT` 为准，并与当前凭证核对 |
-| 区域 | tag `v1.0.0` 固定为 `us-west-2`；当前源码按显式配置部署到标准商业分区 `aws`。`us-east-2` 已完成全部功能验收，`us-west-2` 已完成回归；其他商业区域未单独验收。源码身份与验收范围见[发行说明](release-notes.md#changes-after-100) |
+| 区域 | 按显式配置（`--region` / `COVE_REGION` / `AWS_REGION`）部署到标准商业分区 `aws`。`us-east-2` 已完成全部功能验收，`us-west-2` 已完成回归；其他商业区域未单独验收。验收源码与范围见[发行说明](release-notes.md#验收)。tag `v1.0.0` 只支持 `us-west-2` |
 | CPU 架构 | ARM64（Graviton）：写者、查询、计算 Task、Lambda、运行环境构建都只构建 ARM64 |
 | 规格 | 写者与查询服务各为 ECS Fargate 2 vCPU / 4 GiB，见[发行说明](release-notes.md#规格) |
 
-1.0.0 已在一个 AWS 账号中完成安装、使用、备份还原、升级和卸载的实际验收。其他账号只是代码层面支持（账号由部署环境决定），没有单独验收。
+安装、使用、备份还原、升级和卸载已在一个 AWS 账号中实际验收。其他账号只是代码层面支持（账号由部署环境决定），没有单独验收。
 
-当前区域实现于 2026-10-21 在同一账号的 `us-east-2` 与 `us-west-2` 中验收。东区完成全新安装、56 项功能 UAT、同区域备份与隔离还原、不同源码升级、中断部署后的同一制品重部署及卸载；西区完成全新安装、功能回归、同名环境的区域隔离检查与卸载。区域前置条件见[§3.3](#33-区域前置条件)；中国区、GovCloud 与隔离分区不在范围内。
+区域实现于 2026-10-21 在同一账号的 `us-east-2` 与 `us-west-2` 中验收。东区完成全新安装、56 项功能 UAT、同区域备份与隔离还原、不同源码升级、中断部署后的同一制品重部署及卸载；西区完成全新安装、功能回归、同名环境的区域隔离检查与卸载。区域前置条件见[§3.3](#33-区域前置条件)；中国区、GovCloud 与隔离分区不在范围内。
 
 ## 2. 部署组成
 
@@ -180,8 +180,8 @@ docker pull $COVE_ACCOUNT.dkr.ecr.$COVE_REGION.amazonaws.com/cove-duckdb-images@
 
 ```bash
 git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb
-git checkout --detach origin/main
-COVE_ACCOUNT=$COVE_ACCOUNT /tmp/cove-build/bin/python scripts/build_product.py --output /path/outside/repo/release-1.0.0
+git checkout --detach v1.1.0
+COVE_ACCOUNT=$COVE_ACCOUNT /tmp/cove-build/bin/python scripts/build_product.py --output /path/outside/repo/release-1.1.0
 ```
 
 `build_product.py` 只接受干净的工作区，依次构建并测试：
@@ -202,7 +202,7 @@ release 目录中的 `manifest.json` 记录以下内容，任何一项失败都�
 
 `COVE_ACCOUNT` 只用于在本机找到存储镜像。套件本身使用固定的测试账号 `123456789012`，不访问 AWS。
 
-当前源码的写者和查询镜像都安装 hash 锁定的 pyarrow 24.0.0；查询镜像用它批量装载写者提供的快照，构建时核对版本和原生类型测试。此变更不修改已发布的 `v1.0.0` 镜像，见[发行说明](release-notes.md#changes-after-100)。
+1.1.0 的写者和查询镜像都安装 hash 锁定的 pyarrow 24.0.0；查询镜像用它批量装载写者提供的快照，构建时核对版本和原生类型测试，见[发行说明](release-notes.md#110-的变更)。
 
 ## 6. 全新安装
 
@@ -210,7 +210,7 @@ release 目录中的 `manifest.json` 记录以下内容，任何一项失败都�
 
 ```bash
 $COVE /tmp/cove-build/bin/python scripts/aws/install.py fresh \
-  --release /path/outside/repo/release-1.0.0 --output /path/outside/repo/receipts/install-<name>
+  --release /path/outside/repo/release-1.1.0 --output /path/outside/repo/receipts/install-<name>
 ```
 
 `fresh` 依次执行以下步骤。每一步调用仓库自己的部署工具，回执写入 `--output` 下的独立子目录：
@@ -318,9 +318,9 @@ $COVE /tmp/cove-build/bin/python scripts/aws/admission.py timing --timing on|off
 
 ## 10. 破坏性升级
 
-本次区域化改变了运行时 IAM 命名空间。已有 tag `v1.0.0` 环境需先用该版本的工具备份并卸载，再从当前源码全新安装，按当前合同重新生成数据。下面的 `upgrade` 流程用于运行时命名空间相同的源码版本之间升级。
+1.1.0 的区域化改变了运行时 IAM 命名空间。已有 tag `v1.0.0` 环境需先用该版本的工具备份并卸载，再用 1.1.0 全新安装，按当前合同重新生成数据。下面的 `upgrade` 流程用于运行时命名空间相同的源码版本之间升级。
 
-1.0.0 不提供向后兼容、旧数据自动迁移或零停机升级。升级步骤：
+各版本不提供向后兼容、旧数据自动迁移或零停机升级。升级步骤：
 
 ```bash
 # 在新版本的干净检出中构建新 release（第 5 节），然后：

@@ -1,8 +1,8 @@
-# Cove DuckDB 1.0.0 UAT 测试用例
+# Cove DuckDB UAT 测试用例
 
-本文定义 1.0.0 发行前的用户验收测试（UAT）。每个用例都按[安装部署手册](../installation.md)和[用户手册](../user-guide.md)中写明的操作执行，并给出明确的判定标准。
+本文定义发行前的用户验收测试（UAT），自 1.0.0 起适用。每个用例都按[安装部署手册](../installation.md)和[用户手册](../user-guide.md)中写明的操作执行，并给出明确的判定标准。
 
-执行结果记录在 UAT 报告中，随 [GitHub Release](https://github.com/amliuyong/cove-duckdb/releases/tag/v1.0.0) 发布。
+执行结果记录在 UAT 报告中，随各版本的 [GitHub Release](https://github.com/amliuyong/cove-duckdb/releases) 发布；1.1.0 的区域验收范围见[发行说明](../release-notes.md#验收)。
 
 ## 1. 范围
 
@@ -25,7 +25,7 @@ UAT 只包含功能用例，**默认不执行性能测试**。性能与容量测
 | A | 功能用例 | 按手册执行 `./install.sh fresh`，并通过 `--` 加上只用于鉴定的 `--writer-probe-space`：它为一个 `probe_*` 空间开放只读的原生观测接口，用来独立核对提交结果，不改变产品行为 |
 | B | 全新安装、quickstart、隔离还原、升级 / 重新部署、卸载 | 严格按手册执行 `./install.sh fresh`，不加任何鉴定选项 |
 
-两套环境位于同一账号、同一区域（`us-west-2`），使用同一份 1.0.0 release。浏览器用例使用 Chromium 148（Playwright 1.60.0）。
+两套环境位于同一账号、同一区域，使用同一份 release（1.0.0 在 `us-west-2` 执行；1.1.0 的全部功能用例在 `us-east-2` 执行，所用源码与 1.1.0 的运行时代码相同，见[发行说明](../release-notes.md#验收)）。浏览器用例使用 Chromium 148（Playwright 1.60.0）。
 
 ## 3. 判定规则
 

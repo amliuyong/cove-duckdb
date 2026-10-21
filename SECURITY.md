@@ -1,6 +1,6 @@
 # Security
 
-Security fixes are made for the latest release (currently 1.0.0). The deployment security model is summarized in the [installation guide](docs/installation.md#13-安全要点).
+Security fixes are made for the latest release (currently 1.1.0). The deployment security model is summarized in the [installation guide](docs/installation.md#13-安全要点).
 
 Please do not put API Keys, cloud credentials, private data, or exploit details in ordinary issues or pull requests.
 

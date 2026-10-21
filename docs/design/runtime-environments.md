@@ -1,6 +1,6 @@
 # Python 包依赖与运行环境
 
-适用版本：1.0.0。环境由固定源码的 CodeBuild 构建，通过环境 API 管理，绑定 Lambda 数字版本或 ECS 任务定义 revision；依赖升级生成新的环境版本，不合格的依赖在构建时拒绝。流水线按本文绑定环境运行，使用方式见[用户手册](../user-guide.md)。Lambda Managed Instances 与 Durable Functions profile 尚未实现。
+适用版本：1.1.0。环境由固定源码的 CodeBuild 构建，通过环境 API 管理，绑定 Lambda 数字版本或 ECS 任务定义 revision；依赖升级生成新的环境版本，不合格的依赖在构建时拒绝。流水线按本文绑定环境运行，使用方式见[用户手册](../user-guide.md)。Lambda Managed Instances 与 Durable Functions profile 尚未实现。
 
 ## 1. 包依赖属于发布版本
 
@@ -28,7 +28,7 @@ pyarrow==24.0.0
 
 也可在草稿中使用批准的版本范围；解析结果必须锁定到精确版本和 hash 后才能发布。平台检查依赖冲突、Python ABI、架构、许可/来源策略、镜像大小以及 executor/profile 的可用性。
 
-当前批准 profile 只使用二进制 wheel，公共索引为 PyPI，私有包是服务器批准的 S3 VersionId/hash。不接受源码包、系统库构建或私有索引 URL；1.0.0 没有提供这些能力的 profile。私有对象权限只授予可信构建角色，隔离解析容器不接收 AWS 凭证，执行角色不能读取私有 wheel。
+当前批准 profile 只使用二进制 wheel，公共索引为 PyPI，私有包是服务器批准的 S3 VersionId/hash。不接受源码包、系统库构建或私有索引 URL；1.1.0 没有提供这些能力的 profile。私有对象权限只授予可信构建角色，隔离解析容器不接收 AWS 凭证，执行角色不能读取私有 wheel。
 
 纯 Python 与 pandas/NumPy 这样的 native 包都必须针对目标 Python 和 Linux/CPU 架构构建。不能把本地 macOS virtualenv 直接上传 Lambda，也不能将 amd64 锁文件无条件用于 arm64。
 
@@ -49,7 +49,7 @@ API 中无法确认的构建观测显示 UNKNOWN，按原 build identity 核对�
 
 发布先确保所有不可变构建产物可读，再更新 DDB 中的环境 READY 记录。流水线发布原子绑定已 READY 的环境及具体执行配置；不在启动作业时才首次解析依赖。
 
-当前运行/回填仍有效时，其引用的镜像和函数版本不能回收。破坏性升级先失效旧定义/运行，再清理旧环境；1.0.0 不提供跨产品版本回滚或旧环境迁移，见[安装部署手册](../installation.md#10-破坏性升级)。
+当前运行/回填仍有效时，其引用的镜像和函数版本不能回收。破坏性升级先失效旧定义/运行，再清理旧环境；不提供跨产品版本回滚或旧环境迁移，见[安装部署手册](../installation.md#10-破坏性升级)。
 
 ## 4. Lambda 包装
 
@@ -59,7 +59,7 @@ API 中无法确认的构建观测显示 UNKNOWN，按原 build identity 核对�
 
 普通 Lambda 当前配额为单次最多 900 秒、内存最多 10,240 MB，/tmp 为 512–10,240 MB。容器镜像最大未压缩大小为 10 GB。ZIP/Layers 可用于轻量环境：完整未压缩部署包含 Layers 上限为 250 MB，每个函数最多 5 个 Layers；Layers 必须绑定数字版本。
 
-Lambda Managed Instances 异步入口的执行上限可到 5,400 秒，但其执行环境、成本与超时后继续运行的行为不同；必须使用明确、单独校验的 profile，1.0.0 尚未提供该 profile。不能因环境包相同就假定 standard / managed_instances / durable 的生命周期相同。
+Lambda Managed Instances 异步入口的执行上限可到 5,400 秒，但其执行环境、成本与超时后继续运行的行为不同；必须使用明确、单独校验的 profile，1.1.0 尚未提供该 profile。不能因环境包相同就假定 standard / managed_instances / durable 的生命周期相同。
 
 版本记录绑定 Lambda 已发布数字版本。环境构建/代码发布时生成或更新受控函数，记录部署 receipt；调用任务时不依赖可变的 `$LATEST` 或任意 alias。
 

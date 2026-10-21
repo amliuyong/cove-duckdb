@@ -7,7 +7,7 @@ This repository contains Cove DuckDB: the product services (API, intake, writer,
 3. Cite primary sources for upstream capabilities. Separate implemented behavior, proposed behavior and validation results.
 4. Do not include credentials, API Keys, customer data, AWS account IDs, role names or deployment identifiers.
 
-1.0.0 makes no backward-compatibility commitment: a change may alter contracts or storage formats when the release notes and the [installation guide](docs/installation.md#10-破坏性升级) describe the upgrade.
+Releases make no backward-compatibility commitment: a change may alter contracts or storage formats when the release notes and the [installation guide](docs/installation.md#10-破坏性升级) describe the upgrade.
 
 ## Local validation
 

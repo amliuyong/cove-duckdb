@@ -1,4 +1,4 @@
-# Cove DuckDB 1.0.0 用户手册
+# Cove DuckDB 1.1.0 用户手册
 
 本手册面向应用开发者、数据工程师和分析人员，说明如何在一个已安装的 Cove DuckDB 环境中工作：
 
@@ -12,7 +12,7 @@
 安装、升级、开通空间、备份还原与卸载属于运维工作，见[安装部署手册](installation.md)。每个路由、字段和错误码的完整定义见 [API 合同](design/api-contract.md)。规格、支持矩阵和已知限制见[发行说明](release-notes.md)。想先跑通一遍完整流程，可以运行 [quickstart](../examples/quickstart/README.md)。
 
 
-当前源码由安装环境指定标准 AWS 商业区域；使用者继续使用该环境的 API / Web 地址。2026-10-21 的源码验收覆盖 `us-east-2` 全部 56 项功能 UAT 与 `us-west-2` 回归，其他商业区域未单独验收。账号、区域、镜像和备份库前置条件见[安装手册](installation.md#33-区域前置条件)，源码身份与实际验收范围见[发行说明](release-notes.md#changes-after-100)。
+1.1.0 的区域由安装环境指定，为标准 AWS 商业区域；使用者继续使用该环境的 API / Web 地址。验收覆盖 `us-east-2` 全部 56 项功能 UAT 与 `us-west-2` 回归，其他商业区域未单独验收。账号、区域、镜像和备份库前置条件见[安装手册](installation.md#33-区域前置条件)，实际验收范围见[发行说明](release-notes.md#验收)。
 
 ## 目录
 
@@ -646,7 +646,7 @@ curl -s "$COVE_API_URL/v1/spaces/$COVE_SPACE/ingestions/<ingestion_id>" \
 
 - `authority` 说明结果来源：`NATIVE_LEDGER`（数据库账本，权威）、`PROJECTION`（状态投影，可能滞后）或 `UNAVAILABLE`。
 - `observed_at` 和 `projection_version` 是该观测的时间和版本；状态投影可能滞后于实际提交。
-- 1.0.0 中这个接口只报告 ODS 的提交：`publication.status` 始终为 `NOT_PUBLISHED`，`dwd`、`dws`、`ads` 三层为 `NOT_IMPLEMENTED`。下游加工进度请看流水线运行状态（[8.11 节](#811-运行)）或 Admin Console 的诊断页。
+- 1.1.0 中这个接口只报告 ODS 的提交：`publication.status` 始终为 `NOT_PUBLISHED`，`dwd`、`dws`、`ads` 三层为 `NOT_IMPLEMENTED`。下游加工进度请看流水线运行状态（[8.11 节](#811-运行)）或 Admin Console 的诊断页。
 
 ### 5.6 背压
 
@@ -1033,7 +1033,7 @@ curl -s -X POST "$COVE_API_URL/v1/spaces/$COVE_SPACE/queries/<query_id>/cancel" 
 - **提交后读取经由写者。** `after_write` / `after_ingestion` 由写者确认回执已提交后，在写者进程内复制快照。结果至少包含该提交，也可能包含之后已提交的更新或删除；它不是该提交时刻的历史快照，也不等待下游流水线。
   - `after_write` 只允许写入的原 principal，或同时持有 `datasets:manage` 的 Key；`after_ingestion` 只允许接入的原 principal，或同时持有 `monitor:read` 的 Key。
   - 回执尚未确认提交时以 `COMMIT_RECEIPT_UNCONFIRMED` 失败（`after_ingestion` 请在接入状态为 `COMMITTED` 后再提交）；同步写被拒绝时以 `COMMIT_RECEIPT_NOT_COMMITTED` 失败；没有可用的写者时以 `QUERY_SOURCE_NOT_READY` 失败；复制回复丢失时以 `QUERY_SOURCE_UNCONFIRMED` 失败，不会自动重读。
-  - 当前源码的快照上限为全部引用数据集合计 100,000 行、2 MiB，复制预算 5 秒。复制前在同一读事务中检查行数及保守的 JSON 字节估算（包含 Unicode 转义、schema/版本信息和类型格式开销）；超出时以 `QUERY_SOURCE_QUOTA` 失败。查询沙箱按 Arrow 批次装载并保留精确类型。复制超时返回 `QUERY_SOURCE_TIMEOUT`，查询自身的期限仍由 `timeout_ms` 控制。tag `v1.0.0` 仍使用逐行装载，当前源码的修复与验证边界见[发行说明](release-notes.md#changes-after-100)。
+  - 快照上限为全部引用数据集合计 100,000 行、2 MiB，复制预算 5 秒。复制前在同一读事务中检查行数及保守的 JSON 字节估算（包含 Unicode 转义、schema/版本信息和类型格式开销）；超出时以 `QUERY_SOURCE_QUOTA` 失败。查询沙箱按 Arrow 批次装载并保留精确类型。复制超时返回 `QUERY_SOURCE_TIMEOUT`，查询自身的期限仍由 `timeout_ms` 控制。1.0.0 逐行装载快照，万行级表会超时；1.1.0 的变更与验收见[发行说明](release-notes.md#110-的变更)。
 - `release_id`、`write_id`、`ingestion_id` 三者互斥，并且分别只能用于 `published`、`after_write`、`after_ingestion`；组合错误的请求在提交时以 `400 INVALID_QUERY_REQUEST` 拒绝。
 
 ### 7.8 暂存、超时与结果配额
@@ -1651,7 +1651,7 @@ operator 只使用 Python 标准库调用公开 API，不需要 AWS 凭证。
 
 ## 9. Query Editor
 
-Query Editor 是浏览器中的只读 SQL 工作台，调用第 7 节的查询 API。地址为 `<WebUrl>/`。1.0.0 在 Chromium 148 中验证。
+Query Editor 是浏览器中的只读 SQL 工作台，调用第 7 节的查询 API。地址为 `<WebUrl>/`。在 Chromium 148 中验证。
 
 ### 9.1 连接
 
@@ -1844,7 +1844,7 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 
 ## 11. 限制与配额汇总
 
-以下为 1.0.0 的准入上限，不是性能承诺。规格与实测基线见[发行说明](release-notes.md)和[性能报告](performance.md)。
+以下为 1.1.0 的准入上限，不是性能承诺。规格与实测基线见[发行说明](release-notes.md)和[性能报告](performance.md)。
 
 | 领域 | 项目 | 上限 |
 | --- | --- | --- |
@@ -2028,7 +2028,7 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 直接表没有 release。把读取方式改为“当前状态”（`current`），或在同步写之后用 `after_write`。
 
 **after_write 查询以 QUERY_TIMEOUT 失败。**
-tag `v1.0.0` 的逐行装载会造成万行级超时；当前源码使用批量装载并在复制前检查配额。仍以 `QUERY_TIMEOUT` 失败时，核对查询的 `timeout_ms` 与写者负载。超过快照配额时，减少引用的数据集，或在可以接受读者可见版本时使用 `current`。
+1.1.0 使用批量装载并在复制前检查配额（1.0.0 的逐行装载会造成万行级超时）。仍以 `QUERY_TIMEOUT` 失败时，核对查询的 `timeout_ms` 与写者负载。超过快照配额时，减少引用的数据集，或在可以接受读者可见版本时使用 `current`。
 
 **查询以 QUERY_STAGING_LIMIT 失败，但 SQL 带了 WHERE 条件。**
 暂存按 SQL 引用的数据集的全部行计算，与 `WHERE` 无关。改为查询已聚合的 DWS / ADS 数据集，或用流水线预先缩小数据。
