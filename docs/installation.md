@@ -315,6 +315,8 @@ $COVE /tmp/cove-build/bin/python scripts/aws/admission.py timing --timing on|off
 
 ## 10. 破坏性升级
 
+本次区域化改变了运行时 IAM 命名空间。已有 tag `v1.0.0` 环境需先用该版本的工具备份并卸载，再从当前源码全新安装，按当前合同重新生成数据。下面的 `upgrade` 流程用于运行时命名空间相同的源码版本之间升级。
+
 1.0.0 不提供向后兼容、旧数据自动迁移或零停机升级。升级步骤：
 
 ```bash
