@@ -255,6 +255,7 @@
 - **常驻部分**：写者与查询两个 ARM Fargate Task（各 2 vCPU / 4 GiB），合计约 0.158 USD/小时，30 天约 114 USD。
 - **计量部分**：产品自身的成本报告（测量窗口 4.9 小时）中，已计量工作负载共 0.0956 USD：写者计算 0.0793、查询计算 0.0157、Lambda 0.0005；S3 请求和存储在报告精度下为 0。
 - **不计价**：NAT、ALB、VPC 端点、API Gateway、CloudFront、DynamoDB、SQS、CloudWatch、数据传输、SlateDB 原生存储、接入归档与暂存对象。这些费用取决于账号已有的设施和流量。
+- 包含上述各项的每月粗估（按数据档位）见[成本估算](cost-estimate.md)。
 
 ## 未运行或未验证
 
