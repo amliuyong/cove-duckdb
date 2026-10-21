@@ -71,8 +71,8 @@ class ExecutionWorkspace(unittest.TestCase):
         while time.monotonic() < deadline:
             try:
                 value = process.read_text()
-            except FileNotFoundError:
-                return
+            except (FileNotFoundError, ProcessLookupError):
+                return  # Reaped before open, or between open and read (ESRCH).
             fields = value[value.rfind(')') + 2:].split()
             if fields[19] != original["start_ticks"] or fields[0] == "Z":
                 return  # Original is dead; a reused PID is another process.
