@@ -121,7 +121,7 @@ class ProcessBoundary(unittest.TestCase):
             while time.monotonic() < deadline:
                 try:
                     stat = Path("/proc/" + str(child) + "/stat").read_text()
-                except FileNotFoundError:
+                except (FileNotFoundError, ProcessLookupError):
                     break
                 if stat[stat.rfind(")") + 2:].split()[0] == "Z":
                     break
