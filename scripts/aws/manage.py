@@ -19,11 +19,13 @@ import boto3
 from botocore.exceptions import ClientError
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT))
+sys.path[:0] = [str(ROOT), str(ROOT / "src")]
 from infra.names import names
 from infra.template import template
 
-REGION = "us-west-2"
+from cove_duckdb.region import region
+
+REGION = region()
 REPOSITORY = "cove-duckdb-images"
 # One environment per process, named by the required COVE_ENVIRONMENT.
 STACKS = names()

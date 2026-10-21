@@ -4,7 +4,7 @@
 
 ## 1. 前提
 
-- **区域**：1.0.0 只支持 `us-west-2`（见[发行说明](release-notes.md#支持矩阵)）。本文用的单价取自 us-east-1，这些服务在 us-east-1 和 us-west-2 的公开单价基本相同，所以估算结果对两个区域都适用。
+- **区域**：本文保留已发布 `v1.0.0` 的静态预算参考，单价取自 `us-east-1`；该 tag 只在 `us-west-2` 完成验收（见[发行说明](release-notes.md#已发布-v100-的支持矩阵)）。当前源码的成本接口使用实际部署区域的价目表，缺少价目表时返回 `UNKNOWN`；实际区域与取价规则见[用户手册](user-guide.md#108-配额与成本)。其他区域应按当地单价重新估算。
 - **规格**：[发行规格](release-notes.md#规格)，写者与查询各为 ARM Fargate Task（2 vCPU / 4 GiB）。
 - **不包含**：
   - 免费额度、Savings Plans（Fargate 与 Lambda 通常可省 20–50%）、税费与支持计划；

@@ -2097,7 +2097,8 @@
   function renderCosts(value) {
     const prices = value.prices || {};
     $("cost-meta").replaceChildren(badge(value.status),
-      text("span", "估算：实测用量 × 公开单价（" + display(prices.retrieved) + "）"), text("span", "basis " + value.basis),
+      text("span", value.status === "UNKNOWN" ? "区域价目表不可用，成本未知。" :
+        "估算：实测用量 × 公开单价（" + display(prices.retrieved) + "）"), text("span", "basis " + value.basis),
       text("span", display(prices.region) + " · " + display(prices.currency)),
       text("span", "区间 " + value.since + " — " + value.until), text("span", "观测 " + value.observed_at));
     $("cost-totals").replaceChildren(heading("合计（USD）"), table([

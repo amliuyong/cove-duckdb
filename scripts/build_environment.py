@@ -24,7 +24,9 @@ from cove_duckdb.account import account
 from cove_duckdb.control.registry import canonical
 from cove_duckdb.control.pipelines import DEFINITION_EPOCH
 
-REGION = "us-west-2"
+from cove_duckdb.region import region
+
+REGION = region()
 
 
 def sha(path):
@@ -407,6 +409,8 @@ def publish_executors(session, specification, identity, tags, output, *, sql=Fal
         runtimePlatform={"cpuArchitecture": "ARM64", "operatingSystemFamily": "LINUX"},
         containerDefinitions=[{
             "name": "runtime", "image": images["ecs_task"], "essential": True,
+            "environment": [{"name": name, "value": REGION} for name in [
+                "COVE_REGION", "AWS_REGION", "AWS_DEFAULT_REGION"]],
             "user": "10001:10001", "readonlyRootFilesystem": True,
             "mountPoints": [{"sourceVolume": "work", "containerPath": "/tmp", "readOnly": False}],
             "logConfiguration": {"logDriver": "awslogs", "options": {

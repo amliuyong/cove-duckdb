@@ -11,6 +11,8 @@ from functools import lru_cache
 
 import boto3
 
+from cove_duckdb.region import region
+
 
 @lru_cache(maxsize=1)
 def services():
@@ -28,9 +30,9 @@ def services():
     from .writer_client import WriterClient
 
     options = Config(connect_timeout=3, read_timeout=10, retries={"total_max_attempts": 2})
-    client = boto3.client("dynamodb", config=options)
-    s3 = boto3.client("s3", config=options)
-    lam = boto3.client("lambda", config=Config(connect_timeout=3, read_timeout=28, retries={"total_max_attempts": 1}))
+    client = boto3.client("dynamodb", region_name=region(), config=options)
+    s3 = boto3.client("s3", region_name=region(), config=options)
+    lam = boto3.client("lambda", region_name=region(), config=Config(connect_timeout=3, read_timeout=28, retries={"total_max_attempts": 1}))
     table, bucket = os.environ["COVE_CONTROL_TABLE"], os.environ["COVE_DATA_BUCKET"]
     registry, keys, quotas = Registry(client, table, bucket), KeyStore(client, table), Quotas(client, table)
     ownership = Ownership(client, table)
@@ -39,7 +41,7 @@ def services():
     pipelines = Pipelines(registry, PipelineArtifacts(s3, bucket), None, keys)
     runs = Runs(pipelines, keys, writer, None, None)
     ledger = Ledger(ownership, lam, os.environ["COVE_WRITER_CONTROL_FUNCTION"], os.environ["COVE_WRITER_SOURCE_COMMIT"])
-    admission = Admission(boto3.client("sqs", config=options), boto3.client("cloudwatch", config=options), ledger,
+    admission = Admission(boto3.client("sqs", region_name=region(), config=options), boto3.client("cloudwatch", region_name=region(), config=options), ledger,
                           os.environ["COVE_INGRESS_QUEUE"], os.environ["COVE_DLQ"])
     return Collector(Retention(registry, keys, runs), writer, s3, bucket, admission, ledger, quotas)
 

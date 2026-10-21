@@ -14,7 +14,7 @@ from botocore.exceptions import ClientError
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(Path(__file__).parent)]
 from infra.environments import template
-from manage import ACCOUNT, STACKS, encode, outputs, owned_stack, publish_artifact, session, source, template_arguments, update_stack, wait
+from manage import REGION, ACCOUNT, STACKS, encode, outputs, owned_stack, publish_artifact, session, source, template_arguments, update_stack, wait
 from control import stopped
 
 
@@ -37,7 +37,7 @@ def lambda_image_access(current, repository, prefix, directory):
         "Principal": {"Service": "lambda.amazonaws.com"},
         "Action": ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
         "Condition": {"ArnLike": {"aws:SourceArn":
-            f"arn:aws:lambda:us-west-2:{ACCOUNT}:function:{prefix}*"}}}
+            f"arn:aws:lambda:{REGION}:{ACCOUNT}:function:{prefix}*"}}}
     existing = [x for x in previous["Statement"] if x.get("Sid") == statement["Sid"]]
     if existing and existing != [statement]:
         raise RuntimeError("ENVIRONMENT_REPOSITORY_POLICY_CHANGED")
@@ -175,7 +175,7 @@ def main():
                   runtime_log_group=live_values["RuntimeLogGroup"],
                   notification_queue_arn=live_values["PipelineEventsQueueArn"],
                   notification_queue_url=live_values["PipelineEventsQueueUrl"],
-                  runtime_log_arn=f"arn:aws:logs:us-west-2:{ACCOUNT}:log-group:{live_values['RuntimeLogGroup']}")
+                  runtime_log_arn=f"arn:aws:logs:{REGION}:{ACCOUNT}:log-group:{live_values['RuntimeLogGroup']}")
     (directory / "configuration.json").write_text(encode({"project": live_values["Project"], "policy": policy}))
     (directory / "baseline-preserved.json").write_text(encode(owned_stack(cf, STACKS["baseline"])))
     print(encode({"status": "BUILDER_DEPLOYED_NOT_ENVIRONMENT_READY", "project": live_values["Project"]}))

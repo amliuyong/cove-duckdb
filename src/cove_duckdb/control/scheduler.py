@@ -18,6 +18,7 @@ from zoneinfo import ZoneInfo
 
 import boto3
 
+from cove_duckdb.region import region
 from cove_duckdb.contracts.validation import validate_schedule
 from cove_duckdb.pipeline.task_descriptor import digest
 from .registry import ControlError
@@ -237,10 +238,10 @@ def services():
     from cove_duckdb.pipeline.task_objects import TaskObjects
 
     options = Config(connect_timeout=3, read_timeout=10, retries={"total_max_attempts": 2})
-    client = boto3.client("dynamodb", config=options)
-    s3 = boto3.client("s3", config=options.merge(Config(signature_version="s3v4")))
-    lam = boto3.client("lambda", config=Config(connect_timeout=3, read_timeout=28, retries={"total_max_attempts": 1}))
-    ecs = boto3.client("ecs", config=options)
+    client = boto3.client("dynamodb", region_name=region(), config=options)
+    s3 = boto3.client("s3", region_name=region(), config=options.merge(Config(signature_version="s3v4")))
+    lam = boto3.client("lambda", region_name=region(), config=Config(connect_timeout=3, read_timeout=28, retries={"total_max_attempts": 1}))
+    ecs = boto3.client("ecs", region_name=region(), config=options)
     table, bucket = os.environ["COVE_CONTROL_TABLE"], os.environ["COVE_DATA_BUCKET"]
     registry = Registry(client, table, bucket)
     keys = KeyStore(client, table)
@@ -263,7 +264,7 @@ def services():
     faults = Faults(client, table)
     runs = Runs(pipelines, keys, FaultyWriter(writer, faults), FaultyDispatcher(dispatcher, faults),
                 lambda space, generation: TaskObjects(s3, bucket, space, generation), quotas=quotas)
-    sqs = boto3.client("sqs", config=options) if os.environ.get("COVE_PIPELINE_EVENTS_QUEUE") else None
+    sqs = boto3.client("sqs", region_name=region(), config=options) if os.environ.get("COVE_PIPELINE_EVENTS_QUEUE") else None
     return Scheduler(runs, keys, sqs=sqs, queue=os.environ.get("COVE_PIPELINE_EVENTS_QUEUE"))
 
 

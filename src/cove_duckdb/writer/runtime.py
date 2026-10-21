@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 import boto3
 from botocore.config import Config
 
+from cove_duckdb.region import region
 from cove_duckdb.control.registry import ControlError, Registry
 from cove_duckdb.control.keys import KeyStore
 from cove_duckdb.control.http import decode_json
@@ -72,7 +73,7 @@ class Runtime:
         embedded = json.loads(Path("/opt/cove/application/cove-source.json").read_text())
         if embedded["source_commit"] != self.identity["source_commit"]:
             raise RuntimeError("Task source differs from immutable application provenance")
-        current = boto3.Session(region_name="us-west-2")
+        current = boto3.Session(region_name=region())
         if current.get_credentials().method != "container-role":
             raise RuntimeError("ECS task-role credential chain required")
         client = current.client("dynamodb", config=Config(

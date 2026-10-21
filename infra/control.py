@@ -3,8 +3,10 @@
 import json
 
 
+from cove_duckdb.region import regional
+
 def template(baseline, authorizer_id, artifact, source_commit, environment=None, pipelines=None, *, account):
-    region = "us-west-2"
+    region = "${AWS::Region}"
     writer_function = baseline.get("WriterControlFunction", "")
     tags = [{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "control"},
             {"Key": "SourceCommit", "Value": source_commit}]
@@ -16,7 +18,7 @@ def template(baseline, authorizer_id, artifact, source_commit, environment=None,
             "Tags": tags, "Policies": [{"PolicyName": "SpaceMetadata", "PolicyDocument": {
                 "Version": "2012-10-17", "Statement": [
                     {"Effect": "Allow", "Action": ["logs:CreateLogStream", "logs:PutLogEvents"],
-                     "Resource": {"Fn::Sub": "arn:aws:logs:us-west-2:${AWS::AccountId}:log-group:${Logs}:log-stream:*"}},
+                     "Resource": {"Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${Logs}:log-stream:*"}},
                     {"Effect": "Allow", "Action": ["dynamodb:GetItem", "dynamodb:PutItem",
                                                   "dynamodb:ConditionCheckItem"],
                      "Resource": f"arn:aws:dynamodb:{region}:{account}:table/{baseline['ControlTable']}",
@@ -72,7 +74,7 @@ def template(baseline, authorizer_id, artifact, source_commit, environment=None,
                 {"Effect": "Allow", "Action": ["dynamodb:GetItem"],
                  "Resource": f"arn:aws:dynamodb:{region}:{account}:table/{baseline['ControlTable']}"},
                 {"Effect": "Allow", "Action": ["logs:CreateLogStream", "logs:PutLogEvents"],
-                 "Resource": {"Fn::Sub": "arn:aws:logs:us-west-2:${AWS::AccountId}:log-group:${AuthProbeLogs}:log-stream:*"}},
+                 "Resource": {"Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${AuthProbeLogs}:log-stream:*"}},
             ]}}]}}
     resources["AuthProbe"] = {"Type": "AWS::Lambda::Function", "Properties": {
         "Runtime": "python3.12", "Architectures": ["arm64"],
@@ -151,7 +153,10 @@ def template(baseline, authorizer_id, artifact, source_commit, environment=None,
         resources[name] = {"Type": "AWS::ApiGatewayV2::Route", "Properties": {
             "ApiId": baseline["Api"], "RouteKey": key, "AuthorizationType": "CUSTOM",
             "AuthorizerId": authorizer_id, "Target": {"Fn::Sub": "integrations/${Integration}"}}}
-    return {
+    for resource in resources.values():
+        if resource["Type"] == "AWS::Lambda::Function":
+            resource["Properties"].setdefault("Environment", {}).setdefault("Variables", {})["COVE_REGION"] = {"Ref": "AWS::Region"}
+    return regional({
         "AWSTemplateFormatVersion": "2010-09-09",
         "Description": "Cove DuckDB control services on the private baseline",
         "Resources": resources,
@@ -171,7 +176,7 @@ def template(baseline, authorizer_id, artifact, source_commit, environment=None,
             "BaselineStackId": {"Value": baseline["StackId"]},
             **{name: {"Value": baseline[name]} for name in ["ControlTable", "DataBucket", "Api", "ApiUrl"]},
         },
-    }
+    })
 
 
 # Console, audit, diagnostics, quotas, costs and retention routes on the control integration.

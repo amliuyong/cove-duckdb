@@ -11,6 +11,9 @@
 
 安装、升级、开通空间、备份还原与卸载属于运维工作，见[安装部署手册](installation.md)。每个路由、字段和错误码的完整定义见 [API 合同](design/api-contract.md)。规格、支持矩阵和已知限制见[发行说明](release-notes.md)。想先跑通一遍完整流程，可以运行 [quickstart](../examples/quickstart/README.md)。
 
+
+当前源码由安装环境指定标准 AWS 商业区域；使用者继续使用该环境的 API / Web 地址。2026-10-21 的源码验收覆盖 `us-east-2` 全部 56 项功能 UAT 与 `us-west-2` 回归，其他商业区域未单独验收。账号、区域、镜像和备份库前置条件见[安装手册](installation.md#33-区域前置条件)，源码身份与实际验收范围见[发行说明](release-notes.md#changes-after-100)。
+
 ## 目录
 
 1. [概述与核心概念](#1-概述与核心概念)
@@ -1824,7 +1827,7 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 
 同一接口还报告平台的其他空间限额，例如接入背压、查询队列与结果保留。被配额拒绝的请求在产生任何效果之前就被拒绝；等待中的工作保留原身份，不会被丢弃。
 
-成本估算：`GET /v1/admin/spaces/{space_id}/costs?since=<时间>&until=<时间>`（`monitor:read`），窗口缺省为最近 24 小时，最长 7 天。结果为实测用量乘以 us-west-2 公开单价（`basis: MEASURED_USAGE_X_LIST_PRICE`），不含免费额度、折扣和税，**不是账单**：
+成本估算：`GET /v1/admin/spaces/{space_id}/costs?since=<时间>&until=<时间>`（`monitor:read`），窗口缺省为最近 24 小时，最长 7 天。结果为实测用量乘以当前环境区域的公开单价（`basis: MEASURED_USAGE_X_LIST_PRICE`），不含免费额度、折扣和税，**不是账单**：
 
 | 类别 | 计量对象 |
 | --- | --- |
@@ -1836,6 +1839,8 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 | `query_compute` | 查询的执行时间 |
 
 共享基础设施（写者与查询任务的空闲时间、负载均衡、网络、API Gateway、CloudFront 等）列在 `excluded` 中，不做分摊。无法计量的工作负载列在 `unmeasured` 中，不按零计价；有这类项目时 `status` 为 `PARTIAL`。
+
+没有当前区域的价目表时，`status` 为 `UNKNOWN`，`prices.region` 仍为当前区域；明细与合计为空，`unmeasured` 注明 `REGIONAL_PRICES_UNAVAILABLE`。这表示没有可用单价，不表示零成本。当前源码包含 `us-west-2`（2026-10-18）和 `us-east-2`（2026-10-21）从 AWS Price List API 核对的价目表，其他区域按此规则返回 `UNKNOWN`。
 
 ## 11. 限制与配额汇总
 

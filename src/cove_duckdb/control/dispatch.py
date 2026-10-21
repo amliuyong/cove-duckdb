@@ -14,6 +14,7 @@ import re
 
 from botocore.exceptions import BotoCoreError, ClientError
 
+from cove_duckdb.region import region
 from cove_duckdb.account import account
 from cove_duckdb.contracts.validation import validate
 from cove_duckdb.pipeline.task_descriptor import MAX_DESCRIPTOR_BYTES, staging_prefix
@@ -41,7 +42,7 @@ class Dispatcher:
         event = {"operation": "task_execute", "descriptor": descriptor_reference}
         validate("task_event", event)
         if not self.prefix or not re.fullmatch(
-                r"arn:aws:lambda:us-west-2:" + account() + r":function:" + re.escape(self.prefix) + r"[a-z0-9_-]+:[1-9][0-9]*",
+                r"arn:aws:lambda:" + re.escape(region()) + ":" + account() + r":function:" + re.escape(self.prefix) + r"[a-z0-9_-]+:[1-9][0-9]*",
                 binding["function_arn"]):
             raise ControlError(403, "DISPATCH_FUNCTION_NOT_APPROVED")
         try:
@@ -59,7 +60,7 @@ class Dispatcher:
         event = {"operation": "task_execute", "descriptor": descriptor_reference}
         validate("task_event", event)
         if not self.prefix or not re.fullmatch(
-                r"arn:aws:ecs:us-west-2:" + account() + r":task-definition/" + re.escape(self.prefix)
+                r"arn:aws:ecs:" + re.escape(region()) + ":" + account() + r":task-definition/" + re.escape(self.prefix)
                 + r"[a-z0-9_-]+:[1-9][0-9]*", binding["task_definition_arn"]):
             raise ControlError(403, "DISPATCH_TASK_DEFINITION_NOT_APPROVED")
         identity = token(descriptor_reference)

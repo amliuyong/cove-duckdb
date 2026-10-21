@@ -108,8 +108,7 @@ class BackupRestoreTests(unittest.TestCase):
                                   registry=SimpleNamespace(_read=lambda space: self.configuration),
                                   database=lambda configuration: native,
                                   direct=SimpleNamespace(keys=Keys(scopes)), log=lambda *arguments: None)
-        work = self.root / ("work-" + str(id(runtime)))
-        work.mkdir()
+        work = Path(tempfile.mkdtemp(prefix="work-", dir=self.root))
         return runtime, Backups(runtime, self.vault, "vault", ACCOUNT, work)
 
     def ingest(self, number):

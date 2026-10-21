@@ -9,11 +9,12 @@ from urllib.request import urlopen
 
 from botocore.exceptions import ClientError
 
+from cove_duckdb.region import region
 from cove_duckdb.account import account
 from .registry import ControlError, canonical
 from .http import decode_json
 
-REGION = "us-west-2"
+
 MAX_RECEIPT_BYTES = 262144
 MAX_LOCK_BYTES = 65536
 
@@ -156,7 +157,7 @@ class EnvironmentArtifacts:
                 and actual["ChecksumSHA256"] == base64.b64encode(bytes.fromhex(expected_sha)).decode())
 
     def _image(self, image, policy, lock_sha256, executor):
-        prefix = f"{account()}.dkr.ecr.{REGION}.amazonaws.com/{policy['repository']}@sha256:"
+        prefix = f"{account()}.dkr.ecr.{region()}.amazonaws.com/{policy['repository']}@sha256:"
         require(isinstance(image, str) and image.startswith(prefix)
                 and re.fullmatch(r"[0-9a-f]{64}", image[len(prefix):]))
         sha = "sha256:" + image[len(prefix):]
@@ -278,7 +279,7 @@ class EnvironmentArtifacts:
             if binding["executor"] == "lambda":
                 arn = binding["function_arn"]
                 require(re.fullmatch(
-                    rf"arn:aws:lambda:{REGION}:{account()}:function:{prefix}[a-f0-9]{{32}}:[1-9][0-9]*",
+                    rf"arn:aws:lambda:{region()}:{account()}:function:{prefix}[a-f0-9]{{32}}:[1-9][0-9]*",
                     arn) and binding["lambda_mode"] == "standard")
                 function = self.lam.get_function(FunctionName=arn)
                 configuration = function["Configuration"]
@@ -304,7 +305,7 @@ class EnvironmentArtifacts:
                 arn = binding["task_definition_arn"]
                 require(binding["image"] == images["ecs_task"]
                         and re.fullmatch(
-                            rf"arn:aws:ecs:{REGION}:{account()}:task-definition/{prefix}[a-f0-9]{{32}}:[1-9][0-9]*",
+                            rf"arn:aws:ecs:{region()}:{account()}:task-definition/{prefix}[a-f0-9]{{32}}:[1-9][0-9]*",
                             arn))
                 task = self.ecs.describe_task_definition(taskDefinition=arn)["taskDefinition"]
                 require(task["taskDefinitionArn"] == arn and task["status"] == "ACTIVE"
@@ -321,7 +322,9 @@ class EnvironmentArtifacts:
                         and container["readonlyRootFilesystem"]
                         and container["user"] == "10001:10001"
                         and not container.get("secrets") and not container.get("privileged")
-                        and not container.get("environment")
+                        and len(container.get("environment", [])) == 3
+                        and sorted((item["name"], item["value"]) for item in container["environment"])
+                        == [(name, region()) for name in ["AWS_DEFAULT_REGION", "AWS_REGION", "COVE_REGION"]]
                         and not container.get("entryPoint") and not container.get("command")
                         and not container.get("environmentFiles"))
         return {"dependency_lock_sha256": receipt["dependency_lock"]["sha256"],

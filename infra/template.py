@@ -3,7 +3,11 @@
 
 import argparse
 import json
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from cove_duckdb.region import regional
 
 
 def ref(name):
@@ -32,10 +36,10 @@ def template():
     parameters = {
         "SourceCommit": {"Type": "String", "AllowedPattern": "[0-9a-f]{40}"},
         "StorageImage": {"Type": "String", "AllowedPattern":
-                         "[0-9]{12}.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-images@sha256:[0-9a-f]{64}"},
+                         "[0-9]{12}.dkr.ecr.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*.amazonaws.com/cove-duckdb-images@sha256:[0-9a-f]{64}"},
         "QueryDesired": {"Type": "Number", "Default": 0, "AllowedValues": [0, 1, 2, 3, 4]},
         "QueryImage": {"Type": "String", "Default": "", "AllowedPattern":
-                       "(|[0-9]{12}.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-images@sha256:[0-9a-f]{64})"},
+                       "(|[0-9]{12}.dkr.ecr.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*.amazonaws.com/cove-duckdb-images@sha256:[0-9a-f]{64})"},
         "QuerySourceCommit": {"Type": "String", "Default": "", "AllowedPattern": "(|[0-9a-f]{40})"},
         "BrowserSourceCommit": {"Type": "String", "Default": "", "AllowedPattern": "(|[0-9a-f]{40})"},
         "AuthCodeBucket": {"Type": "String", "Default": ""},
@@ -54,7 +58,7 @@ def template():
         "SyncSourceCommit": {"Type": "String", "Default": "", "AllowedPattern": "(|[0-9a-f]{40})"},
         "SyncEnabled": {"Type": "String", "Default": "false", "AllowedValues": ["false", "true"]},
         "WriterImage": {"Type": "String", "Default": "", "AllowedPattern":
-                        "(|[0-9]{12}.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-images@sha256:[0-9a-f]{64})"},
+                        "(|[0-9]{12}.dkr.ecr.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*.amazonaws.com/cove-duckdb-images@sha256:[0-9a-f]{64})"},
         "WriterSourceCommit": {"Type": "String", "Default": "", "AllowedPattern": "(|[0-9a-f]{40})"},
         "WriterEnvironmentPolicy": {"Type": "String", "Default": "{}"},
         "WriterCodeBucket": {"Type": "String", "Default": ""},
@@ -74,7 +78,8 @@ def template():
     add("InternetGateway", "AWS::EC2::InternetGateway", Tags=tags)
     add("GatewayAttachment", "AWS::EC2::VPCGatewayAttachment", VpcId=ref("Vpc"),
         InternetGatewayId=ref("InternetGateway"))
-    for index, zone in enumerate(["us-west-2a", "us-west-2b"], 1):
+    for index in [1, 2]:
+        zone = {"Fn::Select": [index - 1, {"Fn::GetAZs": {"Ref": "AWS::Region"}}]}
         add(f"PublicSubnet{index}", "AWS::EC2::Subnet", VpcId=ref("Vpc"), AvailabilityZone=zone,
             CidrBlock=f"10.87.{index}.0/24", MapPublicIpOnLaunch=False, Tags=tags)
         add(f"PrivateSubnet{index}", "AWS::EC2::Subnet", VpcId=ref("Vpc"), AvailabilityZone=zone,
@@ -96,7 +101,7 @@ def template():
                 SubnetId=ref(f"{kind}Subnet{index}"), RouteTableId=ref(f"{kind}Routes"))
     for service in ["s3", "dynamodb"]:
         add(service.capitalize()+"Endpoint", "AWS::EC2::VPCEndpoint", VpcId=ref("Vpc"),
-            ServiceName=f"com.amazonaws.us-west-2.{service}", VpcEndpointType="Gateway",
+            ServiceName=f"com.amazonaws.${{AWS::Region}}.{service}", VpcEndpointType="Gateway",
             RouteTableIds=[ref("PrivateRoutes")])
     for name, description in [
         ("LinkSecurityGroup", "API Gateway VPC Link; no ingress"),
@@ -157,7 +162,7 @@ def template():
             statement["Condition"] = condition
         return statement
     log_allow = lambda name: allow(["logs:CreateLogStream", "logs:PutLogEvents"],
-                                  sub("arn:aws:logs:us-west-2:${AWS::AccountId}:log-group:${"+name+"}:log-stream:*"))
+                                  sub("arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:${"+name+"}:log-stream:*"))
     role("AuthorizerRole", "lambda.amazonaws.com", [
         log_allow("AuthorizerLogs"), allow(["dynamodb:GetItem"], get("ControlTable", "Arn"))])
     role("IntakeRole", "lambda.amazonaws.com", [
@@ -185,7 +190,7 @@ def template():
         allow(["ecr:GetAuthorizationToken"], "*"),
         allow(["ecr:BatchCheckLayerAvailability", "ecr:GetDownloadUrlForLayer", "ecr:BatchGetImage"],
               [sub("arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/cove-duckdb-images"),
-               "arn:aws:ecr:us-west-2:733349766148:repository/aws-guardduty-agent-fargate"]),
+               "arn:aws:ecr:${AWS::Region}:*:repository/aws-guardduty-agent-fargate"]),
         log_allow("TaskLogs")])
     role("WriterRole", "ecs-tasks.amazonaws.com", [
         allow(["s3:GetObject", "s3:GetObjectVersion", "s3:PutObject", "s3:DeleteObject"],
@@ -342,7 +347,7 @@ def template():
                 "Environment": [{"Name": "COVE_SOURCE_COMMIT", "Value": ref("SourceCommit")}],
                 "PortMappings": [{"ContainerPort": 8080}] if name == "QueryTask" else [],
                 "LogConfiguration": {"LogDriver": "awslogs", "Options": {
-                    "awslogs-group": ref("TaskLogs"), "awslogs-region": "us-west-2",
+                    "awslogs-group": ref("TaskLogs"), "awslogs-region": "${AWS::Region}",
                     "awslogs-stream-prefix": name}},
             }], Tags=tags)
     writer = resources["WriterTask"]["Properties"]
@@ -356,7 +361,7 @@ def template():
         Environment=[{"Name": key, "Value": value} for key, value in {
             "COVE_SOURCE_COMMIT": {"Fn::If": ["HasWriterCode", ref("WriterSourceCommit"), ref("SourceCommit")]},
             "COVE_CONTROL_TABLE": ref("ControlTable"), "COVE_DATA_BUCKET": ref("DataBucket"),
-            "COVE_INGRESS_QUEUE": ref("IngressQueue"), "COVE_DLQ": ref("Dlq"), "AWS_DEFAULT_REGION": "us-west-2",
+            "COVE_INGRESS_QUEUE": ref("IngressQueue"), "COVE_DLQ": ref("Dlq"), "COVE_REGION": ref("AWS::Region"), "AWS_REGION": ref("AWS::Region"), "AWS_DEFAULT_REGION": ref("AWS::Region"),
             "COVE_ACCOUNT": ref("AWS::AccountId"), "COVE_INTAKE_SOURCE_COMMIT": ref("IntakeSourceCommit"),
             "COVE_ENVIRONMENT_POLICY": ref("WriterEnvironmentPolicy"),
             "COVE_QUERY_SOURCE_COMMIT": ref("QuerySourceCommit"), "COVE_QUERY_IMAGE": ref("QueryImage"),
@@ -377,7 +382,7 @@ def template():
         Environment=[{"Name": key, "Value": value} for key, value in {
             "COVE_SOURCE_COMMIT": {"Fn::If": ["HasQueryCode", ref("QuerySourceCommit"), ref("SourceCommit")]},
             "COVE_CONTROL_TABLE": ref("ControlTable"), "COVE_DATA_BUCKET": ref("DataBucket"),
-            "AWS_DEFAULT_REGION": "us-west-2", "COVE_ACCOUNT": ref("AWS::AccountId"),
+            "COVE_REGION": ref("AWS::Region"), "AWS_REGION": ref("AWS::Region"), "AWS_DEFAULT_REGION": ref("AWS::Region"), "COVE_ACCOUNT": ref("AWS::AccountId"),
             "COVE_QUERY_API_URL": get("Api", "ApiEndpoint"),
             "COVE_QUERY_IMAGE": ref("QueryImage"), "COVE_WRITER_SOURCE_COMMIT": ref("WriterSourceCommit"),
             "COVE_WRITER_IMAGE": ref("WriterImage"),
@@ -464,11 +469,12 @@ def template():
         DefaultRouteSettings={"ThrottlingBurstLimit": 20, "ThrottlingRateLimit": 10},
         AccessLogSettings={"DestinationArn": get("ApiLogs", "Arn"),
                            "Format": '{"requestId":"$context.requestId","status":"$context.status","route":"$context.routeKey"}'})
+    # CloudFront names are account-global, even though their stacks are regional.
     add("OriginAccess", "AWS::CloudFront::OriginAccessControl",
-        OriginAccessControlConfig={"Name": sub("${AWS::StackName}-web"), "OriginAccessControlOriginType": "s3",
+        OriginAccessControlConfig={"Name": sub("${AWS::StackName}-${AWS::Region}-web"), "OriginAccessControlOriginType": "s3",
                                    "SigningBehavior": "always", "SigningProtocol": "sigv4"})
     add("Headers", "AWS::CloudFront::ResponseHeadersPolicy", ResponseHeadersPolicyConfig={
-        "Name": sub("${AWS::StackName}-security"), "SecurityHeadersConfig": {
+        "Name": sub("${AWS::StackName}-${AWS::Region}-security"), "SecurityHeadersConfig": {
             "ContentSecurityPolicy": {"ContentSecurityPolicy":
                 "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; "
                 "base-uri 'none'; frame-ancestors 'none'; form-action 'none'", "Override": True},
@@ -476,14 +482,14 @@ def template():
             "ContentTypeOptions": {"Override": True}, "FrameOptions": {"FrameOption": "DENY", "Override": True},
             "ReferrerPolicy": {"ReferrerPolicy": "no-referrer", "Override": True}}})
     add("BrowserApiCache", "AWS::CloudFront::CachePolicy", CachePolicyConfig={
-        "Name": sub("${AWS::StackName}-browser-api-no-cache"),
+        "Name": sub("${AWS::StackName}-${AWS::Region}-browser-api-no-cache"),
         "DefaultTTL": 0, "MinTTL": 0, "MaxTTL": 0,
         "ParametersInCacheKeyAndForwardedToOrigin": {
             "EnableAcceptEncodingGzip": False, "EnableAcceptEncodingBrotli": False,
             "HeadersConfig": {"HeaderBehavior": "none"}, "CookiesConfig": {"CookieBehavior": "none"},
             "QueryStringsConfig": {"QueryStringBehavior": "none"}}})
     add("BrowserApiForwarding", "AWS::CloudFront::OriginRequestPolicy", OriginRequestPolicyConfig={
-        "Name": sub("${AWS::StackName}-browser-api"),
+        "Name": sub("${AWS::StackName}-${AWS::Region}-browser-api"),
         # Bearer authorization reaches Gateway; the origin supplies its own Host.
         "HeadersConfig": {"HeaderBehavior": "allExcept", "Headers": ["host"]},
         "CookiesConfig": {"CookieBehavior": "none"},
@@ -551,7 +557,10 @@ def template():
         "WriterControlFunction": {"Condition": "HasWriterCode", "Value": ref("WriterControl")},
         "BackupBucket": {"Value": ref("BackupBucket")},
     })
-    return {"AWSTemplateFormatVersion": "2010-09-09", "Description": "Cove DuckDB private AWS baseline",
+    for resource in resources.values():
+        if resource["Type"] == "AWS::Lambda::Function":
+            resource["Properties"].setdefault("Environment", {}).setdefault("Variables", {})["COVE_REGION"] = ref("AWS::Region")
+    return regional({"AWSTemplateFormatVersion": "2010-09-09", "Description": "Cove DuckDB private AWS baseline",
             "Parameters": parameters,
             "Conditions": {
                 "HasAuthCode": {"Fn::Not": [{"Fn::Equals": [ref("AuthCodeKey"), ""]}]},
@@ -561,7 +570,7 @@ def template():
                 "HasQueryCode": {"Fn::Not": [{"Fn::Equals": [ref("QueryImage"), ""]}]},
                 "HasBackupBucket": {"Fn::Not": [{"Fn::Equals": [ref("BackupBucket"), ""]}]},
             },
-            "Resources": resources, "Outputs": outputs}
+            "Resources": resources, "Outputs": outputs})
 
 
 if __name__ == "__main__":

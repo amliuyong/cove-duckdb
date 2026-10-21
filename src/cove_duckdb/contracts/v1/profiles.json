@@ -4,7 +4,6 @@
     "api_body_bytes": 1048576,
     "artifact_bytes": 10485760,
     "artifact_package_bytes": 52428800,
-    "baseline_region": "us-west-2",
     "ingestion_records": 10000,
     "manifest_files": 10000,
     "max_active_runs": 1,

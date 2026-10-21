@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 import boto3
 from botocore.config import Config
 
+from cove_duckdb.region import region
 from cove_duckdb.contracts.model import LIMITS
 from cove_duckdb.control.keys import KeyStore
 from cove_duckdb.control.registry import ControlError, Registry
@@ -158,7 +159,7 @@ def main():
     source = os.environ["COVE_SOURCE_COMMIT"]
     if len(source) != 40 or any(character not in "0123456789abcdef" for character in source):
         raise RuntimeError("Invalid query source identity")
-    current = boto3.Session(region_name="us-west-2")
+    current = boto3.Session(region_name=region())
     if current.get_credentials().method != "container-role":
         raise RuntimeError("ECS task-role credentials required")
     from pathlib import Path

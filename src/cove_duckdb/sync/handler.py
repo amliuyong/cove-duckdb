@@ -10,6 +10,7 @@ import boto3
 from botocore.config import Config
 from botocore.exceptions import BotoCoreError, ClientError
 
+from cove_duckdb.region import region
 from cove_duckdb.contracts.validation import ContractError
 from cove_duckdb.control.http import body_bytes, decode_json, response, verified_principal
 from cove_duckdb.control.keys import KeyStore
@@ -86,7 +87,7 @@ def respond(event, proxy, keys, request_id, timing):
 
 @lru_cache(maxsize=1)
 def clients():
-    ddb = boto3.client("dynamodb", config=Config(
+    ddb = boto3.client("dynamodb", region_name=region(), config=Config(
         connect_timeout=2, read_timeout=3, retries={"total_max_attempts": 1}))
     table = os.environ["COVE_CONTROL_TABLE"]
     registry = Registry(ddb, table, os.environ["COVE_DATA_BUCKET"])
