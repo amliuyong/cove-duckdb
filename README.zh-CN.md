@@ -14,6 +14,12 @@
   <a href="docs/release-notes.md"><img alt="Release: 1.0.0" src="https://img.shields.io/badge/Release-1.0.0-475569"></a>
 </p>
 
+<p align="center">
+  <a href="docs/assets/promo.mp4"><img src="docs/assets/promo.gif" alt="一分钟了解 Cove DuckDB：API 接入、Amazon S3 上的 DuckDB、SQL 与 pandas 流水线、Query Editor 和 Admin Console" width="960"></a>
+</p>
+
+<p align="center"><a href="docs/assets/promo.mp4">▶ 观看带英文配音的完整版（MP4，1 分钟）</a></p>
+
 [English](README.md) · [发行说明](docs/release-notes.md) · [安装部署手册](docs/installation.md) · [用户手册](docs/user-guide.md) · [Quickstart](examples/quickstart/README.md) · [文档目录](docs/README.md) · [完整产品发布文档](docs/product/press-release.md) · [贡献说明](CONTRIBUTING.md)
 
 Cove DuckDB 是面向 AWS 的数据库与分析产品，整合 API 接入、S3 上的 DuckDB、SQL/Python 分层加工、Query Editor 和 Admin Console。

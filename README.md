@@ -12,6 +12,12 @@
   <a href="docs/release-notes.md"><img alt="Release: 1.0.0" src="https://img.shields.io/badge/Release-1.0.0-475569"></a>
 </p>
 
+<p align="center">
+  <a href="docs/assets/promo.mp4"><img src="docs/assets/promo.gif" alt="Cove DuckDB in one minute: API ingestion, DuckDB on Amazon S3, SQL and pandas pipelines, the Query Editor and the Admin Console" width="960"></a>
+</p>
+
+<p align="center"><a href="docs/assets/promo.mp4">▶ Watch with narration (MP4, 1 min)</a></p>
+
 [中文说明](README.zh-CN.md) · [Release notes](docs/release-notes.md) · [Installation guide](docs/installation.md) · [User guide](docs/user-guide.md) · [Quickstart](examples/quickstart/README.md) · [Documentation](docs/README.md) · [Contributing](CONTRIBUTING.md)
 
 Cove DuckDB is a database and analytics product for AWS. Applications write through an API, data teams transform with SQL and Python pipelines, and analysts query durable DuckDB databases stored in Amazon S3 from a Query Editor, with an Admin Console for keys, pipelines, runtime environments and operations.
