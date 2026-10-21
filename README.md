@@ -35,7 +35,7 @@ The [release notes](docs/release-notes.md) list the support matrix, sizes, limit
 
 Current source fixes receipt-snapshot loading with typed Arrow batches and checks source row/byte quotas before copying; see [changes after 1.0.0](docs/release-notes.md#changes-after-100) for validation status. The published `v1.0.0` artifacts retain their documented limits.
 
-Current source also selects its AWS commercial region from deployment configuration. Regional prerequisites and the still-pending acceptance matrix are in the [installation guide](docs/installation.md#33-区域前置条件) and [release notes](docs/release-notes.md#changes-after-100).
+Current source also selects its standard AWS commercial region from deployment configuration. On 2026-10-21, `us-east-2` passed fresh installation, all 56 functional UAT cases, backup and isolated restore, upgrade/interrupted redeploy and uninstall; `us-west-2` passed regression and uninstall. Other commercial regions remain unverified. Regional prerequisites and the source-qualified support matrix are in the [installation guide](docs/installation.md#33-区域前置条件) and [release notes](docs/release-notes.md#changes-after-100).
 
 ## Documentation
 

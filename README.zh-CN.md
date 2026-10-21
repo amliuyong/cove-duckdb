@@ -37,7 +37,7 @@ Cove DuckDB 是面向 AWS 的数据库与分析产品，整合 API 接入、S3 �
 
 当前源码改用 Arrow 批量装载写后读快照，并在复制前检查行数及字节配额；验证状态见[1.0.0 之后的变更](docs/release-notes.md#changes-after-100)。已发布的 `v1.0.0` 制品仍保留原有已知限制。
 
-当前源码也从部署配置读取标准 AWS 商业区域；区域前置条件和待完成的实际验收见[安装手册](docs/installation.md#33-区域前置条件)及[发行说明](docs/release-notes.md#changes-after-100)。
+当前源码也从部署配置读取标准 AWS 商业区域。2026-10-21，`us-east-2` 完成全新安装、全部 56 项功能 UAT、备份与隔离还原、升级与中断重部署、卸载；`us-west-2` 完成回归与卸载。其他商业区域未单独验收。区域前置条件和对应源码的支持矩阵见[安装手册](docs/installation.md#33-区域前置条件)及[发行说明](docs/release-notes.md#changes-after-100)。
 
 ## 文档
 

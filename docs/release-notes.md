@@ -12,9 +12,20 @@ The 1.0.0 measurements and limitations below describe the published tag.
 
 [#8](https://github.com/amliuyong/cove-duckdb/issues/8) makes the deployment region explicit (`COVE_REGION` / `AWS_REGION`), rejects conflicting settings and other partitions, uses the stack region for AWS resources and injects it into runtime services and native S3 secrets. Runtime resource namespaces include region to isolate account-global IAM roles; CloudFront OAC and policy names include the stack region to allow the same environment name in multiple regions. Executor contracts accept regional commercial ARNs/ECR addresses. Price snapshots are indexed by their actual region; an absent snapshot produces `UNKNOWN`, no borrowed or zero prices. The namespace change requires a fresh installation when moving from tag `v1.0.0`; use the original version's tools to uninstall its runtime resources first (see the installation guide's destructive-upgrade procedure).
 
-Targeted `us-east-2` candidate checks passed on 2026-10-21 at source `e2812427ca915d89633ea09ada0dbadcedb1e286`: all 12 fresh-install steps, synchronous writes and exact query results, native primary-key/unique/check/not-null/foreign-key enforcement, and permission isolation. Read-only AWS observations confirmed regional data/browser buckets, the injected region and pinned ARM64 images of both 2 vCPU / 4 GiB native services, and the regional price snapshot retrieved on 2026-10-21. These checks qualify that candidate and the named behaviors; they do not establish the full regional acceptance below or a newly published release.
+Regional source acceptance completed on 2026-10-21:
 
-Multi-region acceptance of this current source is pending. Only the published tag's `us-west-2` acceptance is established below; no additional region is marked supported until fresh installation, functional UAT, backup/isolated restore, uninstall and the original-region regression are complete. Regional prerequisites and source-version selection are described in the [installation guide](installation.md#33-区域前置条件).
+| Region / scope | Status | Actual qualification |
+| --- | --- | --- |
+| `us-east-2` | PASS | All 12 fresh-install steps in two isolated environments; all 56 functional UAT cases; native constraints, exact queries, SQL/Lambda/ECS pipelines, consoles, permissions, diagnostics, recovery, schedules, Airflow, retention and quotas; point-in-time backup and isolated restore; distinct-source upgrade, interrupted deployment and same-artifact redeploy; isolated-environment uninstall |
+| `us-west-2` | PASS regression | All 12 fresh-install steps; fresh/Quickstart/query/key/browser regression; actual regional prices and native services; IAM and global CloudFront resource isolation with the same environment name in both regions; uninstall |
+| Other commercial regions in partition `aws` | NOT_RUN | Configuration and commercial executor contracts accept these regions subject to prerequisites; they are not marked qualified. Missing regional prices return `UNKNOWN` |
+| China, GovCloud and isolated partitions | OUT_OF_SCOPE | Rejected by region selection |
+
+The full `us-east-2` functional and backup/restore campaigns used source `e2812427ca915d89633ea09ada0dbadcedb1e286`. `us-west-2` regression and the new-source upgrade used `7de98ae4221d17e9e4f8c81db22890c458ac8068`, which adds the region to global CloudFront names. Interrupted deployment, redeploy and isolated-environment cleanup used `7005feeee4ab596e18b8691d4c9c4e6d786f0d3e`; its application, infrastructure, deployment and runtime code is identical to `7de98ae`. Later acceptance documentation does not change that runtime code. Read-only AWS observations confirmed regional data/browser buckets, injected regions and pinned ARM64 images of both 2 vCPU / 4 GiB native services, and each region's actual price snapshot.
+
+The isolated restore matched independent ODS exports at the backup point, excluded 21 commits after that point, resumed writes and pipeline publication, enforced permissions and left the source registry unchanged. First query took 146.859 seconds and pipeline publication 317.738 seconds. The 200,000-row fair-import campaign published in 1,793 seconds while 174 ingestion commits and 154 exports progressed; maximum observed ingestion commit latency was 11.3 seconds. These are measurements from these campaigns, not service guarantees. Uninstall retained the regional account backup vaults.
+
+All 56 functional cases are PASS. Release-only case `UAT-DOC-02` is NOT_RUN because these checks qualify source candidates, not a new publication; the published tag retains the support matrix below. Original failed setup/deployment receipts remain separate from successful qualification: the VPC quota failure and global CloudFront name collision were reconciled to terminal rollback/deletion; an Airflow CLI setup failure was proven to occur before Cove dispatch, then the original DAG identity continued after its literal argument was corrected, without reingesting data. Regional prerequisites and source-version selection are described in the [installation guide](installation.md#33-区域前置条件).
 
 ## 发行身份
 
@@ -41,7 +52,7 @@ release `manifest.json` 记录以下内容：
 
 GitHub Release 附带这些 manifest。镜像和 ZIP 本体由安装工具发布到目标账号的 ECR 与制品桶。
 
-## 支持矩阵
+## 已发布 v1.0.0 的支持矩阵
 
 | 维度 | 支持 | 说明 |
 | --- | --- | --- |

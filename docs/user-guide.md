@@ -12,7 +12,7 @@
 安装、升级、开通空间、备份还原与卸载属于运维工作，见[安装部署手册](installation.md)。每个路由、字段和错误码的完整定义见 [API 合同](design/api-contract.md)。规格、支持矩阵和已知限制见[发行说明](release-notes.md)。想先跑通一遍完整流程，可以运行 [quickstart](../examples/quickstart/README.md)。
 
 
-当前源码由安装环境指定 AWS 商业区域；使用者继续使用该环境的 API / Web 地址。账号、区域、镜像和备份库前置条件见[安装手册](installation.md#33-区域前置条件)，实际验收范围见[发行说明](release-notes.md#changes-after-100)。
+当前源码由安装环境指定标准 AWS 商业区域；使用者继续使用该环境的 API / Web 地址。2026-10-21 的源码验收覆盖 `us-east-2` 全部 56 项功能 UAT 与 `us-west-2` 回归，其他商业区域未单独验收。账号、区域、镜像和备份库前置条件见[安装手册](installation.md#33-区域前置条件)，源码身份与实际验收范围见[发行说明](release-notes.md#changes-after-100)。
 
 ## 目录
 
