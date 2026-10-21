@@ -28,6 +28,9 @@ Cove DuckDB 是面向 AWS 的数据库与分析产品，整合 API 接入、S3 �
 
 支持矩阵、规格、限制、测得基线和尚未实现的计划项见[发行说明](docs/release-notes.md)，实测基线见[性能报告](docs/performance.md)（不承诺 SLA）。用户验收标准见 [UAT 测试用例](docs/uat/test-cases.md)。
 
+
+当前源码改用 Arrow 批量装载写后读快照，并在复制前检查行数及字节配额；验证状态见[1.0.0 之后的变更](docs/release-notes.md#changes-after-100)。已发布的 `v1.0.0` 制品仍保留原有已知限制。
+
 ## 文档
 
 | 文档 | 面向 |

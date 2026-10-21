@@ -2,6 +2,14 @@
 
 首次正式发行。本文只列出已在实际 AWS 中验收的当前合同与能力。安装见[安装部署手册](installation.md)，使用见[用户手册](user-guide.md)，验收用例见 [UAT 测试用例](uat/test-cases.md)。计划中、尚未实现的能力单独列出。
 
+## Changes after 1.0.0
+
+Current source, not a new release: [#5](https://github.com/amliuyong/cove-duckdb/issues/5) replaces row-by-row loading of `after_write` / `after_ingestion` snapshots with typed Arrow batches. Both query and writer images install the same hash-locked pyarrow 24.0.0 wheel. Before fetching any rows, the writer checks row counts and a conservative JSON byte estimate in the original read transaction; oversized sources return `QUERY_SOURCE_QUOTA`. Limits remain 100,000 rows / 2 MiB / five seconds for capture. Exact encoding, receipt authority, no-recapture and sealed SQL isolation remain enforced.
+
+Targeted AWS regression passed on 2026-10-21 in a fresh `us-west-2` environment at source `69201586e526ca5a2c507919a49cd9ba52587eba`, with the query task at 2 vCPU / 4 GiB. Public API queries over 10,210 four-column rows returned independently verified aggregates: `after_write` in 6.751 seconds, `after_ingestion` in 3.839 seconds, and `current` in 2.884 seconds. A source exceeding 2 MiB returned `QUERY_SOURCE_QUOTA` in 2.766 seconds. These observations include client polling and are not latency guarantees. Local native checks separately cover 100,000-row capture/load budgets, exact types and rejection before copying rows.
+
+The 1.0.0 measurements and limitations below describe the published tag.
+
 ## 发行身份
 
 | 项目 | 值 |

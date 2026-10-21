@@ -1030,7 +1030,7 @@ curl -s -X POST "$COVE_API_URL/v1/spaces/$COVE_SPACE/queries/<query_id>/cancel" 
 - **提交后读取经由写者。** `after_write` / `after_ingestion` 由写者确认回执已提交后，在写者进程内复制快照。结果至少包含该提交，也可能包含之后已提交的更新或删除；它不是该提交时刻的历史快照，也不等待下游流水线。
   - `after_write` 只允许写入的原 principal，或同时持有 `datasets:manage` 的 Key；`after_ingestion` 只允许接入的原 principal，或同时持有 `monitor:read` 的 Key。
   - 回执尚未确认提交时以 `COMMIT_RECEIPT_UNCONFIRMED` 失败（`after_ingestion` 请在接入状态为 `COMMITTED` 后再提交）；同步写被拒绝时以 `COMMIT_RECEIPT_NOT_COMMITTED` 失败；没有可用的写者时以 `QUERY_SOURCE_NOT_READY` 失败；复制回复丢失时以 `QUERY_SOURCE_UNCONFIRMED` 失败，不会自动重读。
-  - 快照上限为全部引用数据集合计 100,000 行、2 MiB，复制预算 5 秒；超出行数以 `QUERY_SOURCE_QUOTA` 失败。1.0.0 中快照逐行装载，约 1 万行、4 列的表就会超过 30 秒的缺省期限（`QUERY_TIMEOUT`）。这两种模式只适合小表的写后读，大表请用 `current`。
+  - 当前源码的快照上限为全部引用数据集合计 100,000 行、2 MiB，复制预算 5 秒。复制前在同一读事务中检查行数及保守的 JSON 字节估算（包含 Unicode 转义、schema/版本信息和类型格式开销）；超出时以 `QUERY_SOURCE_QUOTA` 失败。查询沙箱按 Arrow 批次装载并保留精确类型。复制超时返回 `QUERY_SOURCE_TIMEOUT`，查询自身的期限仍由 `timeout_ms` 控制。tag `v1.0.0` 仍使用逐行装载，当前源码的修复与验证边界见[发行说明](release-notes.md#changes-after-100)。
 - `release_id`、`write_id`、`ingestion_id` 三者互斥，并且分别只能用于 `published`、`after_write`、`after_ingestion`；组合错误的请求在提交时以 `400 INVALID_QUERY_REQUEST` 拒绝。
 
 ### 7.8 暂存、超时与结果配额
@@ -1858,7 +1858,7 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 | 查询 | 暂存行数 | 2,000,000（`QUERY_STAGING_LIMIT`） |
 | 查询 | 私有快照 | 1 GiB |
 | 查询 | 结果 JSON | 8 MiB |
-| 查询 | `after_write` / `after_ingestion` 快照 | 100,000 行、2 MiB、5 秒复制预算；约 1 万行即可能超时 |
+| 查询 | `after_write` / `after_ingestion` 快照 | 100,000 行、保守 JSON 字节估算 2 MiB、5 秒复制预算；复制前检查配额 |
 | 查询 | 结果保留 | 10 分钟；环境内最多 64 个、64 MiB，每空间 32 MiB |
 | 查询 | 并发 | 每空间 8 个排队或运行、同时运行 1 个；环境内 32 个排队、4 个运行 |
 | 查询 | 历史 | 24 小时，列表最多 50 条 |
@@ -1957,7 +1957,7 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 | 查询失败 | `PUBLICATION_RELEASE_NOT_READY` | 指定的 release 尚未可见 |
 | 查询失败 | `PUBLICATION_RELEASE_COLLECTED` | 指定的 release 已被回收 |
 | 查询失败 | `COMMIT_RECEIPT_UNCONFIRMED` / `COMMIT_RECEIPT_NOT_COMMITTED` | 提交后读取的回执未确认提交 / 写入被拒绝 |
-| 查询失败 | `QUERY_SOURCE_NOT_READY` / `QUERY_SOURCE_QUOTA` / `QUERY_SOURCE_UNCONFIRMED` | 提交后读取：写者不可用 / 超过 100,000 行 / 复制回复丢失 |
+| 查询失败 | `QUERY_SOURCE_NOT_READY` / `QUERY_SOURCE_QUOTA` / `QUERY_SOURCE_UNCONFIRMED` | 提交后读取：写者不可用 / 超过行数或字节配额 / 复制回复丢失 |
 | 查询失败 | `QUERY_STAGING_LIMIT` | 暂存超过 2,000,000 行 |
 | 查询失败 | `QUERY_SNAPSHOT_TOO_LARGE` / `QUERY_RESULT_TOO_LARGE` | 快照超过 1 GiB / 结果超过 8 MiB |
 | 查询失败 | `QUERY_TIMEOUT` | 超过 `timeout_ms` |
@@ -2023,7 +2023,7 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 直接表没有 release。把读取方式改为“当前状态”（`current`），或在同步写之后用 `after_write`。
 
 **after_write 查询以 QUERY_TIMEOUT 失败。**
-1.0.0 中提交后读取的快照逐行装载，约 1 万行的表就会超过 30 秒。读大表请用 `current`，或在 SQL 中只引用需要核对的小表。
+tag `v1.0.0` 的逐行装载会造成万行级超时；当前源码使用批量装载并在复制前检查配额。仍以 `QUERY_TIMEOUT` 失败时，核对查询的 `timeout_ms` 与写者负载。超过快照配额时，减少引用的数据集，或在可以接受读者可见版本时使用 `current`。
 
 **查询以 QUERY_STAGING_LIMIT 失败，但 SQL 带了 WHERE 条件。**
 暂存按 SQL 引用的数据集的全部行计算，与 `WHERE` 无关。改为查询已聚合的 DWS / ADS 数据集，或用流水线预先缩小数据。

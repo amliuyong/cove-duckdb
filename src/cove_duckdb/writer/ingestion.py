@@ -67,7 +67,7 @@ def insert_rows(connection, table, types, rows, suffix=""):
     """Insert validated rows with a bounded number of statements.
 
     DuckDB converts every Python parameter separately (about 0.6 ms each), so the writer image passes the rows as
-    one exactly typed Arrow table. Images without pyarrow (the query image runs the same native suite) fall back to
+    one exactly typed Arrow table. Runtimes without pyarrow fall back to
     multi-row statements whose parameters are cast to the column types."""
     if not rows:
         return

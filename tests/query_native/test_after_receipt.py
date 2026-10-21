@@ -26,7 +26,7 @@ ORDERS = ["dwd.orders"]
 
 
 class NativeFixture:
-    """No columnar runtime package is needed by the Query image."""
+    """The locked query image provides native DuckDB and typed Arrow loading."""
 
     def setUp(self):
         import duckdb
@@ -308,6 +308,68 @@ class AfterReceipt(unittest.TestCase):
                      write_id("fixture", "gen_fixture", "dwd.orders", "initial_0")}, lambda: None, ORDERS)
         fixture.mutate("dwd.orders", "upsert", "after_quota", [{"id": 1, "amount": "7.89"}])
         self.assertEqual(fixture.store.probe("dwd.orders")["rows"], [[1, "7.89"]])
+
+    def test_ten_thousand_receipt_rows_load_within_five_seconds(self):
+        from cove_duckdb.query.snapshots import capture, load
+
+        fixture = self.fixture
+        fixture.writer.execute("INSERT INTO warehouse.dwd.orders "
+                               "SELECT i, 12.30 FROM range(2,10211) t(i)")
+        condition = {"consistency": "after_write", "write_id":
+                     write_id("fixture", "gen_fixture", "dwd.orders", "initial_0")}
+        value = capture(fixture.writer, fixture.configuration, self.actor, condition, lambda: None, ORDERS)
+        snapshot = Session(fixture.directory / "ten_thousand")
+        try:
+            started = time.monotonic()
+            load(value, fixture.configuration, snapshot, lambda: None, ORDERS)
+            self.assertLess(time.monotonic() - started, 5)
+            self.assertEqual(snapshot.execute("SELECT count(*),sum(amount) FROM dwd.orders", 10)["rows"],
+                             [[10210, "125583.00"]])
+        finally:
+            snapshot.close()
+
+    def test_byte_quota_rejects_before_any_source_row_is_copied(self):
+        from cove_duckdb.query.snapshots import capture
+
+        fixture = self.fixture
+        definition = {"dataset": "dwd.large", "schema_version": 1, "write_owner": "direct",
+            "schema": [{"name": "id", "type": "BIGINT", "nullable": False},
+                       {"name": "text", "type": "VARCHAR", "nullable": False}],
+            "key_columns": ["id"], "partition_columns": [], "constraints": {"primary_key": ["id"]}}
+        fixture.configuration["datasets"]["dwd.large"] = {
+            "definition": definition, "definition_sha256": digest(definition)}
+        fixture.mutate("dwd.large", "insert", "large", [{"id": 1, "text": "initial"}])
+        fixture.writer.execute("UPDATE warehouse.dwd.large SET text=repeat('雪',400000)")
+        # _Target.load is the row-copy boundary, after the native preflight.
+        with patch("cove_duckdb.query.snapshots._Target.load",
+                   side_effect=AssertionError("oversized source was copied")):
+            with self.assertRaisesRegex(ControlError, "QUERY_SOURCE_QUOTA"):
+                capture(fixture.writer, fixture.configuration, self.actor,
+                    {"consistency": "after_write", "write_id":
+                     write_id("fixture", "gen_fixture", "dwd.large", "large")},
+                    lambda: None, ["dwd.large"])
+        fixture.mutate("dwd.orders", "upsert", "after_large", [{"id": 1, "amount": "7.89"}])
+
+    def test_hundred_thousand_rows_fit_both_capture_and_load_budgets(self):
+        from cove_duckdb.query.snapshots import capture, load
+
+        fixture = self.fixture
+        fixture.writer.execute("INSERT INTO warehouse.dwd.orders "
+                               "SELECT i, 0.01 FROM range(2,100001) t(i)")
+        condition = {"consistency": "after_write", "write_id":
+                     write_id("fixture", "gen_fixture", "dwd.orders", "initial_0")}
+        started = time.monotonic()
+        value = capture(fixture.writer, fixture.configuration, self.actor, condition, lambda: None, ORDERS)
+        self.assertLess(time.monotonic() - started, 5)
+        snapshot = Session(fixture.directory / "hundred_thousand")
+        try:
+            started = time.monotonic()
+            load(value, fixture.configuration, snapshot, lambda: None, ORDERS)
+            self.assertLess(time.monotonic() - started, 5)
+            self.assertEqual(snapshot.execute("SELECT count(*),sum(amount) FROM dwd.orders", 10)["rows"],
+                             [[100000, "1012.29"]])
+        finally:
+            snapshot.close()
 
     def test_receipt_version_is_confirmed_when_the_sql_names_none_of_its_rows(self):
         from cove_duckdb.query.snapshots import capture, load

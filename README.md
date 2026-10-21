@@ -26,6 +26,9 @@ Version 1.0.0 is the first formal release ([GitHub Release `v1.0.0`](https://git
 
 The [release notes](docs/release-notes.md) list the support matrix, sizes, limits and measured baselines, and the items that are planned but not implemented. Measured baselines are in the [performance report](docs/performance.md); no SLA target is claimed. User acceptance is defined by the [UAT test cases](docs/uat/test-cases.md).
 
+
+Current source fixes receipt-snapshot loading with typed Arrow batches and checks source row/byte quotas before copying; see [changes after 1.0.0](docs/release-notes.md#changes-after-100) for validation status. The published `v1.0.0` artifacts retain their documented limits.
+
 ## Documentation
 
 | Guide | For |

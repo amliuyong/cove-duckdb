@@ -61,7 +61,7 @@ def main():
     with (output / "build.log").open("x") as stream:
         subprocess.run(["docker", "build", "--platform", "linux/arm64",
             "--build-arg", "STORAGE_IMAGE=" + storage,
-            "--build-arg", "COLUMNAR_EXPORT=" + str(args.service == "writer").lower(),
+            "--build-arg", "COLUMNAR_EXPORT=true",
             "--label", "org.opencontainers.image.revision=" + head, "-t", tag, str(context)],
             cwd=ROOT, check=True, stdout=stream, stderr=subprocess.STDOUT)
     image = json.loads(run(["docker", "image", "inspect", tag]))[0]
@@ -78,9 +78,9 @@ def main():
         "[c.execute(\"LOAD '/opt/cove/artifacts/\"+n+\".duckdb_extension'\") for n in "
         "['httpfs','aws','duckdb_object_storage']]; "
         "import cove_duckdb." + module + "; "
-        + ("import pyarrow; assert pyarrow.__version__=='24.0.0'; " if args.service == "writer" else "")
+        + "import pyarrow; assert pyarrow.__version__=='24.0.0'; "
         + "print(json.dumps({'native':m,'aws':boto3.__version__"
-        + (",'pyarrow':pyarrow.__version__" if args.service == "writer" else "") + "}))")
+        + ",'pyarrow':pyarrow.__version__}))")
     native = json.loads(run(["docker", "run", "--rm", "--network", "none", "--read-only",
         "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--entrypoint", "python", tag, "-c", code]))
     with (output / "ingestion-tests.log").open("x") as stream:
@@ -128,8 +128,7 @@ def main():
                "image_id": image["Id"], "tag": tag, "native": native,
                "dockerfile_sha256": hashlib.sha256((context / "Dockerfile").read_bytes()).hexdigest(),
                "columnar_lock_sha256": hashlib.sha256(
-                   (context / "columnar-requirements.lock").read_bytes()).hexdigest()
-                   if args.service == "writer" else None}
+                   (context / "columnar-requirements.lock").read_bytes()).hexdigest()}
     (output / "manifest.json").write_text(json.dumps(receipt, indent=2) + "\n")
     print(json.dumps(receipt))
 
