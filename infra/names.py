@@ -6,6 +6,9 @@ resources its environment builder creates never share a name or an IAM wildcard 
 
 import os
 import re
+import hashlib
+
+from cove_duckdb.region import region
 
 RESERVED = {"env", "core", "control", "builder"}
 
@@ -19,5 +22,8 @@ def environment_name(value=None):
 
 def names(value=None):
     name = environment_name(value)
+    # IAM roles are account-global. The same environment name in two regions
+    # must not share a runtime role or the wildcard used during uninstall.
+    namespace = hashlib.sha256((name + "/" + region()).encode()).hexdigest()[:16]
     return {"environment": name, "baseline": "cove-duck-" + name + "-core", "control": "cove-duck-" + name + "-control",
-            "environments": "cove-duck-" + name + "-builder", "runtime_prefix": "cove-duck-" + name + "-env-"}
+            "environments": "cove-duck-" + name + "-builder", "runtime_prefix": "cove-duck-" + namespace + "-env-"}

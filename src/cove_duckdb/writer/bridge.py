@@ -9,6 +9,7 @@ from urllib.request import Request, urlopen
 import boto3
 from botocore.config import Config
 
+from cove_duckdb.region import region
 from cove_duckdb.control.registry import ControlError
 from cove_duckdb.writer.ownership import Ownership, matches
 
@@ -22,7 +23,7 @@ OBSERVATION_TIMEOUT, OPERATION_TIMEOUT = 8, 20
 @lru_cache(maxsize=1)
 def clients():
     """Reuse SDK models/pools; no ownership or approval response is cached."""
-    current = boto3.Session(region_name="us-west-2")
+    current = boto3.Session(region_name=region())
     options = Config(connect_timeout=3, read_timeout=5,
                      retries={"mode": "standard", "total_max_attempts": 2})
     return current.client("dynamodb", config=options), current.client("ecs", config=options)

@@ -14,6 +14,7 @@ import tarfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+FIXTURE_REGION = json.loads((ROOT / "tests/fixture-region.json").read_text())["region"]
 
 
 def run(command, *, cwd=ROOT, env=None):
@@ -67,7 +68,8 @@ def main():
     with log.open("x") as stream:
         for command in checks:
             try:
-                stream.write(run(command, cwd=source, env=dict(os.environ, PYTHONPATH=str(source / "src"))))
+                stream.write(run(command, cwd=source, env=dict(os.environ, PYTHONPATH=str(source / "src"),
+                    COVE_REGION=FIXTURE_REGION, AWS_REGION=FIXTURE_REGION, AWS_DEFAULT_REGION=FIXTURE_REGION)))
             except subprocess.CalledProcessError as error:
                 stream.write(error.stdout or "")
                 (output / "failure.json").write_text(json.dumps({
@@ -86,7 +88,8 @@ def main():
     (output / "install.log").write_text(run([
         sys.executable, "-m", "pip", "install", "--no-index", "--no-deps", "--target",
         str(installed), str(wheel)], cwd=output))
-    env = dict(os.environ, PYTHONPATH=str(installed))
+    env = dict(os.environ, PYTHONPATH=str(installed), COVE_REGION=FIXTURE_REGION,
+               AWS_REGION=FIXTURE_REGION, AWS_DEFAULT_REGION=FIXTURE_REGION)
     package_version = run([sys.executable, "-c",
                           "from cove_duckdb._version import __version__; print(__version__)"],
                           cwd=output, env=env).strip()

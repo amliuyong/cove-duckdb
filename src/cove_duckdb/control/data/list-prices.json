@@ -1,0 +1,44 @@
+{
+  "us-west-2": {
+    "RETRIEVED": "2026-10-18",
+    "SOURCES": [
+      "AWS Price List API GetProducts AWSLambda usagetype USW2-Lambda-GB-Second-ARM (Tier-1), USW2-Request-ARM",
+      "AWS Price List API GetProducts AmazonECS usagetype USW2-Fargate-ARM-vCPU-Hours:perCPU, USW2-Fargate-ARM-GB-Hours",
+      "AWS Price List API GetProducts AmazonS3 usagetype USW2-TimedStorage-ByteHrs (first 50 TB), USW2-Requests-Tier1, USW2-Requests-Tier2",
+      "AWS Price List API GetProducts AmazonECR usagetype USW2-TimedStorage-ByteHrs",
+      "AWS Price List API GetProducts CodeBuild usagetype USW2-Build-Min:ARM:g1.small (BUILD_GENERAL1_SMALL)"
+    ],
+    "LAMBDA_ARM_GB_SECOND": 1.33334e-05,
+    "LAMBDA_ARM_REQUEST": 2e-07,
+    "FARGATE_ARM_VCPU_HOUR": 0.03238,
+    "FARGATE_ARM_GB_HOUR": 0.00356,
+    "S3_STANDARD_GB_MONTH": 0.023,
+    "S3_PUT_REQUEST": 5e-06,
+    "S3_GET_REQUEST": 4e-07,
+    "ECR_GB_MONTH": 0.1,
+    "CODEBUILD_ARM_SMALL_MINUTE": 0.0034
+  },
+  "us-east-2": {
+    "RETRIEVED": "2026-10-21",
+    "SOURCES": [
+      "AWS Price List API GetProducts AWSLambda regionCode us-east-2 usagetype USE2-Lambda-GB-Second-ARM (beginRange 0)",
+      "AWS Price List API GetProducts AWSLambda regionCode us-east-2 usagetype USE2-Request-ARM (beginRange 0)",
+      "AWS Price List API GetProducts AmazonECS regionCode us-east-2 usagetype USE2-Fargate-ARM-vCPU-Hours:perCPU (beginRange 0)",
+      "AWS Price List API GetProducts AmazonECS regionCode us-east-2 usagetype USE2-Fargate-ARM-GB-Hours (beginRange 0)",
+      "AWS Price List API GetProducts AmazonS3 regionCode us-east-2 usagetype USE2-TimedStorage-ByteHrs (beginRange 0)",
+      "AWS Price List API GetProducts AmazonS3 regionCode us-east-2 usagetype USE2-Requests-Tier1 (beginRange 0)",
+      "AWS Price List API GetProducts AmazonS3 regionCode us-east-2 usagetype USE2-Requests-Tier2 (beginRange 0)",
+      "AWS Price List API GetProducts AmazonECR regionCode us-east-2 usagetype USE2-TimedStorage-ByteHrs (beginRange 0)",
+      "AWS Price List API GetProducts CodeBuild regionCode us-east-2 usagetype USE2-Build-Min:ARM:g1.small (beginRange 0)"
+    ],
+    "LAMBDA_ARM_GB_SECOND": 1.33334e-05,
+    "LAMBDA_ARM_REQUEST": 2e-07,
+    "FARGATE_ARM_VCPU_HOUR": 0.03238,
+    "FARGATE_ARM_GB_HOUR": 0.00356,
+    "S3_STANDARD_GB_MONTH": 0.023,
+    "S3_PUT_REQUEST": 5e-06,
+    "S3_GET_REQUEST": 4e-07,
+    "ECR_GB_MONTH": 0.1,
+    "CODEBUILD_ARM_SMALL_MINUTE": 0.0034
+  }
+}

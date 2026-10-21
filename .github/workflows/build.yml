@@ -14,6 +14,9 @@ jobs:
     env:
       # Suites run against the AWS documentation example account and never call AWS.
       COVE_ACCOUNT: "123456789012"
+      COVE_REGION: "us-west-2"
+      AWS_REGION: "us-west-2"
+      AWS_DEFAULT_REGION: "us-west-2"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install hash-locked dependencies

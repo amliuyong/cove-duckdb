@@ -6,6 +6,8 @@ from pathlib import Path
 from .task_adapter import MAX_INPUT_BYTES
 from .task_objects import TaskObjects, input_reference
 
+from cove_duckdb.region import region
+
 
 def input_batches(file, *, batch_size=512):
     """Never pass s3_uri alone to a library that could silently read latest."""
@@ -16,7 +18,7 @@ def input_batches(file, *, batch_size=512):
     if type(batch_size) is not int or not 1 <= batch_size <= 512:
         raise ValueError("Input batch size must be between 1 and 512")
     environment = json.loads(Path("/opt/cove/environment.json").read_text())
-    objects = TaskObjects(boto3.client("s3", region_name="us-west-2"), environment["bucket"],
+    objects = TaskObjects(boto3.client("s3", region_name=region()), environment["bucket"],
                           environment["space_id"], environment["generation"])
     raw = objects.read(input_reference(file), "inputs", maximum_bytes=MAX_INPUT_BYTES)
     parquet = pq.ParquetFile(pa.BufferReader(raw))

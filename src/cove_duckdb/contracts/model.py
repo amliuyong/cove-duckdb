@@ -53,7 +53,6 @@ LIMITS = {
     "query_max_rows": 10000, "query_timeout_ms": 300000, "pipeline_tasks": 128,
     "manifest_files": 10000, "max_attempts": 10, "artifact_bytes": 10485760,
     "artifact_package_bytes": 52428800, "parameters": 128,
-    "baseline_region": "us-west-2",
     "supported_lambda_modes": ["standard"], "max_active_runs": 1,
 }
 
@@ -596,10 +595,10 @@ def schemas():
         "executor_binding": {
             "oneOf": [
                 obj({"executor": {"const": "lambda"}, "profile": text(128), "lambda_mode": {"const": "standard"},
-                     "function_arn": text(512, r"^arn:aws:lambda:us-west-2:[0-9]{12}:function:[A-Za-z0-9_-]+:[1-9][0-9]*$")}),
+                     "function_arn": text(512, r"^arn:aws:lambda:[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*:[0-9]{12}:function:[A-Za-z0-9_-]+:[1-9][0-9]*$")}),
                 obj({"executor": {"const": "ecs_task"}, "profile": text(128),
-                     "task_definition_arn": text(512, r"^arn:aws:ecs:us-west-2:[0-9]{12}:task-definition/[A-Za-z0-9_-]+:[1-9][0-9]*$"),
-                     "image": text(512, r"^[0-9]{12}\.dkr\.ecr\.us-west-2\.amazonaws\.com/[A-Za-z0-9_/-]+@sha256:[0-9a-f]{64}$")}),
+                     "task_definition_arn": text(512, r"^arn:aws:ecs:[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*:[0-9]{12}:task-definition/[A-Za-z0-9_-]+:[1-9][0-9]*$"),
+                     "image": text(512, r"^[0-9]{12}\.dkr\.ecr\.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*\.amazonaws\.com/[A-Za-z0-9_/-]+@sha256:[0-9a-f]{64}$")}),
             ]
         },
         "environment_metadata": obj({
@@ -778,11 +777,11 @@ def schemas():
         "cost_report": obj({
             "space_id": identifier, "generation": identifier, "since": stamp, "until": stamp, "observed_at": stamp,
             "basis": {"const": "MEASURED_USAGE_X_LIST_PRICE"},
-            "prices": obj({"region": {"const": "us-west-2"}, "currency": {"const": "USD"},
-                           "retrieved": text(10, r"^\d{4}-\d\d-\d\d$"), "sources": array(text(512), 16, 1)}),
+            "prices": obj({"region": text(64, r"^[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*$"), "currency": {"const": "USD"},
+                           "retrieved": nullable(text(10, r"^\d{4}-\d\d-\d\d$")), "sources": array(text(512), 16)}),
             "lines": array(ref("cost_line"), 2000), "truncated": boolean,
             "totals": mapping({"type": "number", "minimum": 0}, 8, keys="cost_category"),
-            "excluded": array(text(256), 32), "status": enum("COMPLETE", "PARTIAL"),
+            "excluded": array(text(256), 32), "status": enum("COMPLETE", "PARTIAL", "UNKNOWN"),
             # Workloads whose usage could not be measured; PARTIAL exactly when any are listed.
             "unmeasured": array(obj({"kind": text(64), "id": text(1024), "reason": text(128)},
                                     ["kind", "id", "reason"]), 200),

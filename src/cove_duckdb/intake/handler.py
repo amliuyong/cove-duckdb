@@ -8,6 +8,7 @@ from functools import lru_cache
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError, ReadTimeoutError
 
+from cove_duckdb.region import region
 from cove_duckdb.contracts.validation import ContractError, validate
 from cove_duckdb.control.http import body_bytes, decode_json, response, verified_principal
 from cove_duckdb.control.keys import KeyStore
@@ -87,9 +88,9 @@ def sdk_clients():
     from botocore.config import Config
 
     options = Config(connect_timeout=3, read_timeout=5, retries={"total_max_attempts": 2})
-    return (boto3.client("dynamodb", config=options), boto3.client("s3", config=options),
-            boto3.client("sqs", config=options), boto3.client("cloudwatch", config=options),
-            boto3.client("lambda", config=Config(
+    return (boto3.client("dynamodb", region_name=region(), config=options), boto3.client("s3", region_name=region(), config=options),
+            boto3.client("sqs", region_name=region(), config=options), boto3.client("cloudwatch", region_name=region(), config=options),
+            boto3.client("lambda", region_name=region(), config=Config(
                 connect_timeout=3, read_timeout=23, retries={"total_max_attempts": 1})))
 
 
@@ -160,7 +161,7 @@ def probe_handler(event, context):
             "Bucket": "cove-intake-unavailable-probe"})
     elif fault == "queue_rejected":
         intake.sqs = UnavailableDestination(intake.sqs, "send_message", {
-            "QueueUrl": "https://sqs.us-west-2.amazonaws.com/" + os.environ["COVE_ACCOUNT"]
+            "QueueUrl": "https://sqs." + region() + ".amazonaws.com/" + os.environ["COVE_ACCOUNT"]
                         + "/cove-intake-unavailable-probe.fifo"})
     elif fault not in {None, "response_lost"}:
         return response(400, {"code": "INVALID_PROBE_FAULT", "message": "Invalid private qualification fault",

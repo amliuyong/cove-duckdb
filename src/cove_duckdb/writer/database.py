@@ -4,6 +4,8 @@ import hashlib
 import json
 from pathlib import Path
 
+from cove_duckdb.region import region
+
 
 def native_uri(configuration):
     # DuckDB reserves attached file URLs across the whole process, even when
@@ -57,7 +59,7 @@ class Database:
         # enabled; materialized credentials remain internal, never selected/logged.
         connection.execute(
             "CREATE SECRET task_role (TYPE S3, PROVIDER credential_chain, REFRESH 'auto', "
-            "REGION 'us-west-2', SCOPE '" + uri.replace("'", "''") + "')")
+            "REGION '" + region() + "', SCOPE '" + uri.replace("'", "''") + "')")
         stage("TASK_ROLE_SECRET_CREATED")
         guard()
         connection.execute("ATTACH '" + native_uri(configuration) + "' AS warehouse")

@@ -13,6 +13,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+FIXTURE_REGION = json.loads((ROOT / "tests/fixture-region.json").read_text())["region"]
 
 
 def main():
@@ -43,7 +44,8 @@ def main():
         "source_commit": head, "source_tree": tree, "sources": sources}, sort_keys=True) + "\n")
     # Suites run without per-request timing lines (timing tests enable it themselves), against the AWS
     # documentation example account.
-    env = dict(os.environ, PYTHONPATH=str(package), COVE_TIMING="off", COVE_ACCOUNT="123456789012")
+    env = dict(os.environ, PYTHONPATH=str(package), COVE_TIMING="off", COVE_ACCOUNT="123456789012",
+               COVE_REGION=FIXTURE_REGION, AWS_REGION=FIXTURE_REGION, AWS_DEFAULT_REGION=FIXTURE_REGION)
     checks = [
         [sys.executable, "-m", "cove_duckdb.contracts", "generate", "--check"],
         [sys.executable, "-m", "unittest", "discover", "-s", str(ROOT / "tests/control"), "-v"],

@@ -51,7 +51,6 @@
     "gcc": "13.3.0"
   },
   "aws": {
-    "region": "us-west-2",
     "credential_provider": "instance"
   }
 }

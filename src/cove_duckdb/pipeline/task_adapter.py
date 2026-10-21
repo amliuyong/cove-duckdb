@@ -9,6 +9,7 @@ import uuid
 import zipfile
 from pathlib import Path
 
+from cove_duckdb.region import region
 from cove_duckdb.contracts.model import LIMITS, TASK_BUDGETS
 from cove_duckdb.contracts.validation import ContractError, safe_relative, validate, validate_parameters
 from cove_duckdb.control.http import decode_json
@@ -259,7 +260,7 @@ class TaskAdapter:
         return {**{name: os.environ[name] for name in inherited if name in os.environ},
                 "PATH": os.defpath, "PYTHONPATH": self.python_path,
                 "PYTHONDONTWRITEBYTECODE": "1", "PYTHONUNBUFFERED": "1", "PYTHONNOUSERSITE": "1",
-                "AWS_REGION": "us-west-2", "AWS_DEFAULT_REGION": "us-west-2",
+                "COVE_REGION": region(), "AWS_REGION": region(), "AWS_DEFAULT_REGION": region(),
                 "AWS_EC2_METADATA_DISABLED": "true", "TMPDIR": str(temporary)}
 
     def _stage(self, reference, descriptor, context, checked, process, workspace, guard):

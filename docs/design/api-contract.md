@@ -1,6 +1,6 @@
 # Cove DuckDB API contract
 
-Applies to release 1.0.0. Every route below is implemented in 1.0.0; the [user guide](../user-guide.md) describes how to use them. Operator-only actions (space provisioning, quotas, backups and restores, installation) use IAM tools, not public routes; see the [installation guide](../installation.md).
+Follows current source; changes after the published 1.0.0 tag are identified in the [release notes](../release-notes.md#changes-after-100). Every route below is implemented in 1.0.0; the [user guide](../user-guide.md) describes how to use them. Operator-only actions (space provisioning, quotas, backups and restores, installation) use IAM tools, not public routes; see the [installation guide](../installation.md).
 
 The executable contract is [OpenAPI 3.1](../../src/cove_duckdb/contracts/v1/openapi.json) plus [JSON Schema](../../src/cove_duckdb/contracts/v1/contracts.schema.json) and [semantic validation](../../src/cove_duckdb/contracts/validation.py). These are offline contract checks: they do not authenticate a key or prove that a referenced resource exists, which the services check independently. Unknown request fields and caller-supplied execution resources are rejected.
 
@@ -440,3 +440,9 @@ Required scope: `keys:manage`. The body uses the same name/scopes/expires_at fie
 Required scope: `keys:manage`. Revoke the key and retain its audit identity. Rotation creates a replacement key, lets the caller transition, then revokes the previous key.
 
 The first management key is issued by a controlled deployment bootstrap. Public APIs do not provide an unauthenticated administrator/key-creation path.
+
+## Deployment region and cost observations
+
+The deployment selects one commercial AWS region (partition `aws`) through `COVE_REGION` / `AWS_REGION`; conflicting settings fail before AWS calls. Stack resources use `AWS::Region`, services use the injected runtime region, and executor approval binds account, exact deployed region and runtime namespace. A contract-valid ARN from another region still cannot pass runtime approval. Chinese, GovCloud and isolated partitions are outside this contract.
+
+Cost reports use only a price snapshot for the deployed region. With none, `status` is `UNKNOWN`, `prices.retrieved` is null, `prices.sources`, `lines` and `totals` are empty, and `unmeasured` names `REGIONAL_PRICES_UNAVAILABLE`. Existing `COMPLETE` / `PARTIAL` observations retain their meanings when regional prices are available. Price snapshot keys and provenance identify the region actually priced; they do not configure deployment.

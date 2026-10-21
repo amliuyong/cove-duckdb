@@ -9,6 +9,8 @@ from botocore.exceptions import BotoCoreError, ClientError
 from .keys import KeyStore
 from .registry import ControlError
 
+from cove_duckdb.region import region
+
 
 def authorize(event, keys):
     try:
@@ -31,4 +33,4 @@ def handler(event, context):
 
 def probe_handler(event, context):
     """IAM-only qualification function; no API Gateway invocation permission."""
-    return authorize(event, KeyStore(boto3.client("dynamodb"), os.environ["COVE_CONTROL_TABLE"]))
+    return authorize(event, KeyStore(boto3.client("dynamodb", region_name=region()), os.environ["COVE_CONTROL_TABLE"]))

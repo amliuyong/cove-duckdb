@@ -7,6 +7,7 @@ from functools import lru_cache
 import boto3
 from botocore.exceptions import BotoCoreError, ClientError
 
+from cove_duckdb.region import region
 from cove_duckdb.account import account
 from cove_duckdb.contracts.validation import ContractError
 from .registry import ControlError, Registry
@@ -291,11 +292,11 @@ def clients():
     # Presigned uploads must bind length/checksum/conditional headers using SigV4, on the regional
     # endpoint: a new bucket's global-endpoint name answers 307 until its DNS propagates.
     s3_options = options.merge(Config(signature_version="s3v4", s3={"addressing_style": "virtual"}))
-    region = os.environ.get("AWS_REGION", "us-west-2")
-    return (boto3.client("dynamodb", config=options),
-            boto3.client("s3", config=s3_options, region_name=region,
-                         endpoint_url=f"https://s3.{region}.amazonaws.com"),
-            boto3.client("lambda", config=Config(
+    current_region = region()
+    return (boto3.client("dynamodb", config=options, region_name=current_region),
+            boto3.client("s3", config=s3_options, region_name=current_region,
+                         endpoint_url=f"https://s3.{current_region}.amazonaws.com"),
+            boto3.client("lambda", region_name=current_region, config=Config(
                 connect_timeout=3, read_timeout=23, retries={"total_max_attempts": 1})))
 
 
@@ -368,7 +369,7 @@ def monitoring_clients():
     from botocore.config import Config
 
     options = Config(connect_timeout=3, read_timeout=5, retries={"total_max_attempts": 2})
-    return boto3.client("sqs", config=options), boto3.client("cloudwatch", config=options)
+    return boto3.client("sqs", region_name=region(), config=options), boto3.client("cloudwatch", region_name=region(), config=options)
 
 
 def run_service(pipelines, keys, lam, s3, quotas=None):
@@ -413,4 +414,4 @@ def environment_clients():
     from botocore.config import Config
 
     options = Config(connect_timeout=3, read_timeout=5, retries={"total_max_attempts": 1})
-    return tuple(boto3.client(name, config=options) for name in ["codebuild", "ecr", "ecs"])
+    return tuple(boto3.client(name, region_name=region(), config=options) for name in ["codebuild", "ecr", "ecs"])

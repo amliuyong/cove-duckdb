@@ -1,8 +1,10 @@
 """Isolated trusted ARM builder; dependency code receives no build credentials."""
 
 
-REGION = "us-west-2"
+REGION = "${AWS::Region}"
 
+
+from cove_duckdb.region import regional
 
 def template(baseline, source, policy, project, *, account):
     bucket, repository, prefix = baseline["DataBucket"], policy["repository"], policy["runtime_prefix"]
@@ -132,11 +134,13 @@ def template(baseline, source, policy, project, *, account):
             "Environment": {"Type": "ARM_CONTAINER", "ComputeType": "BUILD_GENERAL1_SMALL",
                             "Image": policy["builder_image"], "ImagePullCredentialsType": "CODEBUILD",
                             "PrivilegedMode": True,
-                            "EnvironmentVariables": [{"Name": "COVE_ACCOUNT", "Value": account, "Type": "PLAINTEXT"}]},
+                            "EnvironmentVariables": [{"Name": "COVE_ACCOUNT", "Value": account, "Type": "PLAINTEXT"},
+                                {"Name": "COVE_REGION", "Value": {"Ref": "AWS::Region"}, "Type": "PLAINTEXT"},
+                                {"Name": "AWS_DEFAULT_REGION", "Value": {"Ref": "AWS::Region"}, "Type": "PLAINTEXT"}]},
             "LogsConfig": {"CloudWatchLogs": {"Status": "ENABLED", "GroupName": {"Ref": "BuildLogs"}}},
         }},
     }
-    return {
+    return regional({
         "AWSTemplateFormatVersion": "2010-09-09",
         "Description": "Cove DuckDB immutable Python environments",
         "Resources": resources,
@@ -151,4 +155,4 @@ def template(baseline, source, policy, project, *, account):
             "SourceCommit": {"Value": policy["source_commit"]},
             "BaselineStackId": {"Value": baseline["StackId"]},
         },
-    }
+    })

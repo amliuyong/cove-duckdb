@@ -12,7 +12,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(ROOT / "src"), str(Path(__file__).parent)]
 from infra.template import template
-from manage import ACCOUNT, REPOSITORY, STACKS, encode, outputs, owned_stack, publish_artifact, push_image, session, source, storage_image, template_arguments, update_stack, vault_bucket, wait
+from manage import REGION, ACCOUNT, REPOSITORY, STACKS, encode, outputs, owned_stack, publish_artifact, push_image, session, source, storage_image, template_arguments, update_stack, vault_bucket, wait
 from cove_duckdb.writer.controller import Controller
 
 
@@ -99,7 +99,7 @@ def main():
     # Push only to the existing private project repository (an identical earlier push is reused).
     tag = "writer-" + head
     save("image-admission", {"source_commit": head, "local_image_id": image["image_id"],
-                             "target": f"{ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/{REPOSITORY}:{tag}"})
+                             "target": f"{ACCOUNT}.dkr.ecr.{REGION}.amazonaws.com/{REPOSITORY}:{tag}"})
     writer_image, published = push_image(current, image["tag"], image["image_id"], tag, directory / "image-push.log")
     save("image", {"source_commit": head, "writer_image": writer_image, "published": published,
                    "local_image_id": image["image_id"]})

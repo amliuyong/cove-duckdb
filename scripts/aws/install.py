@@ -20,7 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path[:0] = [str(ROOT), str(Path(__file__).parent)]
-from manage import REPOSITORY, STACKS, encode, session, source, storage_image
+from manage import REGION, REPOSITORY, STACKS, encode, session, source, storage_image
 
 PLANS = {
     # Bearer admission precedes the writer; control binds the writer source afterwards.
@@ -116,7 +116,7 @@ def main():
         "open": ["admission.py", "open", "--query-count", args.query_count],
     }
     environment = {key: value for key, value in os.environ.items() if key not in {"AWS_PROFILE", "AWS_DEFAULT_PROFILE"}}
-    environment.update(AWS_REGION="us-west-2", COVE_ENVIRONMENT=STACKS["environment"])
+    environment.update(COVE_REGION=REGION, AWS_REGION=REGION, AWS_DEFAULT_REGION=REGION, COVE_ENVIRONMENT=STACKS["environment"])
     for step in steps:
         started = time.monotonic()
         tool, *arguments = commands[step]

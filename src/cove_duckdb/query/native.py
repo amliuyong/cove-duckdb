@@ -6,6 +6,7 @@ import json
 import re
 from pathlib import Path
 
+from cove_duckdb.region import region
 from cove_duckdb.contracts.validation import validate
 from cove_duckdb.control.registry import ControlError, canonical
 from cove_duckdb.pipeline.publications import resolve_release
@@ -450,7 +451,7 @@ class Reader:
                                    ('duckdb_objfs_root', prefix)]:
                 c.execute('SET '+setting+'=?', [value])
             c.execute("CREATE SECRET task_role (TYPE S3, PROVIDER credential_chain, REFRESH 'auto', "
-                "REGION 'us-west-2', SCOPE '"+uri.replace("'", "''")+"')")
+                "REGION '" + region() + "', SCOPE '"+uri.replace("'", "''")+"')")
             guard()
             c.execute("ATTACH '"+native_uri(configuration)+"' AS warehouse (READ_ONLY)")
         except BaseException:

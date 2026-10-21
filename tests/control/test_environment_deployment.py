@@ -22,9 +22,9 @@ class DeploymentTests(unittest.TestCase):
     def test_independent_environments_share_no_stack_name_or_runtime_wildcard(self):
         names = module("names")
         first, isolated = names.names("prod"), names.names("uatb")
-        self.assertEqual(first, {"environment": "prod", "baseline": "cove-duck-prod-core",
-                                 "control": "cove-duck-prod-control", "environments": "cove-duck-prod-builder",
-                                 "runtime_prefix": "cove-duck-prod-env-"})
+        self.assertEqual({key: first[key] for key in ["environment", "baseline", "control", "environments"]},
+                         {"environment": "prod", "baseline": "cove-duck-prod-core",
+                          "control": "cove-duck-prod-control", "environments": "cove-duck-prod-builder"})
         self.assertFalse({first[key] for key in ["baseline", "control", "environments"]}
                          & {isolated[key] for key in ["baseline", "control", "environments"]})
         # Neither environment's IAM wildcard (<prefix>*) matches the other's runtime resources.
@@ -87,7 +87,8 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(variables["COVE_WRITER_SOURCE_COMMIT"], "1" * 40)
 
         from cove_duckdb.control import handler
-        environment = {**variables, "COVE_ENVIRONMENT_PROJECT": "", "COVE_ENVIRONMENT_POLICY": "{}"}
+        environment = {**variables, "COVE_REGION": "us-west-2",
+                       "COVE_ENVIRONMENT_PROJECT": "", "COVE_ENVIRONMENT_POLICY": "{}"}
         with patch.dict(os.environ, environment), patch.object(handler, "clients", return_value=(Mock(), Mock(), Mock())):
             with patch("cove_duckdb.control.status.Ledger") as ledger, patch.object(handler, "handle"):
                 handler.handler({}, None)

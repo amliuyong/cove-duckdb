@@ -10,6 +10,8 @@ from pathlib import Path
 
 import duckdb
 
+from cove_duckdb.region import region
+
 
 def connect(args):
     artifacts = Path(args.artifacts).resolve()
@@ -47,7 +49,7 @@ def connect(args):
     # are exported, persisted, selected, or included in evidence.
     connection.execute(
         "CREATE SECRET ec2_role (TYPE S3, PROVIDER credential_chain, CHAIN 'instance', "
-        "REGION 'us-west-2', SCOPE '" + scope.replace("'", "''") + "')"
+        "REGION '" + region() + "', SCOPE '" + scope.replace("'", "''") + "')"
     )
     suffix = " (READ_ONLY)" if args.phase == "read" else ""
     connection.execute("ATTACH 'duckdb_objfs://warehouse.db' AS warehouse" + suffix)
