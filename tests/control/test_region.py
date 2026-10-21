@@ -78,6 +78,29 @@ class Regions(unittest.TestCase):
         self.assertFalse(prefixes[1].startswith(prefixes[0]))
         self.assertTrue(all(len(prefix + "f" * 32) <= 64 for prefix in prefixes))
 
+    def test_same_stack_name_in_two_regions_has_disjoint_cloudfront_names(self):
+        spec = importlib.util.spec_from_file_location("regional_template", ROOT / "infra/template.py")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        resources = module.template()["Resources"]
+        names = []
+        for value in ["us-west-2", "us-east-2"]:
+            regional_names = set()
+            for resource in resources.values():
+                if resource["Type"] == "AWS::CloudFront::Distribution":
+                    continue
+                if resource["Type"].startswith("AWS::CloudFront::"):
+                    configuration, = resource["Properties"].values()
+                    name = configuration["Name"]["Fn::Sub"].replace(
+                        "${AWS::StackName}", "cove-duck-" + "a" * 12 + "-core").replace(
+                        "${AWS::Region}", value)
+                    self.assertNotIn("${", name)
+                    self.assertLessEqual(len(name), 64)
+                    regional_names.add(name)
+            self.assertEqual(len(regional_names), 4)
+            names.append(regional_names)
+        self.assertTrue(names[0].isdisjoint(names[1]))
+
     def test_an_unpriced_region_returns_unknown_without_borrowing_prices_or_measuring_workloads(self):
         principal = Principal("owner", frozenset(["fixture"]), frozenset(["monitor:read"]), "key",
                               "gen_fixture")

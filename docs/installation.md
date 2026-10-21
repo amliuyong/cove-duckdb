@@ -75,6 +75,7 @@ git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git 
 
 - 每套环境的运行时资源使用各自的前缀 `cove-duck-<namespace>-env-`（namespace 是环境名与区域的 SHA-256 前 16 位）；
 - IAM 通配符不会匹配其他环境或区域的函数、任务定义或角色。IAM 角色属于整个账号，因此同名环境在不同区域也使用不同 namespace；运行时函数名仍不超过 64 字符。
+- CloudFront 的 OAC、响应头策略、缓存策略和源请求策略属于账号全局资源；名称包含栈名与区域，避免同名环境跨区安装时冲突。
 
 ## 3. 前置条件
 

@@ -469,11 +469,12 @@ def template():
         DefaultRouteSettings={"ThrottlingBurstLimit": 20, "ThrottlingRateLimit": 10},
         AccessLogSettings={"DestinationArn": get("ApiLogs", "Arn"),
                            "Format": '{"requestId":"$context.requestId","status":"$context.status","route":"$context.routeKey"}'})
+    # CloudFront names are account-global, even though their stacks are regional.
     add("OriginAccess", "AWS::CloudFront::OriginAccessControl",
-        OriginAccessControlConfig={"Name": sub("${AWS::StackName}-web"), "OriginAccessControlOriginType": "s3",
+        OriginAccessControlConfig={"Name": sub("${AWS::StackName}-${AWS::Region}-web"), "OriginAccessControlOriginType": "s3",
                                    "SigningBehavior": "always", "SigningProtocol": "sigv4"})
     add("Headers", "AWS::CloudFront::ResponseHeadersPolicy", ResponseHeadersPolicyConfig={
-        "Name": sub("${AWS::StackName}-security"), "SecurityHeadersConfig": {
+        "Name": sub("${AWS::StackName}-${AWS::Region}-security"), "SecurityHeadersConfig": {
             "ContentSecurityPolicy": {"ContentSecurityPolicy":
                 "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; "
                 "base-uri 'none'; frame-ancestors 'none'; form-action 'none'", "Override": True},
@@ -481,14 +482,14 @@ def template():
             "ContentTypeOptions": {"Override": True}, "FrameOptions": {"FrameOption": "DENY", "Override": True},
             "ReferrerPolicy": {"ReferrerPolicy": "no-referrer", "Override": True}}})
     add("BrowserApiCache", "AWS::CloudFront::CachePolicy", CachePolicyConfig={
-        "Name": sub("${AWS::StackName}-browser-api-no-cache"),
+        "Name": sub("${AWS::StackName}-${AWS::Region}-browser-api-no-cache"),
         "DefaultTTL": 0, "MinTTL": 0, "MaxTTL": 0,
         "ParametersInCacheKeyAndForwardedToOrigin": {
             "EnableAcceptEncodingGzip": False, "EnableAcceptEncodingBrotli": False,
             "HeadersConfig": {"HeaderBehavior": "none"}, "CookiesConfig": {"CookieBehavior": "none"},
             "QueryStringsConfig": {"QueryStringBehavior": "none"}}})
     add("BrowserApiForwarding", "AWS::CloudFront::OriginRequestPolicy", OriginRequestPolicyConfig={
-        "Name": sub("${AWS::StackName}-browser-api"),
+        "Name": sub("${AWS::StackName}-${AWS::Region}-browser-api"),
         # Bearer authorization reaches Gateway; the origin supplies its own Host.
         "HeadersConfig": {"HeaderBehavior": "allExcept", "Headers": ["host"]},
         "CookiesConfig": {"CookieBehavior": "none"},
