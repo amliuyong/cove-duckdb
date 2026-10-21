@@ -1,9 +1,13 @@
 """The browser can reach authenticated API routes without sharing cached responses."""
 import importlib.util
 import copy
+import os
 import sys
 import unittest
 from pathlib import Path
+
+# The operator tools name their stacks from an explicit environment.
+os.environ.setdefault("COVE_ENVIRONMENT", "qa")
 
 ROOT = Path(__file__).resolve().parents[2]
 
