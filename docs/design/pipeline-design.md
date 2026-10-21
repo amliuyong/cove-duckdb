@@ -1,10 +1,10 @@
 # 内置流水线：SQL、Python 与外部编排
 
-适用版本：1.0.0。定义与版本、运行与 DAG、调度、取消与重试、SQL / Python 任务、固定输入、原生发布与 Airflow 编排均已实现，使用方式见[用户手册](../user-guide.md)。任务示例用于验证数据合同。
+适用版本：1.1.0。定义与版本、运行与 DAG、调度、取消与重试、SQL / Python 任务、固定输入、原生发布与 Airflow 编排均已实现，使用方式见[用户手册](../user-guide.md)。任务示例用于验证数据合同。
 
 合同版本 1 的[机器合同](../../src/cove_duckdb/contracts/v1/contracts.schema.json)、[profile 与准入上限](../../src/cove_duckdb/contracts/v1/profiles.json)和[语义校验器](../../src/cove_duckdb/contracts/validation.py)明确准入上限、输入/输出字段和状态规则；JSON Schema 通过仍需语义及真实资源校验。writer 任务省略 runtime_environment/input_mode，使用平台固定环境和原生版本绑定；外部任务显式声明这些字段。
 
-1.0.0 的升级是停机的破坏性升级，见[安装部署手册](../installation.md#10-破坏性升级)。本文的固定版本约束适用于单次运行及当前合同，不要求旧产品版本的定义或运行继续工作。
+升级是停机的破坏性升级，见[安装部署手册](../installation.md#10-破坏性升级)。本文的固定版本约束适用于单次运行及当前合同，不要求旧产品版本的定义或运行继续工作。
 
 ## 1. 产品边界
 
@@ -69,11 +69,11 @@ ODS orders
 
 执行配置由平台绑定 AWS 资源；调用者不能提交任意 function ARN、task definition、镜像或 IAM role。Lambda 调度绑定函数的已发布数字版本，ECS 调度绑定模板 revision 和镜像 digest。用户选择的是批准的 profile。
 
-当前 AWS 文档（查阅日期 2026-10-15）说明，普通 Lambda 单次最多 900 秒；Lambda Managed Instances 的异步调用或符合条件的 event source mapping 最多 5,400 秒，Amazon MQ / DocumentDB 的相关入口不适用该延长时限。`executor: lambda` 的 profile 必须明确 `standard` 或 `managed_instances`，不能仅凭 executor 名称接受 90 分钟配置。1.0.0 只提供 standard profile，Managed Instances profile 尚未实现。
+当前 AWS 文档（查阅日期 2026-10-15）说明，普通 Lambda 单次最多 900 秒；Lambda Managed Instances 的异步调用或符合条件的 event source mapping 最多 5,400 秒，Amazon MQ / DocumentDB 的相关入口不适用该延长时限。`executor: lambda` 的 profile 必须明确 `standard` 或 `managed_instances`，不能仅凭 executor 名称接受 90 分钟配置。1.1.0 只提供 standard profile，Managed Instances profile 尚未实现。
 
 Managed Instances 在客户拥有的 EC2 上运行，并可能在超时响应后继续执行代码，因此不能把 TIMEOUT 当作旧计算已停止的证明。不同 invocation 使用独立工作目录，失效 attempt 永远不能发布。其成本、并发、终止及隔离行为尚未验证。
 
-Lambda Durable Functions 支持最长一年的可恢复工作流，但这不是一段 Python 计算可以连续运行一年的承诺。Cove 的主 DAG 由自身管理；1.0.0 尚未提供 durable profile。durable profile 如用于多步骤任务，需记录 durable execution identity，约束 checkpoint/replay 的副作用，最后仍执行相同的产物校验和发布协议。
+Lambda Durable Functions 支持最长一年的可恢复工作流，但这不是一段 Python 计算可以连续运行一年的承诺。Cove 的主 DAG 由自身管理；1.1.0 尚未提供 durable profile。durable profile 如用于多步骤任务，需记录 durable execution identity，约束 checkpoint/replay 的副作用，最后仍执行相同的产物校验和发布协议。
 
 执行器不会因为一次运行超时就直接换一种执行器重放。要先确认原尝试的输出及发布结果，并以新的 attempt 和固定输入重试；迁移 executor 需要新定义版本或明确的受控运行配置。
 

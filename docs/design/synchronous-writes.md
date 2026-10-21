@@ -1,6 +1,6 @@
 # 同步业务表写入
 
-适用版本：1.0.0。同步写由机器合同校验、原生事务和独立私网代理实现；接口见 [API 契约](api-contract.md#synchronous-table-writes)，使用方式见[用户手册](../user-guide.md)。公开写后查询（`after_write`）见第 6 节。多 DuckDB 分片与独立写者只是尚未设计的演进方向，不在 1.0.0 范围内（见[发行说明](../release-notes.md#计划中尚未实现)）。
+适用版本：1.1.0。同步写由机器合同校验、原生事务和独立私网代理实现；接口见 [API 契约](api-contract.md#synchronous-table-writes)，使用方式见[用户手册](../user-guide.md)。公开写后查询（`after_write`）见第 6 节。多 DuckDB 分片与独立写者只是尚未设计的演进方向，不在 1.1.0 范围内（见[发行说明](../release-notes.md#计划中尚未实现)）。
 
 ## 1. 写入目标与成功语义
 
@@ -11,7 +11,7 @@ Cove DuckDB 提供同步业务表写入和异步批量接入。同步请求在�
 | `POST /v1/spaces/{space_id}/ingestions` | 追加、更新、删除事件，先进入 ODS | `202 ACCEPTED`：原文已归档且 SQS 确认发送 |
 | `POST /v1/spaces/{space_id}/writes` | 注册且允许直接写入的业务表 | `200 COMMITTED`：目标数据、写入账本、变更记录和数据集水位已在同库事务中持久提交 |
 
-等待 ODS 接入提交与同步改写目标业务表具有不同语义。同步表写入不等待 DWD/DWS/ADS 流水线完成；响应不宣称新的分析 release 已发布。1.0.0 不提供任意写 SQL、DDL、跨请求交互事务或跨表/跨库事务 API。
+等待 ODS 接入提交与同步改写目标业务表具有不同语义。同步表写入不等待 DWD/DWS/ADS 流水线完成；响应不宣称新的分析 release 已发布。1.1.0 不提供任意写 SQL、DDL、跨请求交互事务或跨表/跨库事务 API。
 
 ## 2. 注册、权限与原生约束
 
@@ -54,7 +54,7 @@ API Gateway → Lambda Authorizer
 
 每库的同步表写、FIFO 接入、流水线导入和发布进入同一调度器。FIFO 只保证其接入消息顺序；两类入口没有共同的客户端到达顺序承诺，实际数据库提交序号定义已完成事务的顺序。同步请求不插队抢占进行中的事务，不增加第二写者。配额约束请求体、行数、排队、并发等待和事务资源；公平调度保证异步接入与分块导入能继续推进。
 
-1.0.0 的同步请求上限为 1 MiB、1,000 项；`timeout_ms` 默认为 10,000，范围为 1–20,000，包含入口验证、排队和等待提交的预算。部署还需为响应保留余量，受 HTTP API 的 30 秒集成上限约束。这些是接口边界，不是提交延迟或吞吐承诺。未进入执行的过载请求返回 `429`、`status=NOT_SUBMITTED` 和重试提示。
+1.1.0 的同步请求上限为 1 MiB、1,000 项；`timeout_ms` 默认为 10,000，范围为 1–20,000，包含入口验证、排队和等待提交的预算。部署还需为响应保留余量，受 HTTP API 的 30 秒集成上限约束。这些是接口边界，不是提交延迟或吞吐承诺。未进入执行的过载请求返回 `429`、`status=NOT_SUBMITTED` 和重试提示。
 
 ## 5. 持久性、幂等与超时
 
@@ -76,13 +76,13 @@ HTTP 超时不承诺数据库回滚，也不自动转成 `202` 异步接入。�
 
 `GET /writes/{write_id}` 向活动写者的权威账本核对；DynamoDB 可保存监控投影，但不独自决定 COMMITTED/REJECTED。账本不可用、投影缺失、permit 不明、接管中或存在未完成原执行时返回 UNKNOWN；单次“没有记录”不证明没有提交。恢复后先核对原身份和同库账本，再决定是否可执行未提交的原请求。恢复未完成时拒绝新执行。
 
-重试窗口为 30 天，回执与身份至少保留至窗口结束；1.0.0 保守保留整个 generation 的记录，不自动回收 UNKNOWN。写者在排队前以条件创建保存 `spaces/<space>/write-intents/<generation>/<write_id>.json` 原请求，绑定首个 principal、规范化业务摘要、schema 和源提交。S3 原请求不是异步派发队列或提交凭证；`ctl.writes` 始终是权威结果。代理没有 S3 写入权限。
+重试窗口为 30 天，回执与身份至少保留至窗口结束；1.1.0 保守保留整个 generation 的记录，不自动回收 UNKNOWN。写者在排队前以条件创建保存 `spaces/<space>/write-intents/<generation>/<write_id>.json` 原请求，绑定首个 principal、规范化业务摘要、schema 和源提交。S3 原请求不是异步派发队列或提交凭证；`ctl.writes` 始终是权威结果。代理没有 S3 写入权限。
 
-1.0.0 的原生格式为 5。物理表实际创建结构化 `constraints.primary_key / unique / foreign_keys / checks` 和 `indexes`，并封存列、原生约束及索引的目录摘要。外键引用只能指向已注册的直接写目标；不得用注册键代替原生唯一约束。格式变化时停止旧实例并使用新的 generation，不迁移旧格式（见[安装部署手册](../installation.md#10-破坏性升级)）。
+1.1.0 的原生格式为 5。物理表实际创建结构化 `constraints.primary_key / unique / foreign_keys / checks` 和 `indexes`，并封存列、原生约束及索引的目录摘要。外键引用只能指向已注册的直接写目标；不得用注册键代替原生唯一约束。格式变化时停止旧实例并使用新的 generation，不迁移旧格式（见[安装部署手册](../installation.md#10-破坏性升级)）。
 
 ## 6. 写后读取与分析发布
 
-公开查询以 `consistency: after_write` 和 `write_id` 读取同步写之后的状态；机器查询合同检查这两个条件与 after_ingestion、显式 release 条件互斥。同步写提供权威回执和原生提交前置条件。查询服务重新检查 `query:read`、空间/generation、目标权限及回执可见性，确认 COMMITTED 后，由活动写者在其进程内的同一原生数据库实例开启新的受控读事务，复制有界快照供查询执行。快照上限见 [API 契约](api-contract.md#catalog-and-sql-queries)；1.0.0 中大快照会超过查询时限，见[发行说明](../release-notes.md#限制)。
+公开查询以 `consistency: after_write` 和 `write_id` 读取同步写之后的状态；机器查询合同检查这两个条件与 after_ingestion、显式 release 条件互斥。同步写提供权威回执和原生提交前置条件。查询服务重新检查 `query:read`、空间/generation、目标权限及回执可见性，确认 COMMITTED 后，由活动写者在其进程内的同一原生数据库实例开启新的受控读事务，复制有界快照供查询执行。快照上限见 [API 契约](api-contract.md#catalog-and-sql-queries)与[发行说明](../release-notes.md#限制)。
 
 返回至少包含该次提交的数据库状态和 `read_watermark`；后续已提交的更新/删除可以影响结果。这不是将表固定在 write_id 对应历史版本的时间旅行。REJECTED 不能满足提交前置条件；UNKNOWN/尚未就绪时等待或明确返回未就绪，不在普通读者上返回旧状态冒充成功。
 

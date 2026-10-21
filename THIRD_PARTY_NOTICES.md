@@ -20,7 +20,7 @@ The standalone architecture viewer includes generated runtime code from [Archify
 
 Binary hashes, ABI and source identities are in [runtime/storage-lock.json](runtime/storage-lock.json). The base image and native upstream license files must accompany redistribution as applicable.
 
-## Python distributions in the 1.0.0 release artifacts
+## Python distributions in the 1.1.0 release artifacts
 
 The control ZIP (control, intake, sync and pipeline Lambda code), the writer image and the query image install these locked distributions. The table lists each distribution's declared license metadata; its own license/notice files ship inside the artifact.
 
@@ -42,7 +42,7 @@ The control ZIP (control, intake, sync and pipeline Lambda code), the writer ima
 | pytz | 2026.5 | MIT | control, writer, query |
 | PyYAML | 6.0.1 | MIT | control, writer, query |
 | duckdb | 1.5.6 | MIT | writer, query |
-| pyarrow | 24.0.0 | Apache-2.0 | writer |
+| pyarrow | 24.0.0 | Apache-2.0 | writer, query |
 | pip | 25.0.1 | MIT | writer, query (base image tooling) |
 
 Runtime environments are built from the dependencies a space declares (for example duckdb, numpy, pandas and pyarrow); those distributions keep their own licenses and are not part of the release artifact.

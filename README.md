@@ -9,7 +9,7 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-0b6b69"></a>
-  <a href="docs/release-notes.md"><img alt="Release: 1.0.0" src="https://img.shields.io/badge/Release-1.0.0-475569"></a>
+  <a href="docs/release-notes.md"><img alt="Release: 1.1.0" src="https://img.shields.io/badge/Release-1.1.0-475569"></a>
 </p>
 
 <p align="center">
@@ -22,20 +22,16 @@
 
 Cove DuckDB is a database and analytics product for AWS. Applications write through an API, data teams transform with SQL and Python pipelines, and analysts query durable DuckDB databases stored in Amazon S3 from a Query Editor, with an Admin Console for keys, pipelines, runtime environments and operations.
 
-## Release 1.0.0
+## Release 1.1.0
 
-Version 1.0.0 is the first formal release ([GitHub Release `v1.0.0`](https://github.com/amliuyong/cove-duckdb/releases/tag/v1.0.0)). It covers the current contract and capabilities, accepted on AWS:
+Version 1.1.0 ([GitHub Release `v1.1.0`](https://github.com/amliuyong/cove-duckdb/releases/tag/v1.1.0)) covers the current contract and capabilities, accepted on AWS:
 
-- a single AWS account of your choice (the account ID is taken from the deployment, never from the source), region `us-west-2`, ARM64;
+- a single AWS account of your choice (the account ID is taken from the deployment, never from the source), ARM64;
+- a standard commercial AWS region chosen at installation (`--region` / `COVE_REGION`): `us-east-2` passed fresh installation, all 56 functional UAT cases, backup and isolated restore, upgrade, interrupted redeploy and uninstall; `us-west-2` passed regression; other commercial regions are accepted by configuration but not qualified;
 - DuckDB 1.5.6 on the S3 object filesystem;
 - the writer and query services at 2 vCPU / 4 GiB.
 
-The [release notes](docs/release-notes.md) list the support matrix, sizes, limits and measured baselines, and the items that are planned but not implemented. Measured baselines are in the [performance report](docs/performance.md); no SLA target is claimed. User acceptance is defined by the [UAT test cases](docs/uat/test-cases.md).
-
-
-Current source fixes receipt-snapshot loading with typed Arrow batches and checks source row/byte quotas before copying; see [changes after 1.0.0](docs/release-notes.md#changes-after-100) for validation status. The published `v1.0.0` artifacts retain their documented limits.
-
-Current source also selects its standard AWS commercial region from deployment configuration. On 2026-10-21, `us-east-2` passed fresh installation, all 56 functional UAT cases, backup and isolated restore, upgrade/interrupted redeploy and uninstall; `us-west-2` passed regression and uninstall. Other commercial regions remain unverified. Regional prerequisites and the source-qualified support matrix are in the [installation guide](docs/installation.md#33-区域前置条件) and [release notes](docs/release-notes.md#changes-after-100).
+1.1.0 also loads `after_write` / `after_ingestion` snapshots in typed Arrow batches and checks source row and byte quotas before copying. Upgrading from 1.0.0 requires uninstalling with the 1.0.0 tools and installing 1.1.0 fresh. The [release notes](docs/release-notes.md) list the changes, the acceptance evidence, the support matrix, sizes, limits and measured baselines, and the items that are planned but not implemented. Measured baselines are in the [performance report](docs/performance.md); no SLA target is claimed. User acceptance is defined by the [UAT test cases](docs/uat/test-cases.md).
 
 ## Documentation
 
@@ -50,13 +46,13 @@ Current source also selects its standard AWS commercial region from deployment c
 
 ## Get started
 
-1. From a clean checkout of tag `v1.0.0`, run `./install.sh fresh --environment <name> --account <account-id>`. It checks the deployment host (an ARM64 EC2 instance with an instance role, Python 3.12, Docker for `linux/arm64`, Node.js), builds the release and installs it as a new environment. See the [installation guide](docs/installation.md).
+1. From a clean checkout of tag `v1.1.0`, run `./install.sh fresh --environment <name> --account <account-id> --region <region>`. It checks the deployment host (an ARM64 EC2 instance with an instance role, Python 3.12, Docker for `linux/arm64`, Node.js), builds the release and installs it as a new environment. See the [installation guide](docs/installation.md).
 2. Provision a space and its first administrator key, then run the [quickstart](examples/quickstart/README.md). It covers API ingestion, a synchronous table write with `after_write` read-back, and a published SQL + pandas pipeline queried through SQL.
 3. Continue with the [user guide](docs/user-guide.md) and the [API contract](docs/design/api-contract.md).
 
 ## Product capabilities
 
-| Area | Release 1.0.0 |
+| Area | Release 1.1.0 |
 | --- | --- |
 | Ingestion | Batch API, schema validation, idempotency, FIFO buffering, and traceable ingestion receipts |
 | Direct writes | Registered direct tables, native constraints, atomic insert/upsert/update/delete and durable original receipts ([synchronous writes](docs/design/synchronous-writes.md)) |
@@ -92,7 +88,7 @@ The database's physical S3 objects are managed by SlateDB, including SSTs, WAL, 
 
 Long jobs bind to immutable input files, stage their output in S3, and let the writer import chunks before publishing a new result version. Storage manifest polling does not establish freshness of a persistent DuckDB attachment; ingestion, commit, and query visibility are separate states. See the [engineering design](docs/design/aws-product-design.md).
 
-Python tasks read named Parquet inputs through a context file and output Parquet plus a manifest. Dependencies such as pandas are resolved before publication, locked with hashes and packaged into immutable environments. Standard Lambda supports bounded tasks up to 15 minutes; large jobs use ECS. Lambda Managed Instances and Durable Functions profiles are planned and not part of 1.0.0.
+Python tasks read named Parquet inputs through a context file and output Parquet plus a manifest. Dependencies such as pandas are resolved before publication, locked with hashes and packaged into immutable environments. Standard Lambda supports bounded tasks up to 15 minutes; large jobs use ECS. Lambda Managed Instances and Durable Functions profiles are planned and not part of 1.1.0.
 
 [Interactive architecture](docs/design/architecture.html) · [Engineering design](docs/design/aws-product-design.md) · [API contract](docs/design/api-contract.md) · [Pipeline design](docs/design/pipeline-design.md)
 
@@ -124,7 +120,7 @@ The [development builder](scripts/build_release.py) packages a clean source comm
 
 Use an independent branch and submit a pull request. Keep release copy, API contracts, and engineering design consistent, and distinguish current upstream capabilities from product requirements. See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
-1.0.0 makes no backward-compatibility or data-migration commitment. Upgrades are breaking: close the environment, deploy the new release and rebuild affected spaces (see the [installation guide](docs/installation.md#10-破坏性升级)). How later releases handle breaking changes is stated in their release notes.
+Releases make no backward-compatibility or data-migration commitment. Upgrades are breaking: close the environment, deploy the new release and rebuild affected spaces (see the [installation guide](docs/installation.md#10-破坏性升级)). How later releases handle breaking changes is stated in their release notes.
 
 ## License and attribution
 

@@ -1,8 +1,8 @@
 # Cove DuckDB：AWS 数据库与分析产品设计
 
-适用版本：1.0.0。本文描述 1.0.0 的产品架构；支持矩阵、规格与限制见[发行说明](../release-notes.md)。文中标为演进方向的内容（拆库、多 DuckDB 分片、Lambda Managed Instances / Durable Functions）尚未实现，不在 1.0.0 范围内。
+适用版本：1.1.0。本文描述 1.1.0 的产品架构；支持矩阵、规格与限制见[发行说明](../release-notes.md)。文中标为演进方向的内容（拆库、多 DuckDB 分片、Lambda Managed Instances / Durable Functions）尚未实现，不在 1.1.0 范围内。
 
-1.0.0 不提供向后兼容、旧数据自动迁移或零停机升级：升级先关闭环境，合同或存储格式变化时按空间重建，见[破坏性升级](../installation.md#10-破坏性升级)。单次运行的固定输入、幂等和发布正确性不受此影响。
+各版本不提供向后兼容、旧数据自动迁移或零停机升级：升级先关闭环境，合同或存储格式变化时按空间重建，见[破坏性升级](../installation.md#10-破坏性升级)。单次运行的固定输入、幂等和发布正确性不受此影响。
 
 ## 1. 已确定的架构
 
@@ -31,7 +31,7 @@ DynamoDB 使用一张 `cove-control` 控制面表，保存 API Key、空间路�
 
 ## 2. 存储扩展的能力与边界
 
-下表依据 1.0.0 固定的对象存储扩展提交 `f096ca13244cb586e04ce04417cadfdd5d18cc0c`（见 [storage-lock.json](../../runtime/storage-lock.json)），上游说明查阅于 2026-10-15。“实测”指在该固定运行栈上测得的读写边界，其余为上游说明。
+下表依据 1.1.0 固定的对象存储扩展提交 `f096ca13244cb586e04ce04417cadfdd5d18cc0c`（见 [storage-lock.json](../../runtime/storage-lock.json)），上游说明查阅于 2026-10-15。“实测”指在该固定运行栈上测得的读写边界，其余为上游说明。
 
 | 能力 | 当前文档说明 | 对产品的影响 |
 | --- | --- | --- |
@@ -162,7 +162,7 @@ S3 与 SQS 没有跨服务原子事务。未成功排队的原始对象可能暂
 
 ## 6. DWD → DWS 很慢时怎么办
 
-长计算不放在接入消费循环里。任务按资源和时间预算选择 Lambda 或独立 ECS Task，计算阶段保持旧 DWS/ADS 版本可读，API 继续接入。普通 Lambda 最多 15 分钟；Managed Instances 的合格异步入口可到 90 分钟（1.0.0 尚未提供该 profile），超大或持续计算选择 ECS。具体限制、超时行为和 Durable Functions 边界见[流水线设计](pipeline-design.md)。
+长计算不放在接入消费循环里。任务按资源和时间预算选择 Lambda 或独立 ECS Task，计算阶段保持旧 DWS/ADS 版本可读，API 继续接入。普通 Lambda 最多 15 分钟；Managed Instances 的合格异步入口可到 90 分钟（1.1.0 尚未提供该 profile），超大或持续计算选择 ECS。具体限制、超时行为和 Durable Functions 边界见[流水线设计](pipeline-design.md)。
 
 ```text
 确定 DWD 输入版本
@@ -182,7 +182,7 @@ S3 与 SQS 没有跨服务原子事务。未成功排队的原始对象可能暂
 
 如果 DWD 转换已在计算任务中完成，可直接使用其已发布 Parquet 输出作为后续 DWS 输入；如果 DWD 只存在数据库内，则需要通过写者实例中的稳定读事务导出明确版本并完成清单发布，再启动下游任务。导出本身要预算资源；不能假设对持续变化的只读 attachment 做一次长导出就获得了未经验证的固定快照。
 
-不将当前扩展约 10 秒的 reader polling 解释为所有 worker 读取同一版本。1.0.0 不依赖尚未确认可用的 Duckherder snapshot pinning。
+不将当前扩展约 10 秒的 reader polling 解释为所有 worker 读取同一版本。1.1.0 不依赖尚未确认可用的 Duckherder snapshot pinning。
 
 ### 分块导入和短发布
 
@@ -281,7 +281,7 @@ API Key 签发和吊销在控制表内原子更新权威记录及管理索引。
 
 数据接入不写控制面事务，不使用 outbox 或 DynamoDB Streams 派发。运行状态投影可滞后，按状态版本条件更新以避免旧状态覆盖新状态；失败可重试或重建。`ctl.ingestions`、chunk ledger、水位和 release 指针仍与业务数据在 DuckDB 的同一事务中提交。
 
-接入状态在原生事务中分配观测版本和时间，数据库锁外异步投影；公开读取先校验所有者/获授权监控管理员，再通过精确身份的写者核对并条件重建。投影故障不参与排队/业务事务/ACK；认证、写者许可及配置强读失败仍暂停。1.0.0 的接入状态不填写下游层（DWD/DWS/ADS 为 `NOT_IMPLEMENTED`），不声称 PUBLISHED；下游发布进度见流水线运行状态。
+接入状态在原生事务中分配观测版本和时间，数据库锁外异步投影；公开读取先校验所有者/获授权监控管理员，再通过精确身份的写者核对并条件重建。投影故障不参与排队/业务事务/ACK；认证、写者许可及配置强读失败仍暂停。1.1.0 的接入状态不填写下游层（DWD/DWS/ADS 为 `NOT_IMPLEMENTED`），不声称 PUBLISHED；下游发布进度见流水线运行状态。
 
 Lambda 不承担数据库所有者角色。其运行寿命、冷启动和并发执行模型不适合常驻数据库句柄、缓存和后台整理；限制 Lambda 并发也不能替代完整的数据库所有权与恢复协议。
 
@@ -289,9 +289,9 @@ Lambda 不承担数据库所有者角色。其运行寿命、冷启动和并发�
 
 租约可用于控制调度，但 DynamoDB TTL/租约过期不代表旧进程已停止访问 S3。接管前要确认旧写者终止；无法确认时暂停接管，避免无意启动两个写者。当前 SlateDB fencing 是最后防线。
 
-1.0.0 的写者用一个 Service-wide 许可约束负责所有已注册空间的进程，该进程最多打开两个原生实例（见[发行说明](../release-notes.md#限制)）。新 Task 只登记心跳，获准前不 ATTACH。许可包含精确 Task/进程/镜像/源码/地址和 epoch；运维撤销旧许可并取得旧 Task 的 STOPPED 终止回执后，才批准新身份。DDB 事务同时保存许可和不可变变更审计，写者 Role 无权发放许可。
+1.1.0 的写者用一个 Service-wide 许可约束负责所有已注册空间的进程，该进程最多打开两个原生实例（见[发行说明](../release-notes.md#限制)）。新 Task 只登记心跳，获准前不 ATTACH。许可包含精确 Task/进程/镜像/源码/地址和 epoch；运维撤销旧许可并取得旧 Task 的 STOPPED 终止回执后，才批准新身份。DDB 事务同时保存许可和不可变变更审计，写者 Role 无权发放许可。
 
-运行规格按实测负载确定，1.0.0 的规格见[发行说明](../release-notes.md#规格)。将 DuckDB 缓冲区、SlateDB 缓存、Rust runtime、结果缓冲、本地 spill 和可选持久缓存计入预算；热缓存可重建，S3 数据是持久来源。1.0.0 不使用 ECS on EC2 的本地盘/EBS 缓存；只有实测确有缓存收益时才值得采用。
+运行规格按实测负载确定，1.1.0 的规格见[发行说明](../release-notes.md#规格)。将 DuckDB 缓冲区、SlateDB 缓存、Rust runtime、结果缓冲、本地 spill 和可选持久缓存计入预算；热缓存可重建，S3 数据是持久来源。1.1.0 不使用 ECS on EC2 的本地盘/EBS 缓存；只有实测确有缓存收益时才值得采用。
 
 ## 8. Admin Console 与 Query Editor
 
