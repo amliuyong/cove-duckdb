@@ -184,14 +184,27 @@ class Session:
 
     def load(self, definition, batches, version):
         """The caller supplies an independently authorized native read stream."""
+        import pyarrow as pa
+        from cove_duckdb.pipeline.parquet import arrow_schema
+
         target, columns = self._table(definition), definition["schema"]
-        insert = "INSERT INTO " + target + " VALUES (" + ",".join("?" for _ in columns) + ")"
+        schema = arrow_schema(columns)
         for batch in batches:
             if not batch:
                 continue
             if any(len(row) != len(columns) for row in batch):
                 raise ControlError(503, "NATIVE_QUERY_SCHEMA_CHANGED")
-            self.connection.executemany(insert, batch)
+            # Exact Arrow types preserve Decimal(38,s), BIGINT, timezone and
+            # NULL semantics without one native INSERT per row.
+            relation = "cove_query_rows_" + uuid.uuid4().hex
+            table = pa.Table.from_arrays([
+                pa.array([row[index] for row in batch], type=field.type)
+                for index, field in enumerate(schema)], schema=schema)
+            self.connection.register(relation, table)
+            try:
+                self.connection.execute("INSERT INTO " + target + " SELECT * FROM " + quoted(relation))
+            finally:
+                self.connection.unregister(relation)
             self.require_capacity()
         self._loaded(definition, version)
 

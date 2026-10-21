@@ -12,6 +12,7 @@ from cove_duckdb.control.registry import ControlError, canonical
 from cove_duckdb.pipeline.parquet import _native_value, _value_bytes
 from .native import stage
 from .sql import json_value
+from cove_duckdb.writer.ingestion import quoted
 
 MAX_BYTES, MAX_ROWS = 2097152, 100000
 
@@ -40,6 +41,48 @@ class _Target:
         self.value = {"format_version": 2, "space_id": configuration["space_id"],
                       "generation": configuration["generation"], "tables": []}
         self.guard, self.rows, self.bytes, self.sealed = guard, 0, 0, False
+
+    def preflight(self, connection, copies):
+        """Bound the wire JSON in the same read transaction before fetching rows.
+
+        Native JSON escapes ASCII controls; Python additionally escapes Unicode.
+        Expand BMP/non-BMP characters to six/twelve ASCII bytes. Numeric
+        BIGINTs and timestamps have small conservative formatting allowances.
+        """
+        estimated = len(json.dumps(self.value, ensure_ascii=True).encode())
+        for definition, version, read in copies:
+            self.guard()
+            table = ({"version": version} if definition is None else
+                     {"definition": definition, "version": version, "rows": []})
+            estimated += len(json.dumps(table, ensure_ascii=True).encode()) + 2
+            if read is not None:
+                sizes = []
+                for column in definition["schema"]:
+                    name, kind = quoted(column["name"]), column["type"]
+                    if kind == "BLOB":
+                        value = "to_base64(" + name + ")"
+                    elif kind in {"BOOLEAN", "VARCHAR[]"}:
+                        value = name
+                    else:
+                        value = "CAST(" + name + " AS VARCHAR)"
+                    wire = "coalesce(CAST(to_json(" + value + ") AS VARCHAR),'null')"
+                    size = ("length(regexp_replace(" + wire
+                            + ", '[^\\x00-\\x7E]', 'xxxxxx', 'g'))"
+                            + " + 6 * length(regexp_replace(" + wire
+                            + ", '[\\x00-\\x{FFFF}]', '', 'g'))")
+                    if kind == "VARCHAR[]":
+                        # Python's default JSON includes spaces between elements.
+                        size += " + coalesce(array_length(" + name + "),0)"
+                    elif kind in {"TIMESTAMP", "TIMESTAMPTZ"}:
+                        size += " + 6"
+                    sizes.append(size)
+                # Brackets, cell separators and the next row separator.
+                expression = " + ".join(sizes + [str(2 * len(sizes) + 2)])
+                estimated += connection.execute("SELECT coalesce(sum(" + expression
+                    + "),0) FROM (" + read[0] + ") AS cove_wire_source", read[2]).fetchone()[0]
+            if estimated > MAX_BYTES:
+                raise ControlError(413, "QUERY_SOURCE_QUOTA")
+        self.guard()
 
     def observe(self, version):
         # A version-only table: the receipt's dataset when the SQL names none of its rows.

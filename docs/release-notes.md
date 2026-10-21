@@ -2,6 +2,12 @@
 
 首次正式发行。本文只列出已在实际 AWS 中验收的当前合同与能力。安装见[安装部署手册](installation.md)，使用见[用户手册](user-guide.md)，验收用例见 [UAT 测试用例](uat/test-cases.md)。计划中、尚未实现的能力单独列出。
 
+## Changes after 1.0.0
+
+Current source, not a new release: [#5](https://github.com/amliuyong/cove-duckdb/issues/5) replaces row-by-row loading of `after_write` / `after_ingestion` snapshots with typed Arrow batches. Both query and writer images install the same hash-locked pyarrow 24.0.0 wheel. Before fetching any rows, the writer checks row counts and a conservative JSON byte estimate in the original read transaction; oversized sources return `QUERY_SOURCE_QUOTA`. Limits remain 100,000 rows / 2 MiB / five seconds for capture. Exact encoding, receipt authority, no-recapture and sealed SQL isolation remain enforced.
+
+Local DuckDB 1.5.6 measurements and native regression checks are separate from AWS acceptance. AWS validation of this change is pending; the 1.0.0 measurements and limitations below describe the published tag.
+
 ## 发行身份
 
 | 项目 | 值 |

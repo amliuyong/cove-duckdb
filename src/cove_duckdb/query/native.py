@@ -327,6 +327,9 @@ def _stage(connection, configuration, target, guard, *, consistency="current", r
             if maximum_rows is not None and staged > maximum_rows:
                 raise ControlError(413, 'QUERY_SOURCE_QUOTA')
         bulk = getattr(target, 'bulk', None)
+        preflight = getattr(target, 'preflight', None)
+        if preflight is not None:
+            preflight(c, copies)
         for query_definition, version, read in copies if target is not None else ():
             guard()
             if query_definition is None:
