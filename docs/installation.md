@@ -36,7 +36,7 @@ git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git 
 
 其他用法：
 
-- 升级：`./install.sh upgrade --environment prod --account <账号 ID>`。升级是破坏性的，执行前先读第 10 节。
+- 升级：`./install.sh upgrade --environment prod --account <账号 ID> --region <目标区域>`。升级是破坏性的，执行前先读第 10 节。
 - 某一步失败时，先按回执核对该步的结果，再加 `--steps <从失败步骤开始的步骤>` 续装（第 6.1 节）。
 - `--check` 只做预检；`--` 之后的参数原样传给 `install.py`。
 - 备份、还原和卸载不由 `install.sh` 执行，见第 11、12 节。

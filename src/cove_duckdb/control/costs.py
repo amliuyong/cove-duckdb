@@ -1,4 +1,4 @@
-"""Cost observation: measured usage of recorded workloads multiplied by list self.prices.
+"""Cost observation: measured usage of recorded workloads multiplied by regional list prices.
 
 Each line names its workload identity, the measured quantity and its source.
 This is an estimate, not an invoice: shared baseline infrastructure, idle time,

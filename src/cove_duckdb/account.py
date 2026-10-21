@@ -1,7 +1,7 @@
 """The AWS account a deployment runs in: never part of the source.
 
-Services receive it as `COVE_ACCOUNT` from their stack. Runtime functions and tasks carry no environment
-variables, so they ask STS once per process; GetCallerIdentity needs no IAM permission.
+Services receive it as `COVE_ACCOUNT` from their stack. Runtime functions and tasks ask STS once per process
+when the account is absent; GetCallerIdentity needs no IAM permission.
 """
 
 import os

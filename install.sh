@@ -62,7 +62,7 @@ done
 case "$ENVIRONMENT" in env|core|control|builder) fail "--environment $ENVIRONMENT is reserved" ;; esac
 [[ "$ACCOUNT" =~ ^[0-9]{12}$ ]] || fail "--account (or COVE_ACCOUNT) must be the 12-digit target account"
 [[ "$REGION" =~ ^[a-z]{2}(-[a-z]+)+-[1-9][0-9]*$ ]] || fail "set --region, COVE_REGION or AWS_REGION"
-case "$REGION" in cn-*|us-gov-*) fail "only the commercial AWS partition is supported" ;; esac
+case "$REGION" in cn-*|us-gov-*|us-iso*|eu-isoe-*|eusc-*) fail "only the commercial AWS partition is supported" ;; esac
 for configured in "${COVE_REGION:-}" "${AWS_REGION:-}" "${AWS_DEFAULT_REGION:-}"; do
   [ -z "$configured" ] || [ "$configured" = "$REGION" ] || fail "configured AWS regions disagree with --region"
 done
