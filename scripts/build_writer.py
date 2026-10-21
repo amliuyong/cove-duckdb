@@ -8,11 +8,14 @@ import os
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 # Suites run against the AWS documentation example account, never a real one.
 FIXTURE_ACCOUNT = "123456789012"
+FIXTURE_REGION = json.loads((ROOT / "tests/fixture-region.json").read_text())["region"]
 
 
 def run(command):
@@ -40,7 +43,9 @@ def main():
     account = os.environ.get("COVE_ACCOUNT", "")
     if not re.fullmatch(r"[0-9]{12}", account):
         parser.error("set COVE_ACCOUNT: the native storage image is pulled from that account's ECR")
-    storage = (f"{account}.dkr.ecr.us-west-2.amazonaws.com/{lock['storage_repository']}"
+    from cove_duckdb.region import region
+
+    storage = (f"{account}.dkr.ecr.{region()}.amazonaws.com/{lock['storage_repository']}"
                f"@{lock['storage_digest']}")
     base = json.loads(run(["docker", "image", "inspect", storage]))[0]
     if base["Id"] != lock["storage_digest"] or base["Architecture"] != "arm64":
@@ -87,7 +92,7 @@ def main():
         subprocess.run(["docker", "run", "--rm", "--network", "none", "--read-only",
             "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--tmpfs", "/tmp:rw,size=128m",
             "--mount", "type=bind,src=" + str(ROOT / "tests/ingestion") + ",dst=/tests,readonly",
-            "-e", "COVE_TIMING=off", "-e", "COVE_ACCOUNT=" + FIXTURE_ACCOUNT, "--entrypoint", "python", tag, "-m", "unittest", "discover", "-s", "/tests", "-v"],
+            "-e", "COVE_TIMING=off", "-e", "COVE_REGION=" + FIXTURE_REGION, "-e", "AWS_REGION=" + FIXTURE_REGION, "-e", "AWS_DEFAULT_REGION=" + FIXTURE_REGION, "-e", "COVE_ACCOUNT=" + FIXTURE_ACCOUNT, "--entrypoint", "python", tag, "-m", "unittest", "discover", "-s", "/tests", "-v"],
             check=True, stdout=stream, stderr=subprocess.STDOUT)
     # Socket and SQL checks use the actual hardened image without AWS. Keep
     # native-engine tests separate from the Lambda ZIP's transport checks.
@@ -102,7 +107,7 @@ def main():
                     "--mount", "type=bind,src=" + str(ROOT / "tests/ingestion") + ",dst=/ingestion-fixtures,readonly",
                     "--mount", "type=bind,src=" + str(ROOT / "infra") + ",dst=/source/infra,readonly",
                     "-e", "PYTHONPATH=/query-fixtures:/ingestion-fixtures:/opt/cove/application",
-                    "-e", "COVE_TIMING=off", "-e", "COVE_ACCOUNT=" + FIXTURE_ACCOUNT, "--entrypoint", "python", tag, "-m", "unittest", "discover", "-s", target, "-v"],
+                    "-e", "COVE_TIMING=off", "-e", "COVE_REGION=" + FIXTURE_REGION, "-e", "AWS_REGION=" + FIXTURE_REGION, "-e", "AWS_DEFAULT_REGION=" + FIXTURE_REGION, "-e", "COVE_ACCOUNT=" + FIXTURE_ACCOUNT, "--entrypoint", "python", tag, "-m", "unittest", "discover", "-s", target, "-v"],
                     check=True, stdout=stream, stderr=subprocess.STDOUT)
     else:
         with (output / "pipeline-tests.log").open("x") as stream:
@@ -118,7 +123,7 @@ def main():
                     "--cap-drop", "ALL", "--security-opt", "no-new-privileges", "--tmpfs", "/tmp:rw,size=128m",
                     "--mount", "type=bind,src=" + str(ROOT / "tests/pipeline") +
                         ",dst=/source/tests/pipeline,readonly",
-                    "-e", "COVE_TIMING=off", "-e", "COVE_ACCOUNT=" + FIXTURE_ACCOUNT, "--entrypoint", "python", tag, "-m", "unittest", "discover",
+                    "-e", "COVE_TIMING=off", "-e", "COVE_REGION=" + FIXTURE_REGION, "-e", "AWS_REGION=" + FIXTURE_REGION, "-e", "AWS_DEFAULT_REGION=" + FIXTURE_REGION, "-e", "COVE_ACCOUNT=" + FIXTURE_ACCOUNT, "--entrypoint", "python", tag, "-m", "unittest", "discover",
                     "-s", "/source/tests/pipeline", "-p", pattern, "-v"],
                     check=True, stdout=stream, stderr=subprocess.STDOUT)
     receipt = {"status": "PASS", "service": args.service,

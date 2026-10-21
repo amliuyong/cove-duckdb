@@ -7,6 +7,8 @@ variables, so they ask STS once per process; GetCallerIdentity needs no IAM perm
 import os
 import re
 
+from cove_duckdb.region import region
+
 _resolved = None
 
 
@@ -17,7 +19,7 @@ def account():
         if value is None:
             import boto3
 
-            value = boto3.client("sts", region_name="us-west-2").get_caller_identity()["Account"]
+            value = boto3.client("sts", region_name=region()).get_caller_identity()["Account"]
         if not re.fullmatch(r"[0-9]{12}", value):
             raise RuntimeError("COVE_ACCOUNT must be the 12-digit deployment account")
         _resolved = value

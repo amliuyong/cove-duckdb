@@ -5,6 +5,7 @@ import re
 
 from botocore.exceptions import BotoCoreError, ClientError
 
+from cove_duckdb.region import region
 from cove_duckdb.control.http import decode_json
 from cove_duckdb.control.registry import ControlError, canonical
 from cove_duckdb.writer.ownership import matches
@@ -28,7 +29,7 @@ class Reader:
         from cove_duckdb.writer.ownership import Ownership
         from .jobs import Jobs
 
-        current = boto3.Session(region_name="us-west-2")
+        current = boto3.Session(region_name=region())
         if current.get_credentials().method != "container-role":
             raise ControlError(503, "QUERY_SOURCE_IDENTITY_UNKNOWN")
         options = Config(connect_timeout=2, read_timeout=3,

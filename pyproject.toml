@@ -25,3 +25,5 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "cove_duckdb.contracts" = ["v1/*.json"]
+
+"cove_duckdb.control" = ["data/*.json"]

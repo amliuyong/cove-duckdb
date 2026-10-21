@@ -10,6 +10,10 @@ Targeted AWS regression passed on 2026-10-21 in a fresh `us-west-2` environment 
 
 The 1.0.0 measurements and limitations below describe the published tag.
 
+[#8](https://github.com/amliuyong/cove-duckdb/issues/8) makes the deployment region explicit (`COVE_REGION` / `AWS_REGION`), rejects conflicting settings and other partitions, uses the stack region for AWS resources and injects it into runtime services and native S3 secrets. Runtime resource namespaces include region to isolate account-global IAM roles. Executor contracts accept regional commercial ARNs/ECR addresses. Price snapshots are indexed by their actual region; an absent snapshot produces `UNKNOWN`, no borrowed or zero prices.
+
+Multi-region acceptance of this current source is pending. Only the published tag's `us-west-2` acceptance is established below; no additional region is marked supported until fresh installation, functional UAT, backup/isolated restore, uninstall and the original-region regression are complete. Regional prerequisites and source-version selection are described in the [installation guide](installation.md#33-区域前置条件).
+
 ## 发行身份
 
 | 项目 | 值 |

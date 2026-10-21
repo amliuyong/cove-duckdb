@@ -1,6 +1,6 @@
 # Cove DuckDB 安装部署手册
 
-本手册面向在自己的 AWS 账号中安装和运维 Cove DuckDB 的运维人员，涵盖以下内容：
+本手册跟随当前源码，面向在自己的 AWS 账号和商业区域（partition `aws`）中安装和运维 Cove DuckDB 的运维人员，涵盖以下内容：
 
 - 准备部署主机与原生存储镜像；
 - 构建 release；
@@ -13,11 +13,11 @@
 
 ## 快速安装（install.sh）
 
-部署主机满足第 3 节的前置条件，账号中也已有原生存储镜像（第 4 节）时，仓库根目录的 `install.sh` 可以用一条命令完成第 3.3 节到第 8 节的工作：
+部署主机满足第 3 节的前置条件，账号中也已有原生存储镜像（第 4 节）时，仓库根目录的 `install.sh` 可以用一条命令完成第 3.4 节到第 8 节的工作：
 
 ```bash
-git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git checkout --detach v1.0.0
-./install.sh fresh --environment prod --account <12 位账号 ID> \
+git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git checkout --detach origin/main
+./install.sh fresh --environment prod --account <12 位账号 ID> --region <目标区域> \
   --space sales_prod --token-output /secure/path/sales_prod-admin.token
 ```
 
@@ -48,7 +48,7 @@ git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git 
 | 维度 | 1.0.0 |
 | --- | --- |
 | AWS 账号 | 任意单个账号。账号 ID 不写在源码中：服务由栈注入 `COVE_ACCOUNT`，运维工具以 `COVE_ACCOUNT` 为准，并与当前凭证核对 |
-| 区域 | `us-west-2`（写在模板与服务代码中；其他区域未验证） |
+| 区域 | tag `v1.0.0` 固定为 `us-west-2`；当前源码按显式配置部署到商业区域，实际支持状态见发行说明 |
 | CPU 架构 | ARM64（Graviton）：写者、查询、计算 Task、Lambda、运行环境构建都只构建 ARM64 |
 | 规格 | 写者与查询服务各为 ECS Fargate 2 vCPU / 4 GiB，见[发行说明](release-notes.md#规格) |
 
@@ -56,7 +56,7 @@ git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git 
 
 ## 2. 部署组成
 
-每套环境由一组 CloudFormation 栈组成，用环境名 `COVE_ENVIRONMENT` 选择：
+每套环境由一组 CloudFormation 栈组成，用环境名 `COVE_ENVIRONMENT` 和区域 `COVE_REGION` 选择：
 
 | 栈 | 内容 | 名称（环境 `<name>`） |
 | --- | --- | --- |
@@ -66,15 +66,15 @@ git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git 
 
 另有两类账号级资源，独立于所有环境：
 
-- **备份库**：`cove-duck-backups` 栈中的版本化 S3 桶，删除环境时保留。
+- **备份库**：每个目标区域各自的 `cove-duck-backups` 栈中的版本化 S3 桶，删除环境时保留。
 - **镜像仓库**：ECR `cove-duckdb-images`，存放原生存储镜像、写者与查询镜像，以及运行环境镜像。
 
 环境名为 2–12 位小写字母或数字，以字母开头；`env`、`core`、`control`、`builder` 保留不可用。所有运维工具都要求显式设置 `COVE_ENVIRONMENT`，未设置时拒绝执行。每个栈都带有标签 `Project=cove-duckdb` 与 `Component=core|control|builder`。
 
-同一账号可以安装多套环境，它们之间相互隔离：
+同一账号可以在不同区域安装多套环境，它们之间相互隔离：
 
-- 每套环境的运行时资源使用各自的前缀 `cove-duck-<name>-env-`；
-- IAM 通配符不会匹配其他环境的函数、任务定义或角色。
+- 每套环境的运行时资源使用各自的前缀 `cove-duck-<namespace>-env-`（namespace 是环境名与区域的 SHA-256 前 16 位）；
+- IAM 通配符不会匹配其他环境或区域的函数、任务定义或角色。IAM 角色属于整个账号，因此同名环境在不同区域也使用不同 namespace；运行时函数名仍不超过 64 字符。
 
 ## 3. 前置条件
 
@@ -92,13 +92,24 @@ git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git 
 
 ```bash
 export COVE_ACCOUNT=<12 位账号 ID>          # 要操作的账号，工具会与当前凭证核对
-export COVE="/usr/bin/env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE AWS_REGION=us-west-2 COVE_ENVIRONMENT=<name>"
+export COVE_REGION=<目标商业区域>
+export AWS_REGION="$COVE_REGION" AWS_DEFAULT_REGION="$COVE_REGION"
+export COVE="/usr/bin/env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE COVE_ENVIRONMENT=<name>"
 ```
 
 - `-u AWS_PROFILE`：确保使用实例角色凭证链。
 - `COVE_ACCOUNT` 与当前凭证的账号不一致时，工具拒绝执行。
+- `COVE_REGION`、`AWS_REGION`、`AWS_DEFAULT_REGION` 中至少一个必须显式设置；设置多个时必须一致，否则在 AWS 调用前拒绝。`install.sh --region` 也必须与已设置的值一致。AWS 凭证属于账号，不绑定某个区域；工具核对凭证账号、SDK 目标区域与被操作栈 ARN 的区域，不推断凭证有独立的区域属性。
 
-### 3.3 构建环境
+### 3.3 区域前置条件
+
+- 目标区域属于标准 AWS 商业 partition `aws`；中国区、GovCloud 和隔离 partition 不在范围内。
+- 目标区域提供 ARM64 Fargate、ARM64 Lambda 和 ARM_CONTAINER CodeBuild，并有至少两个可用区。账号已开通该区域，网络、服务配额和 CloudFront 权限满足本手册的安装步骤。
+- 原生存储镜像在目标区域的本账号 ECR 中；按第 4 节构建，或从已经验证的区域复制 OCI manifest 和所有 layers。复制后核对锁定的 digest 不变，再用目标区域的完整 ECR URI 拉取到构建主机。
+- 备份库按区域部署；同版本的备份和隔离还原在同一区域的另一套环境中进行。本功能不提供跨区域复制、灾备或主动-主动。
+- 成本观测只使用目标区域的价目表；没有该区域价目表时返回 `UNKNOWN` / `REGIONAL_PRICES_UNAVAILABLE`，不会套用其他区域的价格或返回零成本。
+
+### 3.4 构建环境
 
 ```bash
 python3 -m venv /tmp/cove-build
@@ -109,7 +120,7 @@ python3 -m venv /tmp/cove-build
 
 所有依赖按 hash 锁定，只接受 wheel。orders 示例 lock 提供 pandas，control 构建中的流水线套件会启动真实的 pandas 子进程。
 
-## 4. 原生存储镜像（每个账号一次）
+## 4. 原生存储镜像（每个账号与区域一次）
 
 写者与查询镜像都叠加在一个经过验证的原生存储镜像上，镜像内含 DuckDB 1.5.6 与 duckdb-object-storage 扩展。[writer-lock.json](../runtime/writer-lock.json) 锁定了它的仓库名和 digest：
 
@@ -121,9 +132,9 @@ python3 -m venv /tmp/cove-build
 构建 release 时，这个镜像必须已经发布在本账号的 ECR 中，并且已经拉取到构建主机：
 
 ```bash
-aws ecr get-login-password --region us-west-2 | \
-  docker login --username AWS --password-stdin $COVE_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com
-docker pull $COVE_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-images@sha256:8ec8ab61…
+aws ecr get-login-password --region "$COVE_REGION" | \
+  docker login --username AWS --password-stdin $COVE_ACCOUNT.dkr.ecr.$COVE_REGION.amazonaws.com
+docker pull $COVE_ACCOUNT.dkr.ecr.$COVE_REGION.amazonaws.com/cove-duckdb-images@sha256:8ec8ab61…
 ```
 
 账号中还没有这个镜像时，先从固定的上游源码构建并发布：
@@ -162,11 +173,11 @@ docker pull $COVE_ACCOUNT.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-images@sha
 
 ## 5. 构建 release
 
-从 tag 的干净检出构建，构建目录放在仓库之外：
+从所选提交的干净检出构建（构建回执绑定精确 commit / tree），构建目录放在仓库之外：
 
 ```bash
 git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb
-git checkout --detach v1.0.0
+git checkout --detach origin/main
 COVE_ACCOUNT=$COVE_ACCOUNT /tmp/cove-build/bin/python scripts/build_product.py --output /path/outside/repo/release-1.0.0
 ```
 
@@ -219,7 +230,7 @@ $COVE /tmp/cove-build/bin/python scripts/aws/install.py fresh \
 全新安装通常需要约 25 分钟。完成后读取基线栈的输出：
 
 ```bash
-aws cloudformation describe-stacks --region us-west-2 --stack-name cove-duck-<name>-core \
+aws cloudformation describe-stacks --region "$COVE_REGION" --stack-name cove-duck-<name>-core \
   --query "Stacks[0].Outputs[?OutputKey=='ApiUrl' || OutputKey=='WebUrl']"
 ```
 
@@ -375,7 +386,7 @@ $COVE /tmp/cove-build/bin/python scripts/aws/backup.py inspect \
 - 该空间在目标环境中尚不存在。
 
 ```bash
-/usr/bin/env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE AWS_REGION=us-west-2 COVE_ENVIRONMENT=<target> \
+/usr/bin/env -u AWS_PROFILE -u AWS_DEFAULT_PROFILE COVE_REGION=$COVE_REGION AWS_REGION=$COVE_REGION AWS_DEFAULT_REGION=$COVE_REGION COVE_ENVIRONMENT=<target> \
   /tmp/cove-build/bin/python scripts/aws/backup.py restore \
   --backup-uri s3://<vault>/backups/<space>/<gen>/<backup_id>/backup.json --version-id <version> \
   --token-output /secure/path/<space>-restored-admin.token --output <new-dir> [--schedules restore]

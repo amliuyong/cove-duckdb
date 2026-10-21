@@ -1473,13 +1473,23 @@
               "const": "USD"
             },
             "region": {
-              "const": "us-west-2"
+              "maxLength": 64,
+              "minLength": 1,
+              "pattern": "^[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*$",
+              "type": "string"
             },
             "retrieved": {
-              "maxLength": 10,
-              "minLength": 1,
-              "pattern": "^\\d{4}-\\d\\d-\\d\\d$",
-              "type": "string"
+              "anyOf": [
+                {
+                  "maxLength": 10,
+                  "minLength": 1,
+                  "pattern": "^\\d{4}-\\d\\d-\\d\\d$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
             },
             "sources": {
               "items": {
@@ -1488,7 +1498,7 @@
                 "type": "string"
               },
               "maxItems": 16,
-              "minItems": 1,
+              "minItems": 0,
               "type": "array"
             }
           },
@@ -1516,7 +1526,8 @@
         "status": {
           "enum": [
             "COMPLETE",
-            "PARTIAL"
+            "PARTIAL",
+            "UNKNOWN"
           ]
         },
         "totals": {
@@ -2444,7 +2455,7 @@
             "function_arn": {
               "maxLength": 512,
               "minLength": 1,
-              "pattern": "^arn:aws:lambda:us-west-2:[0-9]{12}:function:[A-Za-z0-9_-]+:[1-9][0-9]*$",
+              "pattern": "^arn:aws:lambda:[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*:[0-9]{12}:function:[A-Za-z0-9_-]+:[1-9][0-9]*$",
               "type": "string"
             },
             "lambda_mode": {
@@ -2473,7 +2484,7 @@
             "image": {
               "maxLength": 512,
               "minLength": 1,
-              "pattern": "^[0-9]{12}\\.dkr\\.ecr\\.us-west-2\\.amazonaws\\.com/[A-Za-z0-9_/-]+@sha256:[0-9a-f]{64}$",
+              "pattern": "^[0-9]{12}\\.dkr\\.ecr\\.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*\\.amazonaws\\.com/[A-Za-z0-9_/-]+@sha256:[0-9a-f]{64}$",
               "type": "string"
             },
             "profile": {
@@ -2484,7 +2495,7 @@
             "task_definition_arn": {
               "maxLength": 512,
               "minLength": 1,
-              "pattern": "^arn:aws:ecs:us-west-2:[0-9]{12}:task-definition/[A-Za-z0-9_-]+:[1-9][0-9]*$",
+              "pattern": "^arn:aws:ecs:[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*:[0-9]{12}:task-definition/[A-Za-z0-9_-]+:[1-9][0-9]*$",
               "type": "string"
             }
           },

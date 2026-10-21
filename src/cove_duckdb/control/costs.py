@@ -1,4 +1,4 @@
-"""Cost observation: measured usage of recorded workloads multiplied by list prices.
+"""Cost observation: measured usage of recorded workloads multiplied by list self.prices.
 
 Each line names its workload identity, the measured quantity and its source.
 This is an estimate, not an invoice: shared baseline infrastructure, idle time,
@@ -12,6 +12,7 @@ from datetime import datetime, timezone
 from botocore.exceptions import BotoCoreError, ClientError
 
 from cove_duckdb.contracts.validation import validate
+from cove_duckdb.region import region
 from . import prices
 from .registry import ControlError
 
@@ -48,6 +49,8 @@ class Costs:
         self.registry, self.keys, self.runs, self.environments, self.ecs = registry, keys, runs, environments, ecs
         self.client, self.table, self.clock = registry.client, registry.table, clock
         self.definitions = {}
+        self.region = region()
+        self.prices = prices.for_region(self.region)
 
     def _line(self, category, kind, identity, usage, unit, unit_price, observed, source, **attributes):
         return {"category": category, "workload": {"kind": kind, "id": str(identity)[:1024]},
@@ -77,6 +80,14 @@ class Costs:
         since = parse(since) if since else until - 86400
         if not 0 < until - since <= MAX_WINDOW_SECONDS:
             raise ControlError(400, "INVALID_COST_WINDOW")
+        if self.prices is None:
+            result = {"space_id": space, "generation": configuration["generation"], "since": stamp(since),
+                "until": stamp(until), "observed_at": stamp(now), "basis": "MEASURED_USAGE_X_LIST_PRICE",
+                "prices": {"region": self.region, "currency": "USD", "retrieved": None, "sources": []},
+                "lines": [], "truncated": False, "totals": {}, "excluded": EXCLUDED, "status": "UNKNOWN",
+                "unmeasured": [gap("prices", self.region, "REGIONAL_PRICES_UNAVAILABLE")]}
+            validate("cost_report", result)
+            return result
         # Every workload whose usage could not be measured is named, never silently priced at zero.
         lines, gaps = [], []
         try:
@@ -94,8 +105,8 @@ class Costs:
             totals[line["category"]] = round(totals.get(line["category"], 0) + line["estimated_usd"], 8)
         result = {"space_id": space, "generation": configuration["generation"], "since": stamp(since),
                   "until": stamp(until), "observed_at": stamp(now), "basis": "MEASURED_USAGE_X_LIST_PRICE",
-                  "prices": {"region": "us-west-2", "currency": "USD", "retrieved": prices.RETRIEVED,
-                             "sources": prices.SOURCES},
+                  "prices": {"region": self.region, "currency": "USD", "retrieved": self.prices.RETRIEVED,
+                             "sources": self.prices.SOURCES},
                   "lines": lines[:2000], "truncated": len(lines) > 2000, "totals": totals, "excluded": EXCLUDED,
                   "unmeasured": gaps[:200], "status": "PARTIAL" if gaps else "COMPLETE"}
         validate("cost_report", result)
@@ -145,7 +156,7 @@ class Costs:
                         gaps.append(gap("attempt", identity, "LAMBDA_DURATION_UNRECORDED"))
                         continue
                     lines.append(self._line("lambda_compute", "attempt", identity, seconds * memory / 1024, "GB-s",
-                                            prices.LAMBDA_ARM_GB_SECOND, observed,
+                                            self.prices.LAMBDA_ARM_GB_SECOND, observed,
                                             "ADAPTER_ELAPSED" if measured is not None else "CONTROLLER_WINDOW",
                                             run_id=record["run_id"], task_id=task_id, memory_mb=memory,
                                             function_arn=dispatch.get("function_arn")))
@@ -155,14 +166,14 @@ class Costs:
                         gaps.append(gap("attempt", identity, "ECS_WINDOW_UNRECORDED" if window is None
                                         else "TASK_DEFINITION_UNAVAILABLE"))
                         continue
-                    seconds = max(prices.FARGATE_MINIMUM_SECONDS, window)
+                    seconds = max(self.prices.FARGATE_MINIMUM_SECONDS, window)
                     lines.append(self._line("ecs_compute", "attempt", identity, seconds, "task-s",
-                                            prices.fargate_second(*size), observed, "CONTROLLER_WINDOW",
+                                            self.prices.fargate_second(*size), observed, "CONTROLLER_WINDOW",
                                             run_id=record["run_id"], task_id=task_id, vcpu=size[0], memory_gib=size[1],
                                             task_arn=dispatch.get("task_arn")))
                 elif dispatch.get("executor") == "writer" and window is not None:
                     lines.append(self._line("writer_compute", "attempt", identity, window, "task-s",
-                                            prices.fargate_second(prices.SHARED_TASK_VCPU, prices.SHARED_TASK_GB),
+                                            self.prices.fargate_second(self.prices.SHARED_TASK_VCPU, self.prices.SHARED_TASK_GB),
                                             observed, "CONTROLLER_WINDOW", run_id=record["run_id"], task_id=task_id,
                                             allocation="SOLE_WRITER_TASK_TIME"))
             metrics = job.get("input_metrics") or {}
@@ -170,24 +181,24 @@ class Costs:
                 identity = job.get("export_id") or job["job_id"]
                 elapsed = (metrics.get("elapsed_ms") or 0) + (metrics.get("upload_elapsed_ms") or 0)
                 lines.append(self._line("writer_compute", "snapshot_export", identity, elapsed / 1000, "task-s",
-                                        prices.fargate_second(prices.SHARED_TASK_VCPU, prices.SHARED_TASK_GB),
+                                        self.prices.fargate_second(self.prices.SHARED_TASK_VCPU, self.prices.SHARED_TASK_GB),
                                         job.get("observed_unix"), "NATIVE_EXPORT_METRICS", run_id=record["run_id"],
                                         task_id=task_id, copied_rows=metrics.get("copied_rows"),
                                         copied_bytes=metrics.get("copied_bytes")))
                 uploaded = metrics.get("uploaded_bytes") or metrics.get("copied_bytes") or 0
                 held = max(0.0, until - (record.get("started_unix") or record["created_unix"]))
                 lines.append(self._line("s3_storage", "snapshot_export", identity,
-                                        uploaded / prices.GIB * held / prices.MONTH_SECONDS, "GB-month",
-                                        prices.S3_STANDARD_GB_MONTH, job.get("observed_unix"), "NATIVE_EXPORT_METRICS",
+                                        uploaded / self.prices.GIB * held / self.prices.MONTH_SECONDS, "GB-month",
+                                        self.prices.S3_STANDARD_GB_MONTH, job.get("observed_unix"), "NATIVE_EXPORT_METRICS",
                                         uploaded_bytes=uploaded, held_seconds=round(held)))
                 lines.append(self._line("s3_requests", "snapshot_export", identity,
-                                        len(job.get("input_versions") or {}) + 1, "PUT", prices.S3_PUT_REQUEST,
+                                        len(job.get("input_versions") or {}) + 1, "PUT", self.prices.S3_PUT_REQUEST,
                                         job.get("observed_unix"), "NATIVE_EXPORT_METRICS"))
             imports = job.get("import_metrics") or {}
             if imports.get("import_elapsed_ms") is not None:
                 lines.append(self._line("writer_compute", "generation_import", job.get("release_id") or job["job_id"],
                                         imports["import_elapsed_ms"] / 1000, "task-s",
-                                        prices.fargate_second(prices.SHARED_TASK_VCPU, prices.SHARED_TASK_GB),
+                                        self.prices.fargate_second(self.prices.SHARED_TASK_VCPU, self.prices.SHARED_TASK_GB),
                                         job.get("observed_unix"), "WRITER_IMPORT_WORKER", run_id=record["run_id"],
                                         task_id=task_id, copied_rows=imports.get("copied_rows"),
                                         copy_elapsed_ms=imports.get("copy_elapsed_ms"),
@@ -213,13 +224,13 @@ class Costs:
                     gaps.append(gap("environment_build", build["build_id"], "BUILD_TIME_UNRECORDED"))
                 continue
             lines.append(self._line("codebuild", "environment_build", build["build_id"], math.ceil(seconds / 60),
-                                    "build-minute", prices.CODEBUILD_ARM_SMALL_MINUTE, build.get("admitted_unix"),
+                                    "build-minute", self.prices.CODEBUILD_ARM_SMALL_MINUTE, build.get("admitted_unix"),
                                     "CODEBUILD_BUILD_TIMES", environment=key, status=record["status"]))
             image_bytes = build.get("image_bytes")
             if image_bytes:
                 held = until - max(since, build["admitted_unix"])
-                lines.append(self._line("ecr_storage", "environment", key, image_bytes / prices.GIB * held
-                                        / prices.MONTH_SECONDS, "GB-month", prices.ECR_GB_MONTH,
+                lines.append(self._line("ecr_storage", "environment", key, image_bytes / self.prices.GIB * held
+                                        / self.prices.MONTH_SECONDS, "GB-month", self.prices.ECR_GB_MONTH,
                                         build.get("admitted_unix"), "ECR_IMAGE_SIZE", image_bytes=image_bytes))
 
     def _query_lines(self, configuration, since, until, lines, gaps):
@@ -235,7 +246,7 @@ class Costs:
         except (ClientError, BotoCoreError):
             gaps.append(gap("queries", configuration["space_id"], "QUERY_HISTORY_UNAVAILABLE"))
             return
-        rate = prices.fargate_second(prices.SHARED_TASK_VCPU, prices.SHARED_TASK_GB) / 2
+        rate = self.prices.fargate_second(self.prices.SHARED_TASK_VCPU, self.prices.SHARED_TASK_GB) / 2
         for item in page.get("Items", []):
             entry = json.loads(item["record"]["S"])
             if (entry["space_id"], entry["generation"]) != (configuration["space_id"], configuration["generation"]):

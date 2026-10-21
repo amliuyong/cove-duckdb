@@ -122,6 +122,8 @@ class Tasks:
             "cpu": "1024", "memory": "4096", "networkMode": "awsvpc",
             "requiresCompatibilities": ["FARGATE"],
             "containerDefinitions": [{"image": image, "readonlyRootFilesystem": True,
+                                      "environment": [{"name": name, "value": "us-west-2"} for name in [
+                                          "COVE_REGION", "AWS_REGION", "AWS_DEFAULT_REGION"]],
                                       "user": "10001:10001"}],
         }
 

@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
+from cove_duckdb.region import region
 from cove_duckdb.contracts.validation import validate
 from cove_duckdb.contracts.validation import ContractError
 from cove_duckdb.control.http import decode_json
@@ -146,7 +147,7 @@ def execute_task(event, executor, *, remaining_seconds=None, invocation=None):
     if environment["executor"] != executor:
         raise RuntimeError("ENVIRONMENT_EXECUTOR_MISMATCH")
     try:
-        return TaskAdapter(boto3.client("s3", region_name="us-west-2",
+        return TaskAdapter(boto3.client("s3", region_name=region(),
             config=Config(retries={"total_max_attempts": 1}, connect_timeout=3, read_timeout=10)),
             environment).execute(event, remaining_seconds=remaining_seconds, invocation=invocation)
     except ControlError as error:
