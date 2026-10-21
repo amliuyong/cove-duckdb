@@ -34,6 +34,7 @@ The [release notes](docs/release-notes.md) list the support matrix, sizes, limit
 | [User guide](docs/user-guide.md) | Developers, data engineers and analysts: API Keys, datasets, ingestion, synchronous writes, queries, pipelines, Query Editor and Admin Console |
 | [API contract](docs/design/api-contract.md) | Every route, scope, limit and error code |
 | [Performance tests](docs/performance-tests.md) | How performance and capacity are measured; run separately, not part of UAT ([results](docs/performance.md)) |
+| [Cost estimate](docs/cost-estimate.md) | Rough monthly AWS cost of one environment at three data tiers |
 | [Design documents](docs/README.md) | Architecture, synchronous writes, pipelines, Python task contract, runtime environments |
 
 ## Get started

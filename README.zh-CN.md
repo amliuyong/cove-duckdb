@@ -36,6 +36,7 @@ Cove DuckDB 是面向 AWS 的数据库与分析产品，整合 API 接入、S3 �
 | [用户手册](docs/user-guide.md) | 开发、数据工程与分析人员：API Key、数据集、接入、同步写、查询、流水线、Query Editor 与 Admin Console |
 | [API 契约](docs/design/api-contract.md) | 每个路由、权限、限制和错误码 |
 | [性能测试说明](docs/performance-tests.md) | 性能与容量测试的方法；单独执行，不属于 UAT（[实测结果](docs/performance.md)） |
+| [成本估算](docs/cost-estimate.md) | 按三个数据档位粗估一个环境每月的 AWS 费用 |
 | [设计文档](docs/README.md) | 架构、同步写、流水线、Python 任务合同、运行环境 |
 
 ## 开始使用
