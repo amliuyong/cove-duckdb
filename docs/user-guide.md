@@ -1171,7 +1171,7 @@ orders 示例中 `score_orders` 的定义：
 
 - Python 不能在 `writer` 上执行。`writer` 适合短小的 SQL 转换，使用平台固定的环境。
 - `lambda` 适合有界的计算（标准 Lambda，最长 15 分钟）；长计算、大内存或大临时文件选 `ecs_task`。
-- 外部执行器（`lambda`、`ecs_task`）需要 READY 的运行环境。SQL 任务的环境必须同时包含 `duckdb` 和 `pyarrow`（例如示例的 `sql-demo`）。
+- 外部执行器（`lambda`、`ecs_task`）需要 READY 的运行环境。SQL 任务的环境必须同时包含 `duckdb` 和 `pyarrow`（例如示例的 `sql-demo`），且 `duckdb` 为 1.1 或更高版本：SQL 任务在环境自带的 DuckDB 中执行，分区替换用 `query()` 表函数排序。构建时会实际执行一次 SQL 任务，不满足的版本在构建阶段失败（见 [8.8 节](#88-运行环境)）。
 - 不能在定义或运行请求中指定函数、Task 模板、镜像或 IAM 角色；只能选择批准的 profile。空间配额可以限制允许使用的 profile（`422 SPACE_PROFILE_QUOTA`，见 [10.8 节](#108-配额与成本)）。
 
 ### 8.5 输入、输出与 SQL 任务
@@ -1351,7 +1351,7 @@ curl -s "$COVE_API_URL/v1/spaces/$COVE_SPACE/runtime-environments/pandas-demo/ve
 | `DRAFT` | 已创建，尚未构建 |
 | `RESOLVING` | 解析完整的传递依赖 |
 | `BUILDING` | 构建 Lambda 与 ECS 两份镜像 |
-| `VERIFYING` | 在镜像中做导入和合同检查 |
+| `VERIFYING` | 在镜像中做导入和合同检查；同时含 `duckdb` 与 `pyarrow` 的环境还会实际执行一次受控 SQL 任务（全量结果与分区替换），并确认外部访问被拒绝 |
 | `READY` | 可被流水线引用；返回依赖锁 hash `dependency_lock_sha256`、镜像 digest 和批准的执行绑定 |
 | `FAILED` | 构建失败，`failure` 给出阶段、错误码和说明 |
 | `UNKNOWN` | 构建状态暂时无法确认；不会再次派发构建 |
@@ -2066,7 +2066,7 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 单个输入超过 100,000 行。改用增量处理（只读取新提交的区间），或按分区重算，让每次任务读取的行数变少。
 
 **运行环境构建失败。**
-查看版本详情的 `failure`。`DEPENDENCY_NOT_FOUND` 表示某些依赖在 PyPI 上没有 CPython 3.12 / `linux_arm64` 的二进制 wheel；换用有 wheel 的版本，并用新的 `version` 重新创建。
+查看版本详情的 `failure`。`DEPENDENCY_NOT_FOUND` 表示某些依赖在 PyPI 上没有 CPython 3.12 / `linux_arm64` 的二进制 wheel；换用有 wheel 的版本，并用新的 `version` 重新创建。`ENVIRONMENT_IMPORT_CHECK_FAILED` 表示镜像中的导入、合同或 SQL 任务检查失败，`failure.message` 给出检查日志的末尾；SQL 环境中常见的原因是 `duckdb` 版本低于 1.1。
 
 **升级后流水线报 PIPELINE_VERSION_BINDING_CHANGED。**
 平台破坏性升级后，旧版本的绑定失效。用当前草稿重新发布并激活。空间重建后还需要重新注册数据集、构建运行环境。

@@ -115,11 +115,15 @@ def execute(context, sql, output, *, memory_bytes, maximum_bytes, maximum_rows):
         check_schema(connection, query, columns)
         partitions = target.get("partition_columns", []) if target["write_mode"] == "replace_partitions" else []
         allowed = {partition_text(columns, part): part for part in target["replace_partitions"]}
-        # The relation API keeps the original statement intact, including a
-        # trailing semicolon or comment, instead of textual query wrapping.
-        cursor = connection.sql(query)
+        # The original statement runs intact, including a trailing semicolon or
+        # comment: never textually wrapped, and ordered by passing it to query()
+        # as a value. Results stream from an execute() result, which DuckDB 1.5
+        # and 2.0 both read in batches; 2.0 relations have no fetchmany().
         if partitions:
-            cursor = cursor.order(",".join(quoted(name) for name in partitions))
+            cursor = connection.execute("SELECT * FROM query(?) ORDER BY "
+                                        + ",".join(quoted(name) for name in partitions), [query])
+        else:
+            cursor = connection.execute(query)
         names = [column["name"] for column in columns]
         files, rows = [], 0
 

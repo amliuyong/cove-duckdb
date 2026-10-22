@@ -220,6 +220,16 @@ class SqlTasks(unittest.TestCase):
         result = self.adapter("writer").execute(self.event("writer", CLEAN + ";  -- end of daily\n"))
         self.assertEqual(result["row_count"], 1)
 
+    def test_partition_ordering_keeps_a_trailing_semicolon_and_comment(self):
+        partitions = [{"order_date": "2026-10-01"}, {"order_date": "2026-10-02"}]
+        result = self.adapter("lambda").execute(
+            self.event("lambda", CLEAN + ";  -- end of daily\n", partitions=partitions))
+        completion, values = self.rows(result)
+        self.assertEqual([file["partition_values"] for file in completion["manifest"]["files"]],
+                         [{"order_date": "2026-10-01"}])
+        self.assertEqual(values, [
+            {"order_date": date(2026, 10, 1), "revenue": Decimal("1000000000000011.09"), "order_count": 2}])
+
     def test_empty_full_result_has_no_file_and_counts_zero_rows(self):
         sql = CLEAN.replace("rank = 1", "rank = 99")
         result = self.adapter("writer").execute(self.event("writer", sql))

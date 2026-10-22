@@ -41,6 +41,8 @@ DRAFT → RESOLVING → BUILDING → VERIFYING → READY
 
 构建由受控 AWS CodeBuild 或同等隔离构建服务执行，生成依赖锁、安装清单与镜像，推送 ECR，运行 import smoke check 及任务合同检查。构建服务的镜像上传/部署权限不授予用户脚本。
 
+同时含 DuckDB 与 PyArrow 的环境绑定 SQL profile，SQL 适配器在环境自带的 DuckDB 中执行。检查因此在镜像中实际执行一次受控 SQL 任务：从 Parquet 输入建表、封闭会话、校验结果 schema、流式读取结果并写出 Parquet，分别覆盖全量结果和以分号、注释结尾的分区替换，并确认外部访问被拒绝。适配器与所装 DuckDB 不兼容时（例如 DuckDB 1.0 没有 `query()` 表函数），构建在 VERIFYING 失败，不会产生只能在任务中失败的 READY 环境。
+
 READY 只表示该环境构建校验已通过，不证明数据正确性、执行隔离或故障行为。READY 环境不可原地修改；依赖变更生成新 environment_version，重新构建并发布新的 pipeline_version。同一当前合同下，任务使用启动时绑定的环境；平台破坏性升级可以停止/失效旧任务并重建，不要求跨产品版本继续运行。
 
 定义 API 使用 `runtime_environment: {environment_id, version}` 引用同空间的精确 READY 版本，分别检查环境是否就绪、executor/profile 是否匹配以及发布者的 `pipeline:manage` 权限。该对象取代示例中的合并名称字符串；当前合同不保留旧字符串解析。
