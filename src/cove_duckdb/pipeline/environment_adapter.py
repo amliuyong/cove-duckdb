@@ -7,7 +7,7 @@ import json
 import platform
 import sys
 import tempfile
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from pathlib import Path
 
@@ -90,28 +90,69 @@ def qualify():
 
 
 def sql_check():
-    """The installed DuckDB runs the controlled SQL path and denies external access."""
-    import duckdb
-    from .sql_task import check_schema, connect, seal, statement
+    """The installed DuckDB runs SQL tasks end to end and denies external access.
 
+    Each check is a real task execution over a Parquet input: a full result and
+    a partition replacement whose statement ends with a semicolon and a comment,
+    as published SQL may. The user's DuckDB must stream and order results the
+    way the adapter does, so an incompatible version fails here, not in a task.
+    """
+    import pyarrow.parquet as pq
+    from .sql_task import SqlFailure, execute
+    from .task_descriptor import digest
+
+    schema = [{"name": "day", "type": "DATE", "nullable": False},
+              {"name": "amount", "type": "DECIMAL(38,2)", "nullable": False}]
+    output = [{"name": "day", "type": "DATE", "nullable": False},
+              {"name": "total", "type": "DECIMAL(38,2)", "nullable": False}]
+    first = {"day": date(2026, 10, 1), "total": Decimal("999999999999999999999999999999999999.99")}
+    second = {"day": date(2026, 10, 2), "total": Decimal("0.01")}
+    partitions = [{"day": "2026-10-01"}, {"day": "2026-10-02"}]
+    sql = "SELECT day, CAST(sum(amount) AS DECIMAL(38,2)) AS total FROM source GROUP BY day;  -- check\n"
     with tempfile.TemporaryDirectory(prefix="cove-sql-check-") as directory:
-        connection = connect(directory, 64 * 1048576)
+        root = Path(directory)
+        path = root / "source.parquet"
+        descriptor = write(path, schema, [[[first["day"], first["total"]], [second["day"], second["total"]]]],
+                           maximum_rows=2, maximum_bytes=1048576)
+        files = [{"s3_uri": "s3://qualification-bucket/source.parquet", "object_version": "check",
+                  "sha256": descriptor["sha256"], "rows": 2, "bytes": descriptor["bytes"]}]
+        manifest = {"contract_version": 1, "dataset": "dwd.environment_check", "release_id": "input_check",
+                    "watermark": {"ods_sequence": 1}, "schema": schema, "files": files}
+
+        def run(name, query, replace):
+            result = root / name / "check_attempt" / "check_execution" / "output" / "result"
+            result.mkdir(parents=True)
+            context = {
+                "contract_version": 1, "space_id": "check", "pipeline_id": "check", "pipeline_version": "v1",
+                "run_id": "check", "task_id": "check", "job_id": "check", "attempt_id": "check_attempt",
+                "execution_id": "check_execution", "input_mode": "local_files", "parameters": {},
+                "inputs": {"source": {**{key: manifest[key] for key in ["dataset", "release_id", "watermark", "schema"]},
+                    "manifest_sha256": digest(manifest), "files": [{**files[0], "local_path": str(path)}],
+                    "selection": {"mode": "affected_partitions", "partitions": replace} if replace
+                    else {"mode": "snapshot"}}},
+                "processing": {"mode": "partition_recompute", "affected_partitions": replace} if replace
+                else {"mode": "full"},
+                "output": {"name": "result", "dataset": "dws.environment_check", "directory": str(result),
+                    "write_mode": "replace_partitions" if replace else "versioned_replace",
+                    "expected_previous_release": None, "key_columns": ["day"], "allow_empty": False,
+                    "replace_partitions": replace, "schema": output,
+                    **({"partition_columns": ["day"]} if replace else {})}}
+            execute(context, query, result, memory_bytes=64 * 1048576, maximum_bytes=1048576, maximum_rows=10)
+            staged = json.loads((result / "output-manifest.json").read_bytes())
+            return sorted(((file["partition_values"], row) for file in staged["files"]
+                           for row in pq.read_table(result / file["path"]).to_pylist()),
+                          key=lambda value: value[1]["day"])
+
+        if (run("full", sql, []) != [({}, first), ({}, second)]
+                or run("partitions", sql, partitions) != list(zip(partitions, [first, second]))):
+            raise RuntimeError("ENVIRONMENT_SQL_VALUE_MISMATCH")
         try:
-            connection.execute("CREATE TABLE source (amount DECIMAL(38,2) NOT NULL)")
-            connection.execute("INSERT INTO source VALUES ('999999999999999999999999999999999999.99')")
-            seal(connection)
-            query = statement(connection, "SELECT CAST(sum(amount) AS DECIMAL(38,2)) AS total FROM source")
-            check_schema(connection, query, [{"name": "total", "type": "DECIMAL(38,2)", "nullable": False}])
-            if connection.execute(query).fetchone()[0] != Decimal("999999999999999999999999999999999999.99"):
-                raise RuntimeError("ENVIRONMENT_SQL_VALUE_MISMATCH")
-            try:
-                connection.execute("SELECT * FROM read_csv('/etc/hostname')")
-            except duckdb.PermissionException:
-                pass
-            else:
-                raise RuntimeError("ENVIRONMENT_SQL_EXTERNAL_ACCESS")
-        finally:
-            connection.close()
+            run("access", "SELECT * FROM read_csv('/etc/hostname')", [])
+        except SqlFailure as failure:
+            if failure.code != "SQL_EXTERNAL_ACCESS_FORBIDDEN":
+                raise RuntimeError("ENVIRONMENT_SQL_EXTERNAL_ACCESS") from None
+        else:
+            raise RuntimeError("ENVIRONMENT_SQL_EXTERNAL_ACCESS")
 
 
 def lambda_handler(event, context):

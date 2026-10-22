@@ -55,7 +55,7 @@ def main():
         *[[sys.executable, "-m", "unittest", "discover", "-s", str(ROOT / "tests/pipeline"),
            "-p", name, "-v"] for name in [
             "test_output_validation.py", "test_workspace.py", "test_task_adapter.py", "test_candidates.py",
-            "test_sql_tasks.py"]],
+            "test_sql_tasks.py", "test_environment_check.py"]],
     ]
     with (output / "validation.log").open("x") as stream:
         for command in checks:
