@@ -17,8 +17,8 @@
 
 ## 1.1.0 的变更
 
-- **区域由部署配置决定**（[#8](https://github.com/amliuyong/colvenna-isle/issues/8)）：安装工具读取显式的 `COVE_REGION` / `AWS_REGION`，设置冲突或属于其他分区时拒绝执行。AWS 资源使用栈所在区域，区域也注入运行时服务和原生 S3 secret。运行时资源命名空间包含区域，用来隔离账号级的 IAM 角色；CloudFront OAC 与策略名包含栈区域，所以同一个环境名可以装在多个区域。执行器合同接受各商业区域的 Lambda / ECS / ECR 地址。价目表按实际区域索引，没有该区域的价目表时成本报告返回 `UNKNOWN`，不借用其他区域的价格，也不按零计价。
-- **写后读快照改为批量装载**（[#5](https://github.com/amliuyong/colvenna-isle/issues/5)）：`after_write` / `after_ingestion` 快照不再逐行装载，改用带类型的 Arrow 批次。写者和查询镜像都安装同一个 hash 锁定的 pyarrow 24.0.0。写者在取任何行之前，先在原读事务中检查行数和保守的 JSON 字节估算，超出返回 `QUERY_SOURCE_QUOTA`。上限仍为 100,000 行、2 MiB，复制预算 5 秒。精确编码、回执权威、不重复捕获和封存 SQL 隔离保持不变。
+- **区域由部署配置决定**（[#8](https://github.com/colvenna/colvenna-isle/issues/8)）：安装工具读取显式的 `COVE_REGION` / `AWS_REGION`，设置冲突或属于其他分区时拒绝执行。AWS 资源使用栈所在区域，区域也注入运行时服务和原生 S3 secret。运行时资源命名空间包含区域，用来隔离账号级的 IAM 角色；CloudFront OAC 与策略名包含栈区域，所以同一个环境名可以装在多个区域。执行器合同接受各商业区域的 Lambda / ECS / ECR 地址。价目表按实际区域索引，没有该区域的价目表时成本报告返回 `UNKNOWN`，不借用其他区域的价格，也不按零计价。
+- **写后读快照改为批量装载**（[#5](https://github.com/colvenna/colvenna-isle/issues/5)）：`after_write` / `after_ingestion` 快照不再逐行装载，改用带类型的 Arrow 批次。写者和查询镜像都安装同一个 hash 锁定的 pyarrow 24.0.0。写者在取任何行之前，先在原读事务中检查行数和保守的 JSON 字节估算，超出返回 `QUERY_SOURCE_QUOTA`。上限仍为 100,000 行、2 MiB，复制预算 5 秒。精确编码、回执权威、不重复捕获和封存 SQL 隔离保持不变。
 - **升级是破坏性的**：运行时命名空间变了，1.0.0 的环境不能原地升级。先用 1.0.0 的工具备份并卸载运行时资源，再用 1.1.0 全新安装，按当前合同重新生成数据，见[安装部署手册](installation.md#10-破坏性升级)。
 
 ## 验收
@@ -42,7 +42,7 @@ tag `v1.1.0` 的运行时代码（`src/`、`infra/`、`runtime/`、`scripts/`、
 
 验收中失败的安装与部署回执与成功的验收分开保留：VPC 配额失败和全局 CloudFront 名称冲突都已核对到终态的回滚 / 删除；一次 Airflow CLI 设置失败被证明发生在 Colvenna Isle 派发之前，修正字面参数后原 DAG 身份继续执行，没有重新接入数据。
 
-发行构建从 tag `v1.1.0` 的干净检出构建，在一个区域全新安装后执行 Quickstart、上述两项变更的针对性回归与发行用例 `UAT-DOC-02` / `UAT-DOC-03`，然后卸载。结果见 [GitHub Release v1.1.0](https://github.com/amliuyong/colvenna-isle/releases/tag/v1.1.0) 附带的验证报告。
+发行构建从 tag `v1.1.0` 的干净检出构建，在一个区域全新安装后执行 Quickstart、上述两项变更的针对性回归与发行用例 `UAT-DOC-02` / `UAT-DOC-03`，然后卸载。结果见 [GitHub Release v1.1.0](https://github.com/colvenna/colvenna-isle/releases/tag/v1.1.0) 附带的验证报告。
 
 ## 发行身份
 
@@ -50,7 +50,7 @@ tag `v1.1.0` 的运行时代码（`src/`、`infra/`、`runtime/`、`scripts/`、
 | --- | --- |
 | 版本 | `1.1.0`（tag `v1.1.0` 中的 `src/cove_duckdb/_version.py`；当前源码为 `1.2.0.dev0`） |
 | Git tag | `v1.1.0` |
-| GitHub Release | [v1.1.0](https://github.com/amliuyong/colvenna-isle/releases/tag/v1.1.0) |
+| GitHub Release | [v1.1.0](https://github.com/colvenna/colvenna-isle/releases/tag/v1.1.0) |
 | 源码 | tag 指向的提交；release `manifest.json` 记录其 commit / tree |
 | 构建 | `scripts/build_product.py`，见[安装部署手册](installation.md#5-构建-release) |
 
@@ -162,7 +162,7 @@ GitHub Release 附带这些 manifest。镜像和 ZIP 本体由安装工具发布
 
 | 项目 | 值 |
 | --- | --- |
-| 版本 / tag | `1.0.0` / `v1.0.0`（[GitHub Release](https://github.com/amliuyong/colvenna-isle/releases/tag/v1.0.0)，2026-10-20） |
+| 版本 / tag | `1.0.0` / `v1.0.0`（[GitHub Release](https://github.com/colvenna/colvenna-isle/releases/tag/v1.0.0)，2026-10-20） |
 | 区域 | 只支持 `us-west-2`：区域写在模板和服务代码中 |
 | 写后读快照 | 沙箱逐行装载，约 1 万行、4 列的表超过 30 秒查询时限，返回 `QUERY_TIMEOUT` |
 

@@ -2,7 +2,7 @@
 
 本文定义发行前的用户验收测试（UAT），自 1.0.0 起适用。每个用例都按[安装部署手册](../installation.md)和[用户手册](../user-guide.md)中写明的操作执行，并给出明确的判定标准。
 
-执行结果记录在 UAT 报告中，随各版本的 [GitHub Release](https://github.com/amliuyong/colvenna-isle/releases) 发布；1.1.0 的区域验收范围见[发行说明](../release-notes.md#验收)。
+执行结果记录在 UAT 报告中，随各版本的 [GitHub Release](https://github.com/colvenna/colvenna-isle/releases) 发布；1.1.0 的区域验收范围见[发行说明](../release-notes.md#验收)。
 
 ## 1. 范围
 

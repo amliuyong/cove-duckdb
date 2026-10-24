@@ -16,7 +16,7 @@
 部署主机满足第 3 节的前置条件，账号中也已有原生存储镜像（第 4 节）时，仓库根目录的 `install.sh` 可以用一条命令完成第 3.4 节到第 8 节的工作：
 
 ```bash
-git clone https://github.com/amliuyong/colvenna-isle.git
+git clone https://github.com/colvenna/colvenna-isle.git
 cd colvenna-isle
 git checkout --detach <已审查的候选提交>
 ./install.sh fresh --environment prod --account <12 位账号 ID> --region <目标区域> \
@@ -181,7 +181,7 @@ docker pull $COVE_ACCOUNT.dkr.ecr.$COVE_REGION.amazonaws.com/colvenna-isle-image
 从所选提交的干净检出构建（构建回执绑定精确 commit / tree），构建目录放在仓库之外：
 
 ```bash
-git clone https://github.com/amliuyong/colvenna-isle.git && cd colvenna-isle
+git clone https://github.com/colvenna/colvenna-isle.git && cd colvenna-isle
 git checkout --detach <已审查的候选提交>
 COVE_ACCOUNT=$COVE_ACCOUNT /tmp/cove-build/bin/python scripts/build_product.py --output /path/outside/repo/release-candidate
 ```

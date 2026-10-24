@@ -28,7 +28,7 @@ Colvenna Isle is a database and analytics product for AWS. Applications write th
 
 The next release adopts the Colvenna Isle name; `main` is `1.2.0.dev0` (unreleased). Branding checks do not establish AWS acceptance for this candidate. See the [rename and upgrade notes](docs/release-notes.md#120-unreleased).
 
-Published version 1.1.0 ([GitHub Release `v1.1.0`](https://github.com/amliuyong/colvenna-isle/releases/tag/v1.1.0)) covers the current contract and capabilities, accepted on AWS:
+Published version 1.1.0 ([GitHub Release `v1.1.0`](https://github.com/colvenna/colvenna-isle/releases/tag/v1.1.0)) covers the current contract and capabilities, accepted on AWS:
 
 - a single AWS account of your choice (the account ID is taken from the deployment, never from the source), ARM64;
 - a standard commercial AWS region chosen at installation (`--region` / `COVE_REGION`): `us-east-2` passed fresh installation, all 56 functional UAT cases, backup and isolated restore, upgrade, interrupted redeploy and uninstall; `us-west-2` passed regression; other commercial regions are accepted by configuration but not qualified;

@@ -28,7 +28,7 @@ Colvenna Isle 是面向 AWS 的数据库与分析产品，整合 API 接入、S3
 
 下一版本采用 Colvenna Isle 名称；`main` 为 `1.2.0.dev0`（未发行）。本次品牌检查不构成该候选版本的 AWS 验收，见[改名与升级说明](docs/release-notes.md#120-unreleased)。
 
-已发布的 1.1.0（[GitHub Release `v1.1.0`](https://github.com/amliuyong/colvenna-isle/releases/tag/v1.1.0)）包含当前合同与能力，均已在实际 AWS 中验收：
+已发布的 1.1.0（[GitHub Release `v1.1.0`](https://github.com/colvenna/colvenna-isle/releases/tag/v1.1.0)）包含当前合同与能力，均已在实际 AWS 中验收：
 
 - 由你选择的单个 AWS 账号（账号 ID 来自部署环境，不写在源码中）、ARM64；
 - 安装时指定的标准 AWS 商业区域（`--region` / `COVE_REGION`）：`us-east-2` 完成全新安装、全部 56 项功能 UAT、备份与隔离还原、升级、中断重部署与卸载，`us-west-2` 完成回归；其他商业区域在配置上可用，但未单独验收；
