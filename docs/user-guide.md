@@ -1,6 +1,8 @@
-# Cove DuckDB 1.1.0 用户手册
+# Colvenna Isle 用户手册
 
-本手册面向应用开发者、数据工程师和分析人员，说明如何在一个已安装的 Cove DuckDB 环境中工作：
+当前源码为未发行的 `1.2.0.dev0` 改名候选，API 与数据库行为沿用 1.1.0。下文的 AWS 验收属于历史版本；候选的运行时验收为 `NOT_RUN`，见[发行说明](release-notes.md#120-unreleased)。
+
+本手册面向应用开发者、数据工程师和分析人员，说明如何在一个已安装的 Colvenna Isle 环境中工作：
 
 - 管理 API Key；
 - 注册数据集；
@@ -1482,8 +1484,8 @@ curl -s -X POST "$COVE_API_URL/v1/spaces/$COVE_SPACE/pipelines/orders/activate" 
 
 | `owner` | 含义 |
 | --- | --- |
-| `cove` | 由 Cove 按 `expression` 和 `timezone` 自动创建运行 |
-| `external` | 由外部编排（如 Airflow）调用运行 API；Cove 不自动创建运行 |
+| `cove` | 由 Colvenna Isle 按 `expression` 和 `timezone` 自动创建运行 |
+| `external` | 由外部编排（如 Airflow）调用运行 API；Colvenna Isle 不自动创建运行 |
 | `none` | 只允许手动运行 |
 
 修改调度（需要 `pipeline:manage` 和 `If-Match`）：
@@ -1627,13 +1629,13 @@ curl -s -X POST "$COVE_API_URL/v1/spaces/$COVE_SPACE/pipelines/orders/trial-runs
 
 ### 8.14 Airflow
 
-Airflow 是可选的外部编排方，负责跨系统依赖；流水线内部的 DAG、固定输入、计算和发布仍由 Cove 完成。示例 operator 见 [cove_operator.py](../examples/airflow/cove_operator.py)，示例 DAG 见 [cove_orders.py](../examples/airflow/dags/cove_orders.py)：
+Airflow 是可选的外部编排方，负责跨系统依赖；流水线内部的 DAG、固定输入、计算和发布仍由 Colvenna Isle 完成。示例 operator 见 [cove_operator.py](../examples/airflow/cove_operator.py)，示例 DAG 见 [cove_orders.py](../examples/airflow/dags/cove_orders.py)：
 
-1. 把流水线的调度方设为 `owner: external`，避免 Cove 与 Airflow 同时自动触发。
+1. 把流水线的调度方设为 `owner: external`，避免 Colvenna Isle 与 Airflow 同时自动触发。
 2. 为 Airflow 签发只含 `pipeline:run` 的专用 Key，存入 Airflow Variable `cove_pipeline_token`；API 地址存入 `cove_api_url`。
-3. operator 提交固定的 `pipeline_version`。`Idempotency-Key` 由 DAG ID、Airflow `run_id` 和 task ID 派生，**不含** try number，因此 Airflow 重试、worker 重启或断线重连都对应同一个 Cove 运行。
+3. operator 提交固定的 `pipeline_version`。`Idempotency-Key` 由 DAG ID、Airflow `run_id` 和 task ID 派生，**不含** try number，因此 Airflow 重试、worker 重启或断线重连都对应同一个 Colvenna Isle 运行。
 4. operator 轮询运行状态：只有 `PUBLISHED` 才成功，并通过 XCom 返回每个任务的 release；`FAILED` 或 `CANCELLED` 使 Airflow 任务失败，下游不放行。
-5. Airflow 等待超时只结束本次 Airflow 尝试，不会取消 Cove 运行。需要取消时显式调用取消接口。
+5. Airflow 等待超时只结束本次 Airflow 尝试，不会取消 Colvenna Isle 运行。需要取消时显式调用取消接口。
 
 operator 只使用 Python 标准库调用公开 API，不需要 AWS 凭证。
 
@@ -1980,7 +1982,7 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 | 409 | `RUN_NOT_RETRYABLE` / `RUN_RECONCILIATION_REQUIRED` / `RUN_ATTEMPT_LIMIT` | 不能重试 / 先核对 `UNKNOWN` 任务 / 尝试次数用尽 |
 | 410 | `PIPELINE_VERSION_COLLECTED` | 版本包已被回收 |
 | 412 | `PIPELINE_REVISION_CHANGED` / `PIPELINE_DRAFT_CHANGED` | `revision` / `draft_revision` 已过期 |
-| 403 | `SCHEDULE_RUN_SCOPE_REQUIRED` | 启用 Cove 调度的 Key 缺少 `pipeline:run` |
+| 403 | `SCHEDULE_RUN_SCOPE_REQUIRED` | 启用 Colvenna Isle 调度的 Key 缺少 `pipeline:run` |
 | 422 | `PIPELINE_DATASET_NOT_REGISTERED` | 定义引用了未注册的数据集 |
 | 422 | `PIPELINE_TARGET_SCHEMA_OR_OWNER_MISMATCH` | 输出与目标注册不一致，或目标不是 `pipeline` |
 | 422 | `RUN_REQUEST_INVALID` | 运行参数、输入或分区不合法 |
@@ -2073,3 +2075,5 @@ curl -s -X POST "$COVE_API_URL/v1/admin/spaces/$COVE_SPACE/retention/holds" \
 
 **Key 丢失或泄露。**
 token 无法找回。签发新 Key 后立即吊销旧 Key；需要保留原 principal 对已有工作的所有权时，用轮换代替签发。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

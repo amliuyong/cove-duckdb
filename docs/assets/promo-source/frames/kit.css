@@ -1,0 +1,95 @@
+/* Colvenna Isle 宣传片 · 共享版式（颜色全部取 ../theme.css 变量）
+ * 安全区：x 120–1800，y 64–900（底部 80–170px 是字幕带，内容底边 ≤ 904）。 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body {
+  width: 1920px; height: 1080px; overflow: hidden;
+  background: var(--bg-0); color: var(--text);
+  font-family: 'Inter', 'Noto Sans', 'Noto Sans CJK SC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'tnum' 1, 'cv11' 1;
+}
+.mono { font-family: 'Noto Sans Mono', 'DejaVu Sans Mono', 'Noto Sans Mono CJK SC', monospace; }
+
+/* 幕底：径向光 + 96px 网格 */
+.bg { position: absolute; inset: 0; background: var(--bg-radial); }
+.grid {
+  position: absolute; inset: 0; opacity: .9;
+  background-image:
+    linear-gradient(var(--line-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
+  background-size: 96px 96px; background-position: 0 0;
+}
+.stage { position: absolute; inset: 0; transform-origin: 960px 540px; }
+
+/* 页眉（ingest → console 常驻；hook 尾部由大 logo 飞入此处） */
+.hdr { position: absolute; left: 120px; top: 64px; height: 56px; display: flex; align-items: center; gap: 18px; }
+.hdr .mark { width: 56px; height: 56px; }
+.hdr .word { font-size: 28px; font-weight: 700; letter-spacing: -.01em; color: var(--text); }
+.hdr .sep { width: 2px; height: 30px; background: var(--line); margin: 0 4px; }
+.hdr .chap { font-size: 22px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--aqua); }
+.hdr .chap b { color: var(--text-faint); font-weight: 700; margin-right: 12px; }
+
+
+/* 场景标题（动态大字） */
+.title { position: absolute; left: 120px; top: 150px; font-family: 'Inter Display', 'Inter', 'Noto Sans CJK SC', sans-serif;
+  font-size: 76px; font-weight: 800; letter-spacing: -.025em; line-height: 1.05; white-space: nowrap; }
+.title em { font-style: normal; color: var(--accent); text-shadow: 0 0 46px var(--accent-glow); }
+.title .w { display: inline-block; }
+.sub { position: absolute; left: 124px; top: 244px; font-size: 28px; color: var(--text-dim); font-weight: 500; letter-spacing: .005em; }
+
+/* 卡片 */
+.card { position: absolute; background: var(--card-bg); border: 2px solid var(--line); border-radius: 22px; }
+.card.focus { background: var(--accent-soft); border-color: var(--accent-border); box-shadow: 0 0 80px var(--accent-glow) inset, 0 0 60px rgba(0,0,0,.25); }
+.label { font-size: 22px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--text-faint); }
+
+/* 代码块 */
+.code { font-family: 'Noto Sans Mono', 'DejaVu Sans Mono', monospace; font-size: 25px; line-height: 1.6; color: var(--text); white-space: pre; }
+.code .k { color: var(--code-key); }
+.code .s { color: var(--code-str); }
+.code .n { color: var(--code-num); }
+.code .d { color: var(--code-dim); }
+.code .m { color: var(--accent); font-weight: 700; }
+
+/* 胶囊 / 勾 */
+.chip { position: absolute; display: flex; align-items: center; gap: 12px; height: 56px; padding: 0 24px;
+  border-radius: 28px; border: 2px solid var(--line); background: var(--panel); font-size: 25px; font-weight: 600; white-space: nowrap; }
+.chip .tick { width: 30px; height: 30px; border-radius: 50%; background: var(--aqua); color: var(--bg-0);
+  display: grid; place-items: center; font-size: 20px; font-weight: 900; }
+.pill { display: inline-flex; align-items: center; height: 40px; padding: 0 18px; border-radius: 20px; font-size: 22px; font-weight: 800;
+  letter-spacing: .08em; border: 2px solid var(--line); color: var(--text-dim); white-space: nowrap; }
+.pill.on { color: var(--bg-0); background: var(--aqua); border-color: var(--aqua); }
+.pill.hot { color: var(--bg-0); background: var(--accent); border-color: var(--accent); box-shadow: 0 0 36px var(--accent-glow); }
+
+/* 状态章（主角大字） */
+.stamp { position: absolute; display: flex; align-items: center; gap: 22px; padding: 22px 40px; border-radius: 20px;
+  border: 3px solid var(--accent); background: var(--accent-soft); box-shadow: 0 0 90px var(--accent-glow);
+  font-family: 'Inter Display', 'Inter', 'Noto Sans CJK SC', sans-serif; white-space: nowrap; }
+.stamp .code3 { font-size: 64px; font-weight: 800; color: var(--accent); }
+.stamp .txt { font-size: 64px; font-weight: 800; color: var(--text); letter-spacing: .02em; }
+
+/* 连线（SVG） */
+.wire { stroke: var(--teal); stroke-width: 3; fill: none; }
+.wire.hot { stroke: var(--aqua); }
+.dot { fill: var(--aqua); }
+
+/* 产品窗口（浅色真品界面） */
+.win { position: absolute; background: var(--ui-bg); border-radius: 18px; overflow: hidden; color: var(--ui-fg);
+  box-shadow: 0 40px 120px rgba(0,0,0,.55), 0 0 0 2px var(--line); }
+.win .bar { height: 64px; background: var(--ui-card); border-bottom: 2px solid var(--ui-border); display: flex; align-items: center; gap: 16px; padding: 0 28px; }
+.win .bm { width: 34px; height: 34px; border-radius: 9px; background: var(--ui-accent); color: var(--ui-card); display: grid; place-items: center; font-weight: 800; font-size: 20px; }
+.win .bt { font-size: 24px; font-weight: 700; }
+.win .tab { font-size: 22px; color: var(--ui-muted); margin-left: 18px; }
+.win .tab.on { color: var(--ui-accent); font-weight: 700; }
+.win .conn { margin-left: auto; font-size: 22px; color: var(--ui-ok); font-weight: 700; display: flex; align-items: center; gap: 10px; }
+.win .conn i { width: 12px; height: 12px; border-radius: 50%; background: var(--ui-ok); display: inline-block; }
+.ui-card { position: absolute; background: var(--ui-card); border: 2px solid var(--ui-border); border-radius: 14px; }
+.ui-h { font-size: 24px; font-weight: 700; color: var(--ui-fg); }
+.ui-m { font-size: 22px; color: var(--ui-muted); }
+.ui-btn { display: inline-flex; align-items: center; height: 46px; padding: 0 22px; border-radius: 9px; font-size: 22px; font-weight: 700;
+  border: 2px solid var(--ui-border); background: var(--ui-card); color: var(--ui-fg); white-space: nowrap; }
+.ui-btn.primary { background: var(--ui-accent); border-color: var(--ui-accent); color: var(--ui-card); }
+.ui-tag { display: inline-flex; align-items: center; height: 36px; padding: 0 16px; border-radius: 18px; font-size: 22px; font-weight: 700; white-space: nowrap; }
+.ui-tag.ok { background: var(--ui-ok-soft); color: var(--ui-ok); }
+.ui-tag.warn { background: var(--ui-warn-soft); color: var(--ui-warn); }
+.ui-tag.acc { background: var(--ui-accent-soft); color: var(--ui-accent); }
+.ui-tag.amb { background: var(--ui-amber-soft); color: var(--accent-deep); }

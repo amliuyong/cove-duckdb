@@ -206,7 +206,7 @@ def validate_schedule(schedule):
         except (ZoneInfoNotFoundError, ValueError) as error:
             raise ContractError("Unknown schedule timezone") from error
     if schedule["owner"] == "cove":
-        require("expression" in schedule and "timezone" in schedule, "Cove schedule requires expression/timezone")
+        require("expression" in schedule and "timezone" in schedule, "Colvenna Isle schedule requires expression/timezone")
     if "expression" in schedule:
         expression = schedule["expression"]
         rate = re.fullmatch(r"rate\(([1-9]\d*) (minute|minutes|hour|hours|day|days)\)", expression)

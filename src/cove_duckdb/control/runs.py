@@ -129,7 +129,7 @@ class Runs:
         bound = self.pipelines.bind_run(principal, space, pipeline, request["pipeline_version"])
         definition = bound["snapshot"]["definition"]
         if trigger == "api" and self.pipelines._current(configuration, pipeline)["schedule"]["owner"] == "external":
-            # The external orchestrator owns automatic triggering; Cove still
+            # The external orchestrator owns automatic triggering; Colvenna Isle still
             # owns this run's internal DAG, imports and publication.
             trigger = "external"
         try:
@@ -1141,7 +1141,7 @@ class Runs:
                     identity = self.dispatcher.lambda_invoke(binding, attempt["descriptor"])
                 elif binding["executor"] == "ecs_task":
                     identity = self.dispatcher.ecs_run(binding, attempt["descriptor"], {
-                        "Project": "cove-duckdb", "CoveRun": record["run_id"][:120], "CoveJob": job["job_id"][:120],
+                        "Project": "colvenna-isle", "CoveRun": record["run_id"][:120], "CoveJob": job["job_id"][:120],
                         "CoveAttempt": attempt["attempt_id"]})
                 else:
                     worker = self.writer.call(principal, configuration, "writer_task_execute",
@@ -1235,7 +1235,7 @@ class Runs:
                 return self._fail_attempt(record, task, worker.get("code") or "WRITER_TASK_FAILED"), True
         if self.clock() >= attempt["deadline_unix"]:
             if dispatch.get("executor") == "ecs_task" and dispatch.get("task_arn"):
-                self.dispatcher.ecs_stop(dispatch["task_arn"], "Cove attempt deadline")
+                self.dispatcher.ecs_stop(dispatch["task_arn"], "Colvenna Isle attempt deadline")
             return self._fail_attempt(record, task, "TASK_ATTEMPT_DEADLINE",
                                       unknown=dispatch.get("state") == "UNKNOWN_INVOKE"), True
         return None
@@ -1351,7 +1351,7 @@ class Runs:
             arns = set(self.dispatcher.ecs_find(token(attempt["descriptor"])))
             if (attempt.get("dispatch") or {}).get("task_arn"):
                 arns.add(attempt["dispatch"]["task_arn"])
-            stopped = all(self.dispatcher.ecs_stop(arn, "Cove run cancelled") for arn in sorted(arns))
+            stopped = all(self.dispatcher.ecs_stop(arn, "Colvenna Isle run cancelled") for arn in sorted(arns))
             record = self._job_change(record, task_id, lambda value: value["attempts"][-1].update(
                 stop_requested=stopped), cancel=True)
         try:

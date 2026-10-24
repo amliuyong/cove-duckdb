@@ -1,4 +1,4 @@
-"""External orchestration: release downstream work only after Cove publishes."""
+"""External orchestration: release downstream work only after Colvenna Isle publishes."""
 
 from datetime import datetime
 
@@ -12,7 +12,7 @@ from cove_operator import CovePipelineRunOperator
 def downstream(**context):
     result = context["ti"].xcom_pull(task_ids="cove_orders")
     if result["status"] != "PUBLISHED" or not all(result["releases"].values()):
-        raise ValueError("Cove run is not published")
+        raise ValueError("Colvenna Isle run is not published")
     # A real downstream system would read these exact releases.
     print({"cove_run": result["run_id"], "releases": result["releases"]})
 

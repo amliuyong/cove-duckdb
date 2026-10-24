@@ -1,17 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 550 144" role="img" aria-labelledby="title desc">
-<title id="title">Cove DuckDB</title>
-<desc id="desc">API ingestion and SQL analytics. Original project wordmark for light backgrounds.</desc>
-<g transform="translate(0 8)"><g>
-  <rect width="128" height="128" rx="30" fill="#104c58"/>
-  <ellipse cx="62" cy="83" rx="36" ry="22" fill="#e8faf2"/>
-  <path d="M60 75V52c0-10 8-18 18-18h8v45z" fill="#e8faf2"/>
-  <circle cx="82" cy="45" r="21" fill="#e8faf2"/>
-  <path d="M98 44h15c7 0 10 3 10 6s-3 6-10 6H98z" fill="#f5ad45"/>
-  <circle cx="86" cy="40" r="3" fill="#104c58"/>
-  <path d="M45 77h21M45 85h27M45 93h17" stroke="#087f80" stroke-width="5" stroke-linecap="round"/>
-  <path d="M21 110c7-5 14-5 21 0s14 5 21 0 14-5 21 0 14 5 21 0"
-        fill="none" stroke="#57c8bf" stroke-width="4" stroke-linecap="round"/>
-</g></g>
-<text x="151" y="70" fill="#173641" font-family="Arial, Helvetica, sans-serif" font-size="43" font-weight="700">Cove DuckDB</text>
-<text x="153" y="101" fill="#526a74" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing="1.1">API INGESTION · SQL ANALYTICS</text>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="640" height="160" viewBox="0 0 640 160"
+     role="img" aria-labelledby="colvenna-isle-light-title colvenna-isle-light-desc">
+  <title id="colvenna-isle-light-title">Colvenna Isle</title>
+  <desc id="colvenna-isle-light-desc">Three concentric teal flow lines form a C; the innermost line flows into a gold result point. Wordmark for light backgrounds.</desc>
+
+  <defs>
+    <linearGradient id="colvenna-isle-light-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="colvenna-isle-light-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="colvenna-isle-light-mark">
+      <rect width="256" height="256" rx="56" fill="url(#colvenna-isle-light-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#colvenna-isle-light-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#colvenna-isle-light-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#colvenna-isle-light-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs>
+  <use href="#colvenna-isle-light-mark" transform="translate(8 16) scale(.5)"/>
+  <text x="162" y="85" fill="#123D4A" font-family="Arial, Helvetica, sans-serif"
+        font-size="59" font-weight="700" letter-spacing="-1.7">Colvenna<tspan
+        dx="16" font-weight="400">Isle</tspan></text>
+  <text x="165" y="118" fill="#52707A" font-family="Arial, Helvetica, sans-serif"
+        font-size="12" font-weight="600" letter-spacing="1.8">DURABLE ANALYTICS DATABASES ON S3</text>
 </svg>

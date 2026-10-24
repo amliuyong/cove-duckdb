@@ -1,8 +1,8 @@
-# Cove DuckDB UAT 测试用例
+# Colvenna Isle UAT 测试用例
 
 本文定义发行前的用户验收测试（UAT），自 1.0.0 起适用。每个用例都按[安装部署手册](../installation.md)和[用户手册](../user-guide.md)中写明的操作执行，并给出明确的判定标准。
 
-执行结果记录在 UAT 报告中，随各版本的 [GitHub Release](https://github.com/amliuyong/cove-duckdb/releases) 发布；1.1.0 的区域验收范围见[发行说明](../release-notes.md#验收)。
+执行结果记录在 UAT 报告中，随各版本的 [GitHub Release](https://github.com/amliuyong/colvenna-isle/releases) 发布；1.1.0 的区域验收范围见[发行说明](../release-notes.md#验收)。
 
 ## 1. 范围
 
@@ -102,7 +102,7 @@ UAT 只包含功能用例，**默认不执行性能测试**。性能与容量测
 | UAT-PIP-04 | 规则变更 | 修改流水线规则后发布新版本 | 重新 bootstrap，全量重建后与预期一致 | A |
 | UAT-PIP-05 | 三种执行器 | 同一转换分别在 writer、Lambda、ECS 中执行 | 三者结果相同，并与独立 DuckDB 计算一致 | A |
 | UAT-PIP-06 | 取消与重试 | 发布前取消；对失败的运行重试 | 取消后不发布任何结果；重试必须是所有者并带 Idempotency-Key，是幂等的；已发布的运行不能重试 | A |
-| UAT-PIP-07 | 调度 | 启用调度，再暂停；把 owner 设为外部 | 自动运行按窗口发布，不丢失区间；暂停后不再产生新的自动运行；外部 owner 下 Cove 不自动运行 | A |
+| UAT-PIP-07 | 调度 | 启用调度，再暂停；把 owner 设为外部 | 自动运行按窗口发布，不丢失区间；暂停后不再产生新的自动运行；外部 owner 下 Colvenna Isle 不自动运行 | A |
 | UAT-PIP-08 | Airflow | 用示例 operator 由外部 Airflow 运行 | 发布后放行下游；重跑和超时都落到同一运行；未授权 Key 与错误版本被拒绝 | A |
 | UAT-PIP-09 | 可追溯与试运行 | 追踪一次运行；在控制台做样本试运行 | 能看到输入、计算、导入、发布；试运行不改变 release 或水位 | A |
 | UAT-PIP-10 | 流水线权限 | 无权限的角色创建、发布、运行；把定义写入接入目标 | 全部被拒绝 | A |
@@ -142,3 +142,5 @@ UAT 只包含功能用例，**默认不执行性能测试**。性能与容量测
 | UAT-DOC-01 | 文档检查 | `python3 scripts/check_docs.py` | PASS | — |
 | UAT-DOC-02 | 发行身份一致 | 对照 README、发行说明、Press Release 与 `_version.py` | 版本与 tag 一致；发行说明写明区域与 tag | — |
 | UAT-DOC-03 | 公开仓库不含部署身份 | 扫描整个仓库 | 不含 AWS 账号 ID、IAM 角色名、凭证或开发环境标识 | — |
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

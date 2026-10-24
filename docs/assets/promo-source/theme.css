@@ -1,0 +1,82 @@
+/* Colvenna Isle 品牌深色 —— 全片唯一色源，画面代码禁止写死色值。
+ * 色号取自 docs/assets/logo-*.svg（用户确认点 0 拍板：Colvenna 系列深色）。
+ * 语义：accent=琥珀（结果点，只给当前重点）· teal/aqua=结构与数据流动 ·
+ *       signal=aqua（指标/流动）· ok=已提交/已发布 · warn=拒绝（几乎不用）· 灰系=未激活。 */
+:root {
+  --bg-0: #07181d;
+  --bg-1: #0b2a31;
+  --bg-radial: radial-gradient(1100px 760px at 50% 42%, rgba(8,127,128,.22), transparent 66%),
+    linear-gradient(170deg, #0b2a31 0%, #07181d 56%, #081f25 100%);
+
+  /* 品牌结构色 */
+  --brand: #11556B;          /* logo 方块底 */
+  --teal: #1BB59E;           /* 结构、连线 */
+  --teal-rgb: 8,127,128;
+  --aqua: #4FF2D6;           /* 数据流动 */
+  --aqua-rgb: 79,242,214;
+  --mint: #e8faf2;           /* 文字 / 流线 */
+  --panel: #0b2a31;
+  --panel-2: #0e343c;
+
+  /* 强调：琥珀（结果点） */
+  --accent: #F5CB68;
+  --accent-light: #f8c97f;
+  --accent-deep: #c9821f;
+  --accent-pale: #fdf0dc;
+  --accent-rgb: 245,203,104;
+  --accent-soft: rgba(245,203,104, .10);
+  --accent-border: rgba(245,203,104, .60);
+  --accent-glow: rgba(245,203,104, .50);
+
+  --signal: #4FF2D6;
+  --signal-rgb: 79,242,214;
+  --warn: #e5484d;
+  --ok: #4FF2D6;
+  --glitch-a: #4FF2D6;
+  --glitch-b: #F5CB68;
+
+  --text: #e8faf2;
+  --text-dim: rgba(232,250,242,.62);
+  --text-faint: rgba(232,250,242,.38);
+  --line: rgba(79,242,214,.22);
+  --line-soft: rgba(79,242,214,.075);
+  --card-bg: rgba(14,52,60,.72);
+  --grey: #8aa6ad;
+
+  /* 产品界面（Query Editor / Admin Console 真实配色，取自 infra/web 下两个 app.css） */
+  --ui-bg: #f4f6f7;
+  --ui-card: #ffffff;
+  --ui-fg: #23313b;
+  --ui-muted: #687780;
+  --ui-border: #dde4e8;
+  --ui-accent: #176b63;
+  --ui-accent-soft: #e3f0ee;
+  --ui-ok: #1f7a4d;
+  --ui-ok-soft: #e2f3ea;
+  --ui-warn: #a13738;
+  --ui-warn-soft: #f8e6e6;
+  --ui-amber-soft: #fdf0dc;
+  --ui-code: #0f2f36;
+
+  /* 代码 / 等宽 */
+  --code-key: #4FF2D6;
+  --code-str: #F5CB68;
+  --code-num: #f8c97f;
+  --code-dim: rgba(232,250,242,.45);
+
+  /* 字幕 / 进度条皮肤（深底，沿用白字深描边，进度条走 aqua） */
+  --mg-sub-fg: #e8faf2;
+  --mg-sub-stroke: #04100f;
+  --mg-track: rgba(79,242,214,.18);
+  --mg-tick: rgba(232,250,242,.45);
+
+  /* 亮底变量（本片不用，保留以兼容工具） */
+  --paper: #f6faf8;
+  --paper-2: #e6f0ed;
+  --ink: #0f2f36;
+  --ink-dim: rgba(15,47,54,.62);
+  --ink-faint: rgba(15,47,54,.38);
+  --line-ink: rgba(15,47,54,.18);
+  --line-ink-soft: rgba(15,47,54,.09);
+  --accent-on-paper: #c9821f;
+}

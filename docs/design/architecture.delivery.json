@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "receiptId": "bd027f24-05c1-48be-a1a7-c815e1718b87",
+  "receiptId": "39b6c592-984d-44fb-8e22-85fb686c2f26",
   "status": "current",
   "command": "deliver",
   "type": "architecture",
-  "input": "/home/ubuntu/my/cove-duckdb/docs/design/architecture.json",
-  "output": "/home/ubuntu/my/cove-duckdb/docs/design/architecture.html",
+  "input": "/home/ubuntu/.codex/worktrees/9b90/issue-19-colvenna-isle/docs/design/architecture.json",
+  "output": "/home/ubuntu/.codex/worktrees/9b90/issue-19-colvenna-isle/docs/design/architecture.html",
   "specification": {
-    "sha256": "7817c7a2b1de335599f9fed5c0236f71ed610ced1b0273c5f6915aae4ff830f8",
-    "bytes": 7782
+    "sha256": "2a7ae527b6c92f2edda41e9d84330cbd1f2b7f7a1506cb70359bc0d3910a0b51",
+    "bytes": 7784
   },
   "artifact": {
-    "sha256": "b1d1ce153a67bb0a004cc70ba2c76b6cdf78402bd7601922e0f016cfe74328c6",
-    "bytes": 837023
+    "sha256": "6b6099bbed458b6995b5652138aea77c54b7bbe736dc6f907db8dc5e05c9c55a",
+    "bytes": 837029
   }
 }

@@ -1,4 +1,4 @@
-# Cove DuckDB 性能测试说明
+# Colvenna Isle 性能测试说明
 
 本文定义性能与容量测试：测什么、在什么环境下测、怎样执行、怎样判定。1.0.0 在发行规格下的实测结果见[性能与容量基线](performance.md)。
 
@@ -93,3 +93,5 @@
 格式可参考[性能与容量基线](performance.md)。
 
 测量用的负载驱动程序不随仓库发布。产品自带的分段计时（`COVE_TIMING`）和成本报告提供服务端数据，客户端按本说明的矩阵与统计方法记录样本。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

@@ -8,7 +8,7 @@ from cove_duckdb.region import regional
 def template(baseline, authorizer_id, artifact, source_commit, environment=None, pipelines=None, *, account):
     region = "${AWS::Region}"
     writer_function = baseline.get("WriterControlFunction", "")
-    tags = [{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "control"},
+    tags = [{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "control"},
             {"Key": "SourceCommit", "Value": source_commit}]
     resources = {
         "Logs": {"Type": "AWS::Logs::LogGroup", "Properties": {"RetentionInDays": 7, "Tags": tags}},
@@ -158,7 +158,7 @@ def template(baseline, authorizer_id, artifact, source_commit, environment=None,
             resource["Properties"].setdefault("Environment", {}).setdefault("Variables", {})["COVE_REGION"] = {"Ref": "AWS::Region"}
     return regional({
         "AWSTemplateFormatVersion": "2010-09-09",
-        "Description": "Cove DuckDB control services on the private baseline",
+        "Description": "Colvenna Isle control services on the private baseline",
         "Resources": resources,
         "Outputs": {
             **({"SchedulerFunction": {"Value": {"Ref": "Scheduler"}},
@@ -289,7 +289,7 @@ def add_governance(resources, baseline, artifact, source_commit, tags, account, 
             "Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "lambda:InvokeFunction",
                                                    "Resource": {"Fn::GetAtt": ["Collector", "Arn"]}}]}}]}}
     resources["CollectorTick"] = {"Type": "AWS::Scheduler::Schedule", "Properties": {
-        "Description": "Cove retention: hourly sweeps for enabled spaces and queued collection requests",
+        "Description": "Colvenna Isle retention: hourly sweeps for enabled spaces and queued collection requests",
         "ScheduleExpression": "rate(5 minutes)", "FlexibleTimeWindow": {"Mode": "OFF"}, "State": "ENABLED",
         "Target": {"Arn": {"Fn::GetAtt": ["Collector", "Arn"]},
                    "RoleArn": {"Fn::GetAtt": ["CollectorInvokeRole", "Arn"]},
@@ -306,7 +306,7 @@ def add_pipeline_runs(resources, baseline, artifact, source_commit, environment,
     policy = environment["policy"]
     queue = policy["notification_queue_arn"]
     resources["ComputeSecurityGroup"] = {"Type": "AWS::EC2::SecurityGroup", "Properties": {
-        "GroupDescription": "Cove independent compute tasks; egress only, no inbound listener",
+        "GroupDescription": "Colvenna Isle independent compute tasks; egress only, no inbound listener",
         "VpcId": baseline["Vpc"], "Tags": tags}}
     network = {"cluster": baseline["Cluster"], "subnets": [baseline["PrivateSubnet1"], baseline["PrivateSubnet2"]],
                "security_groups": ["__COMPUTE_SECURITY_GROUP__"]}
@@ -386,7 +386,7 @@ def add_pipeline_runs(resources, baseline, artifact, source_commit, environment,
             "Version": "2012-10-17", "Statement": [{"Effect": "Allow", "Action": "lambda:InvokeFunction",
                                                    "Resource": {"Fn::GetAtt": ["Scheduler", "Arn"]}}]}}]}}
     resources["SchedulerTick"] = {"Type": "AWS::Scheduler::Schedule", "Properties": {
-        "Description": "Cove pipeline scheduler: minute-level triggers and reconciliation, not a sub-minute SLA",
+        "Description": "Colvenna Isle pipeline scheduler: minute-level triggers and reconciliation, not a sub-minute SLA",
         "ScheduleExpression": "rate(1 minute)", "FlexibleTimeWindow": {"Mode": "OFF"},
         "State": pipelines.get("state", "ENABLED"),
         "Target": {"Arn": {"Fn::GetAtt": ["Scheduler", "Arn"]},

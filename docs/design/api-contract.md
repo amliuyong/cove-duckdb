@@ -1,4 +1,6 @@
-# Cove DuckDB API contract
+# Colvenna Isle API contract
+
+The unreleased `1.2.0.dev0` candidate changes branding and the schema identifier only. Routes, validation rules, protocol headers and contract version remain those of 1.1.0. Candidate AWS acceptance is `NOT_RUN`; see the [rename notes](../release-notes.md#120-unreleased).
 
 Applies to 1.1.0; changes since 1.0.0 are listed in the [release notes](../release-notes.md#110-的变更). Every route below is implemented in 1.1.0; the [user guide](../user-guide.md) describes how to use them. Operator-only actions (space provisioning, quotas, backups and restores, installation) use IAM tools, not public routes; see the [installation guide](../installation.md).
 
@@ -266,7 +268,7 @@ An atomically cancelled queued job can become `CANCELLED` only when it never acq
 
 ## Pipeline execution
 
-Definitions and scheduling are built into Cove. The [pipeline design](pipeline-design.md), [Python file contract](python-task-contract.md) and [dependency environments](runtime-environments.md) specify executor and publication behavior. Query Editor access alone does not permit publishing code.
+Definitions and scheduling are built into Colvenna Isle. The [pipeline design](pipeline-design.md), [Python file contract](python-task-contract.md) and [dependency environments](runtime-environments.md) specify executor and publication behavior. Query Editor access alone does not permit publishing code.
 
 ### Definition and version APIs
 
@@ -289,7 +291,7 @@ External tasks name `runtime_environment: {environment_id, version}`. Metadata e
 
 Version publication binds the complete immutable code package, environment versions, resolved executor configuration and schema. A subsequent draft edit does not mutate existing versions. Active schedule configuration is separately revisioned; enabling or changing its owner never modifies a running job's bindings.
 
-Schedule owner is `cove`, `external` or `none`. Cove-owned schedules use supported EventBridge Scheduler rate/cron expressions. External ownership disables Cove's automatic run creation; internal dependency progression continues. PAUSED stops new runs but does not cancel existing runs. Clients cannot override the schedule owner in a run request.
+Schedule owner is `cove`, `external` or `none`. Colvenna Isle-owned schedules use supported EventBridge Scheduler rate/cron expressions. External ownership disables Colvenna Isle's automatic run creation; internal dependency progression continues. PAUSED stops new runs but does not cancel existing runs. Clients cannot override the schedule owner in a run request.
 
 ### `POST /v1/spaces/{space_id}/pipelines/{pipeline_id}/runs`
 
@@ -446,3 +448,5 @@ The first management key is issued by a controlled deployment bootstrap. Public 
 The deployment selects one commercial AWS region (partition `aws`) through `COVE_REGION` / `AWS_REGION`; conflicting settings fail before AWS calls. Stack resources use `AWS::Region`, services use the injected runtime region, and executor approval binds account, exact deployed region and runtime namespace. A contract-valid ARN from another region still cannot pass runtime approval. Chinese, GovCloud and isolated partitions are outside this contract.
 
 Cost reports use only a price snapshot for the deployed region. With none, `status` is `UNKNOWN`, `prices.retrieved` is null, `prices.sources`, `lines` and `totals` are empty, and `unmeasured` names `REGIONAL_PRICES_UNAVAILABLE`. Existing `COMPLETE` / `PARTIAL` observations retain their meanings when regional prices are available. Price snapshot keys and provenance identify the region actually priced; they do not configure deployment.
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

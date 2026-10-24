@@ -23,8 +23,8 @@ class DeploymentTests(unittest.TestCase):
         names = module("names")
         first, isolated = names.names("prod"), names.names("uatb")
         self.assertEqual({key: first[key] for key in ["environment", "baseline", "control", "environments"]},
-                         {"environment": "prod", "baseline": "cove-duck-prod-core",
-                          "control": "cove-duck-prod-control", "environments": "cove-duck-prod-builder"})
+                         {"environment": "prod", "baseline": "colvenna-isle-prod-core",
+                          "control": "colvenna-isle-prod-control", "environments": "colvenna-isle-prod-builder"})
         self.assertFalse({first[key] for key in ["baseline", "control", "environments"]}
                          & {isolated[key] for key in ["baseline", "control", "environments"]})
         # Neither environment's IAM wildcard (<prefix>*) matches the other's runtime resources.
@@ -42,8 +42,8 @@ class DeploymentTests(unittest.TestCase):
         rendered = json.dumps(module("environments").template(
             self.baseline(), {"key": "artifacts/builder.zip", "version_id": "source-original"}, policy,
             isolated["environments"], account=ACCOUNT))
-        self.assertNotIn("cove-duck-prod-env-", rendered)
-        self.assertIn("project/cove-duck-uatb-builder", rendered)
+        self.assertNotIn("colvenna-isle-prod-env-", rendered)
+        self.assertIn("project/colvenna-isle-uatb-builder", rendered)
 
     def test_backup_vault_is_retained_tls_only_and_the_writer_can_never_delete_backups(self):
         vault = module("backups").template("2" * 40)["Resources"]
@@ -98,7 +98,7 @@ class DeploymentTests(unittest.TestCase):
         definition = module("control").template(
             self.baseline(), "auth", {"key": "code.zip", "version_id": "original"}, "2" * 40,
             environment={"project": "owned-builder", "policy": {"repository": "owned-repository",
-                                                                 "runtime_prefix": "cove-duck-env-"}},
+                                                                 "runtime_prefix": "colvenna-isle-env-"}},
             account=ACCOUNT)
         statements = definition["Resources"]["Role"]["Properties"]["Policies"][0]["PolicyDocument"]["Statement"]
         ecs = [statement for statement in statements
@@ -108,12 +108,12 @@ class DeploymentTests(unittest.TestCase):
 
     def test_user_boundary_has_no_builder_private_package_or_warehouse_permission(self):
         policy = json.loads((ROOT / "runtime/environment-lock.json").read_text())
-        policy.update(source_commit="2" * 40, repository="owned-repository", runtime_prefix="cove-duck-env-", private_wheels={
+        policy.update(source_commit="2" * 40, repository="owned-repository", runtime_prefix="colvenna-isle-env-", private_wheels={
             "approved": {"s3_uri": "s3://owned-bucket/artifacts/private-wheels/approved.whl",
                          "object_version": "private-original"}})
         resources = module("environments").template(
             self.baseline(), {"key": "artifacts/builder.zip", "version_id": "source-original"}, policy,
-            "cove-duck-prod-builder", account=ACCOUNT)["Resources"]
+            "colvenna-isle-prod-builder", account=ACCOUNT)["Resources"]
         boundary = resources["RuntimeBoundary"]["Properties"]["PolicyDocument"]["Statement"]
         allowed = {action for statement in boundary for action in statement["Action"]}
         # sqs:SendMessage is limited to the pipeline notification queue (Lambda destinations).
@@ -147,10 +147,10 @@ class DeploymentTests(unittest.TestCase):
         self.assertEqual(descriptor, [{"Effect": "Allow", "Action": ["s3:PutObject", "s3:GetObjectVersion"],
             "Resource": "arn:aws:s3:::owned-bucket/spaces/*/task-contexts/gen_*/*"}])
         policy = json.loads((ROOT / "runtime/environment-lock.json").read_text())
-        policy.update(source_commit="2" * 40, repository="owned-repository", runtime_prefix="cove-duck-env-")
+        policy.update(source_commit="2" * 40, repository="owned-repository", runtime_prefix="colvenna-isle-env-")
         runtime = module("environments").template(
             self.baseline(), {"key": "artifacts/builder.zip", "version_id": "source-original"}, policy,
-            "cove-duck-prod-builder", account=ACCOUNT)
+            "colvenna-isle-prod-builder", account=ACCOUNT)
         boundary = runtime["Resources"]["RuntimeBoundary"]["Properties"]["PolicyDocument"]["Statement"]
         self.assertFalse(any("s3:PutObject" in statement["Action"]
                              and "task-contexts" in str(statement["Resource"]) for statement in boundary))
@@ -159,7 +159,7 @@ class DeploymentTests(unittest.TestCase):
         baseline = {**self.baseline(), "PrivateSubnet1": "subnet-1", "PrivateSubnet2": "subnet-2", "Vpc": "vpc-1",
                     "IngressQueue": "https://sqs.us-west-2.amazonaws.com/123456789012/owned-ingress.fifo",
                     "Dlq": "https://sqs.us-west-2.amazonaws.com/123456789012/owned-dlq.fifo"}
-        policy = {"repository": "owned-repository", "runtime_prefix": "cove-duck-env-", "notification_queue_arn":
+        policy = {"repository": "owned-repository", "runtime_prefix": "colvenna-isle-env-", "notification_queue_arn":
                   "arn:aws:sqs:us-west-2:123456789012:owned-events", "notification_queue_url": "https://events",
                   "execution_role_arn": "arn:aws:iam::123456789012:role/owned-execution"}
         return module("control").template(baseline, "auth", {"key": "code.zip", "version_id": "original"}, "2" * 40,

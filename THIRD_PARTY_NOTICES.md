@@ -1,10 +1,14 @@
 # Third-party source and license records
 
-Cove DuckDB's original source code, documentation, contracts and brand assets are distributed under [Apache-2.0](LICENSE). Third-party components keep their own licenses, recorded below. Release artifacts also carry the license and notice files shipped inside each bundled Python distribution (`*.dist-info`).
+Colvenna Isle's original source code, documentation, contracts and brand assets are distributed under [Apache-2.0](LICENSE). Third-party components keep their own licenses, recorded below. Release artifacts also carry the license and notice files shipped inside each bundled Python distribution (`*.dist-info`).
 
 ## Archify
 
 The standalone architecture viewer includes generated runtime code from [Archify](https://github.com/tt-a1i/archify), under MIT. Copyright (c) 2026 tt-a1i (Archify), and Copyright (c) 2025 Cocoon AI. The full notice remains in [third_party/archify.LICENSE](third_party/archify.LICENSE). Apache-2.0 does not replace that license for those portions.
+
+## Promotional video source
+
+The editable [promotion scenes](docs/assets/promo-source/README.md) bundle GSAP 3.13.0 for deterministic offline rendering. Copyright 2025 GreenSock. All rights reserved. Its [standard license](https://gsap.com/standard-license) and original header remain applicable; it is not relicensed as Apache-2.0. The adapted Colvenna SVG generator follows the Apache-2.0 [series generator](https://github.com/amliuyong/colvenna-for-clickhouse/blob/main/assets/brand/generate.py).
 
 ## Native storage qualification
 
@@ -51,4 +55,6 @@ Runtime environments are built from the dependencies a space declares (for examp
 
 A transitive SBOM and legal review of the native Rust dependencies (SlateDB and the object-storage extension's Cargo.lock) and of the Debian base image packages has not run (NOT_RUN). This record does not claim that audit.
 
-Referenced technologies and trademarks belong to their respective owners. A link alone does not mean software is bundled. The Cove DuckDB logo is an original project asset and is not the official DuckDB logo.
+Referenced technologies and trademarks belong to their respective owners. A link alone does not mean software is bundled. The Colvenna mark is an independent series asset; provenance and usage rules are in [brand assets](docs/assets/README.md).
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

@@ -1,4 +1,4 @@
-name: Development artifacts
+name: Colvenna Isle development artifacts
 
 on:
   push:
@@ -21,37 +21,37 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Install hash-locked dependencies
         run: |
-          python3 -m venv "$RUNNER_TEMP/cove-build"
-          "$RUNNER_TEMP/cove-build/bin/python" -m pip install --require-hashes --only-binary=:all: \
+          python3 -m venv "$RUNNER_TEMP/colvenna-isle-build"
+          "$RUNNER_TEMP/colvenna-isle-build/bin/python" -m pip install --require-hashes --only-binary=:all: \
             -r examples/orders/requirements.lock -r runtime/build-requirements.lock \
             -r runtime/aws-requirements.lock
       - name: Build and validate exact source
         run: |
-          "$RUNNER_TEMP/cove-build/bin/python" scripts/build_release.py --output "$RUNNER_TEMP/cove-artifacts"
-          "$RUNNER_TEMP/cove-build/bin/python" scripts/build_control.py --output "$RUNNER_TEMP/cove-control"
+          "$RUNNER_TEMP/colvenna-isle-build/bin/python" scripts/build_release.py --output "$RUNNER_TEMP/colvenna-isle-artifacts"
+          "$RUNNER_TEMP/colvenna-isle-build/bin/python" scripts/build_control.py --output "$RUNNER_TEMP/colvenna-isle-control"
       - name: Check the Query Editor in Chromium
         run: |
-          "$RUNNER_TEMP/cove-build/bin/python" -m pip install --require-hashes --only-binary=:all: \
+          "$RUNNER_TEMP/colvenna-isle-build/bin/python" -m pip install --require-hashes --only-binary=:all: \
             -r runtime/editor-requirements.lock
-          "$RUNNER_TEMP/cove-build/bin/python" -m playwright install --with-deps chromium
-          PYTHONPATH=src "$RUNNER_TEMP/cove-build/bin/python" -m unittest discover -s tests/editor -v \
-            > "$RUNNER_TEMP/cove-editor-browser.log" 2>&1
-          "$RUNNER_TEMP/cove-build/bin/python" scripts/build_editor.py --output "$RUNNER_TEMP/cove-editor"
+          "$RUNNER_TEMP/colvenna-isle-build/bin/python" -m playwright install --with-deps chromium
+          PYTHONPATH=src "$RUNNER_TEMP/colvenna-isle-build/bin/python" -m unittest discover -s tests/editor -v \
+            > "$RUNNER_TEMP/colvenna-isle-editor-browser.log" 2>&1
+          "$RUNNER_TEMP/colvenna-isle-build/bin/python" scripts/build_editor.py --output "$RUNNER_TEMP/colvenna-isle-editor"
       - name: Retain source-bound artifacts and logs
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
-          name: cove-duckdb-${{ github.sha }}
+          name: colvenna-isle-${{ github.sha }}
           path: |
-            ${{ runner.temp }}/cove-artifacts/manifest.json
-            ${{ runner.temp }}/cove-artifacts/wheel/
-            ${{ runner.temp }}/cove-artifacts/*.tar
-            ${{ runner.temp }}/cove-artifacts/*.log
-            ${{ runner.temp }}/cove-artifacts/third-party/
-            ${{ runner.temp }}/cove-control/manifest.json
-            ${{ runner.temp }}/cove-control/control.zip
-            ${{ runner.temp }}/cove-control/*.log
-            ${{ runner.temp }}/cove-editor/manifest.json
-            ${{ runner.temp }}/cove-editor/editor.zip
-            ${{ runner.temp }}/cove-editor-browser.log
+            ${{ runner.temp }}/colvenna-isle-artifacts/manifest.json
+            ${{ runner.temp }}/colvenna-isle-artifacts/wheel/
+            ${{ runner.temp }}/colvenna-isle-artifacts/*.tar
+            ${{ runner.temp }}/colvenna-isle-artifacts/*.log
+            ${{ runner.temp }}/colvenna-isle-artifacts/third-party/
+            ${{ runner.temp }}/colvenna-isle-control/manifest.json
+            ${{ runner.temp }}/colvenna-isle-control/control.zip
+            ${{ runner.temp }}/colvenna-isle-control/*.log
+            ${{ runner.temp }}/colvenna-isle-editor/manifest.json
+            ${{ runner.temp }}/colvenna-isle-editor/editor.zip
+            ${{ runner.temp }}/colvenna-isle-editor-browser.log
           if-no-files-found: error

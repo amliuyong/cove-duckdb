@@ -92,7 +92,7 @@ class Regions(unittest.TestCase):
                 if resource["Type"].startswith("AWS::CloudFront::"):
                     configuration, = resource["Properties"].values()
                     name = configuration["Name"]["Fn::Sub"].replace(
-                        "${AWS::StackName}", "cove-duck-" + "a" * 12 + "-core").replace(
+                        "${AWS::StackName}", "colvenna-isle-" + "a" * 12 + "-core").replace(
                         "${AWS::Region}", value)
                     self.assertNotIn("${", name)
                     self.assertLessEqual(len(name), 64)

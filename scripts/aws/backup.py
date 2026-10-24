@@ -210,7 +210,7 @@ def inspect(operation, uri, version):
     manifest = json.loads(raw)
     if manifest.get("kind") != "cove_space_backup" or key != (
             f"backups/{manifest['space_id']}/{manifest['generation']}/{manifest['backup_id']}/backup.json"):
-        raise RuntimeError("Not a Cove space backup manifest")
+        raise RuntimeError("Not a Colvenna Isle space backup manifest")
     native = json.loads(operation.get(manifest["native"]))
     for table in native["tables"]:
         for file in table["files"]:
@@ -415,7 +415,7 @@ def vault(directory):
         existing = operation.cf.describe_stacks(StackName=STACK)["Stacks"][0]
     if existing:
         tags = {tag["Key"]: tag["Value"] for tag in existing.get("Tags", [])}
-        if tags.get("Project") != "cove-duckdb" or tags.get("Environment") != "backups":
+        if tags.get("Project") != "colvenna-isle" or tags.get("Environment") != "backups":
             raise RuntimeError("Existing vault stack is not positively owned")
         if outputs(existing).get("SourceCommit") == head:
             print(encode({"status": "UNCHANGED", "bucket": vault_bucket(operation.cf)}))
@@ -424,7 +424,7 @@ def vault(directory):
     operation.save("admission", {"stack": STACK, "source_commit": head, "client_request_token": token,
                                  "template_sha256": hashlib.sha256(body.encode()).hexdigest()})
     kwargs = {"StackName": STACK, "TemplateBody": body, "ClientRequestToken": token,
-              "Tags": [{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Environment", "Value": "backups"},
+              "Tags": [{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Environment", "Value": "backups"},
                        {"Key": "SourceCommit", "Value": head}]}
     result = (update_stack(operation.cf, **kwargs) if existing else operation.cf.create_stack(**kwargs))
     operation.save("dispatch", result)

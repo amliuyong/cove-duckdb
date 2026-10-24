@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Open or close business admission of one installed Cove environment.
+"""Open or close business admission of one installed Colvenna Isle environment.
 
 open: every component runs one exact source; intake and synchronous writes are
 enabled while all services are stopped, then the writer is approved and the
@@ -53,7 +53,7 @@ def flags(current, baseline, head, directory, enabled=None, timing=None):
     result = update_stack(
         cf, StackName=baseline["StackId"], **template_arguments(current, body), Capabilities=["CAPABILITY_IAM"],
         Parameters=parameters, ClientRequestToken=token,
-        Tags=[{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "core"},
+        Tags=[{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "core"},
               {"Key": "SourceCommit", "Value": previous["SourceCommit"]}])
     (directory / "dispatch.json").write_text(encode(result))
     if wait(cf, result["StackId"], directory / "terminal.json") != "UPDATE_COMPLETE":

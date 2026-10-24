@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>storage · native analytics, durable in S3</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="kit.css">
+<style>
+  html, body { width: 1920px; height: 1080px; }
+  .feat { left: 120px; }
+  .db { position: absolute; left: 400px; top: 330px; width: 340px; height: 420px; }
+  .db svg { width: 340px; height: 420px; overflow: visible; }
+  .db .shell { fill: var(--panel-2); stroke: var(--teal); stroke-width: 3; }
+  .db .lid { fill: var(--brand); stroke: var(--aqua); stroke-width: 3; }
+  .db .rowl { stroke: var(--line); stroke-width: 3; fill: none; }
+  .db-name { position: absolute; left: 400px; width: 340px; top: 520px; text-align: center; font-family: 'Inter Display', 'Inter', 'Noto Sans CJK SC', sans-serif;
+    font-size: 54px; font-weight: 800; letter-spacing: -.02em; }
+  .db-ver { position: absolute; left: 400px; width: 340px; top: 590px; text-align: center; font-size: 24px; color: var(--text-dim); }
+
+  .bucket { position: absolute; left: 1220px; top: 360px; width: 480px; height: 400px; }
+  .bucket svg { width: 480px; height: 400px; overflow: visible; }
+  .bucket .bod { fill: var(--panel); stroke: var(--aqua); stroke-width: 3; }
+  .bucket .rim { fill: var(--panel-2); stroke: var(--aqua); stroke-width: 3; }
+  .bucket .glow { fill: var(--aqua); opacity: .0; }
+  .b-name { position: absolute; left: 1220px; width: 480px; top: 790px; text-align: center; font-family: 'Inter Display', 'Inter', 'Noto Sans CJK SC', sans-serif;
+    font-size: 44px; font-weight: 800; }
+  .b-name span { color: var(--aqua); }
+
+  .obj { position: absolute; left: 0; top: 0; height: 56px; padding: 0 18px; border-radius: 12px; background: var(--teal);
+    color: var(--mint); font-size: 22px; font-weight: 700; display: flex; align-items: center; white-space: nowrap; }
+  .obj.w { background: var(--accent); color: var(--bg-0); }
+
+  svg.flow { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+  .loop { stroke: var(--accent); stroke-width: 4; fill: none; stroke-linecap: round; }
+  .loop-head { fill: var(--accent); }
+  .loop-l { position: absolute; left: 0; width: 1940px; top: 784px; text-align: center; font-size: 26px; font-weight: 700; color: var(--accent);
+    letter-spacing: .14em; }
+  .commit { position: absolute; left: 432px; top: 664px; padding: 12px 26px; border-radius: 16px; border: 3px solid var(--accent);
+    background: var(--accent-soft); box-shadow: 0 0 60px var(--accent-glow); font-size: 30px; font-weight: 800; color: var(--accent); letter-spacing: .06em; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="hdr">
+  <svg class="mark colvenna" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="promo-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="promo-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="promo-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs><use href="#promo-mark"/></svg>
+  <span class="word">Colvenna Isle</span><span class="sep"></span><span class="chap"><b>02</b>Storage</span>
+</div>
+
+<div class="stage">
+  <div class="title"><span class="w">A</span> <span class="w">native</span> <span class="w"><em>analytics</em></span> <span class="w">database,</span> <span class="w">on</span> <span class="w"><em>S3.</em></span></div>
+
+  <div class="chip feat" style="top:370px"><span class="tick">✓</span>Tables</div>
+  <div class="chip feat" style="top:446px"><span class="tick">✓</span>Indexes</div>
+  <div class="chip feat" style="top:522px"><span class="tick">✓</span>Constraints</div>
+  <div class="chip feat" style="top:598px"><span class="tick">✓</span>Views &amp; SQL</div>
+
+  <div class="db">
+    <svg viewBox="0 0 340 420">
+      <path class="shell" d="M2 50 L2 370 A168 48 0 0 0 338 370 L338 50"/>
+      <path class="rowl" d="M2 150 A168 48 0 0 0 338 150 M2 260 A168 48 0 0 0 338 260"/>
+      <ellipse class="lid" cx="170" cy="50" rx="168" ry="48"/>
+    </svg>
+  </div>
+  <div class="db-name">analytics</div>
+  <div class="db-ver">native database</div>
+
+  <div class="bucket">
+    <svg viewBox="0 0 480 400">
+      <path class="bod" d="M4 60 L56 372 A184 26 0 0 0 424 372 L476 60"/>
+      <ellipse class="rim" cx="240" cy="60" rx="236" ry="44"/>
+    </svg>
+  </div>
+  <div class="b-name">Amazon <span>S3</span></div>
+
+  <svg class="flow" viewBox="0 0 1920 1080">
+    <path id="loop" class="loop" d="M1290 770 C 1180 884, 760 884, 650 768"/>
+    <path id="loopHead" class="loop-head" d="M648 766 L 672 774 L 656 791 Z"/>
+  </svg>
+  <div class="loop-l">↻ RECOVERY</div>
+
+  <div class="obj" data-x="1300" data-y="470">SST</div>
+  <div class="obj" data-x="1400" data-y="540">SST</div>
+  <div class="obj w" data-x="1520" data-y="470">WAL</div>
+  <div class="obj" data-x="1340" data-y="620">manifest</div>
+  <div class="obj" data-x="1520" data-y="610">SST</div>
+
+  <div class="commit">COMMIT ✓</div>
+</div>
+
+<script src="../assets/gsap.min.js"></script>
+<script src="storage.beats.js"></script>
+<script>
+(function () {
+  var tl = gsap.timeline({ paused: true });
+  var SEG = window.__SEG__;
+  var t1 = B('Underneath is a native'), t2 = B('stored durably'), t3 = B('with native transactions');
+
+  tl.fromTo('.hdr .chap', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 0.02);
+
+  // 1 · 数据库从下方升起（"underneath"），原生能力逐个点亮
+  tl.fromTo('.title .w', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.07 }, t1 + 0.05);
+  tl.fromTo('.db, .db-name, .db-ver', { opacity: 0, y: 120 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.06 }, t1 + 0.1);
+  tl.fromTo('.feat', { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.45, ease: 'back.out(1.8)', stagger: 0.2 }, t1 + 0.7);
+
+  // 2 · S3 桶出现，对象沿弧线跳进去（数据库 → 对象存储）
+  tl.fromTo('.bucket, .b-name', { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out', stagger: 0.06 }, t2 - 0.25);
+  var sx = 640, sy = 400;                                     // 起点：数据库顶部右侧（生成期常量）
+  gsap.utils.toArray('.obj').forEach(function (el, i) {
+    var ex = +el.dataset.x, ey = +el.dataset.y, t = t2 + 0.25 + i * 0.22;
+    gsap.set(el, { x: sx, y: sy, opacity: 0, scale: 0.6 });
+    tl.to(el, { opacity: 1, scale: 1, duration: 0.18 }, t);
+    tl.to(el, { x: ex, duration: 0.75, ease: 'power1.inOut' }, t);
+    tl.to(el, { keyframes: [{ y: Math.min(sy, ey) - 120, duration: 0.36, ease: 'sine.out' }, { y: ey, duration: 0.39, ease: 'sine.in' }] }, t);
+  });
+
+  // 3 · 事务提交 + 从 S3 恢复（回路）
+  tl.fromTo('.commit', { opacity: 0, scale: 1.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(2)' }, t3 + 0.05);
+  var loop = document.getElementById('loop'), LL = loop.getTotalLength();
+  gsap.set('#loop', { strokeDasharray: LL, strokeDashoffset: LL });
+  gsap.set('#loopHead', { opacity: 0 });
+  tl.to('#loop', { strokeDashoffset: 0, duration: 0.9, ease: 'power2.inOut' }, t3 + 0.55);
+  tl.to('#loopHead', { opacity: 1, duration: 0.15 }, t3 + 1.38);
+  tl.fromTo('.loop-l', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, t3 + 0.9);
+  tl.to({}, { duration: 0.01 }, SEG.duration + SEG.gap);
+
+  if (SEG.gap > 0) {
+    var x1 = SEG.duration + SEG.gap - 0.04;
+    var x0 = Math.min(Math.max(SEG.speech_end - 0.05, SEG.duration - 0.2), x1 - 0.32);
+    tl.to('.stage', { opacity: 0, x: -90, duration: x1 - x0, ease: 'power2.in' }, x0);
+    tl.to('.hdr .chap', { opacity: 0, y: -14, duration: x1 - x0, ease: 'power2.in' }, x0);
+  }
+
+  window.__tl = tl;
+  if (!window.__MG_RENDER__) {
+    requestAnimationFrame(function () { requestAnimationFrame(function () { tl.play(0); }); });
+  }
+})();
+</script>
+</body>
+</html>

@@ -202,7 +202,7 @@ class Controller:
             if task["lastStatus"] != "STOPPED":
                 self.save("task-stop-admission-" + task["taskArn"].rsplit("/", 1)[-1], task)
                 result = self.ecs.stop_task(cluster=self.values["Cluster"],
-                    task=task["taskArn"], reason="Cove explicit writer takeover: permit revoked")
+                    task=task["taskArn"], reason="Colvenna Isle explicit writer takeover: permit revoked")
                 self.save("task-stop-dispatch-" + task["taskArn"].rsplit("/", 1)[-1], result)
         if previous["identity"] and previous["state"] == "REVOKED":
             self.confirm_stopped(timeout=timeout)

@@ -8,11 +8,11 @@
 
 ## 1. 产品边界
 
-流水线定义、版本发布、依赖、水位、执行、重试和结果发布集成到 Cove DuckDB。Console 的“流水线”页面和 Pipeline API 操作同一份定义；Git 中的 YAML、SQL 和 Python 文件也可通过 API 发布。
+流水线定义、版本发布、依赖、水位、执行、重试和结果发布集成到 Colvenna Isle。Console 的“流水线”页面和 Pipeline API 操作同一份定义；Git 中的 YAML、SQL 和 Python 文件也可通过 API 发布。
 
-Airflow 是可选的外部编排方。它负责跨系统依赖，调用 Cove 的运行 API 并等待发布结果；Cove 继续负责固定输入、计算、唯一写者导入及发布。用户不需要部署 Airflow 才能完成 ODS → DWD → DWS → ADS。
+Airflow 是可选的外部编排方。它负责跨系统依赖，调用 Colvenna Isle 的运行 API 并等待发布结果；Colvenna Isle 继续负责固定输入、计算、唯一写者导入及发布。用户不需要部署 Airflow 才能完成 ODS → DWD → DWS → ADS。
 
-一条流水线的自动触发方由 `schedule.owner` 明确选择 `cove`、`external` 或 `none`。选择 external 时关闭 Cove 的自动运行创建；Cove 仍执行该流水线内部 DAG。`none` 用于只允许手动运行。切换触发方使用版本条件更新，避免两边同时自动启动。
+一条流水线的自动触发方由 `schedule.owner` 明确选择 `cove`、`external` 或 `none`。选择 external 时关闭 Colvenna Isle 的自动运行创建；Colvenna Isle 仍执行该流水线内部 DAG。`none` 用于只允许手动运行。切换触发方使用版本条件更新，避免两边同时自动启动。
 
 ## 2. 定义与发布
 
@@ -73,7 +73,7 @@ ODS orders
 
 Managed Instances 在客户拥有的 EC2 上运行，并可能在超时响应后继续执行代码，因此不能把 TIMEOUT 当作旧计算已停止的证明。不同 invocation 使用独立工作目录，失效 attempt 永远不能发布。其成本、并发、终止及隔离行为尚未验证。
 
-Lambda Durable Functions 支持最长一年的可恢复工作流，但这不是一段 Python 计算可以连续运行一年的承诺。Cove 的主 DAG 由自身管理；1.1.0 尚未提供 durable profile。durable profile 如用于多步骤任务，需记录 durable execution identity，约束 checkpoint/replay 的副作用，最后仍执行相同的产物校验和发布协议。
+Lambda Durable Functions 支持最长一年的可恢复工作流，但这不是一段 Python 计算可以连续运行一年的承诺。Colvenna Isle 的主 DAG 由自身管理；1.1.0 尚未提供 durable profile。durable profile 如用于多步骤任务，需记录 durable execution identity，约束 checkpoint/replay 的副作用，最后仍执行相同的产物校验和发布协议。
 
 执行器不会因为一次运行超时就直接换一种执行器重放。要先确认原尝试的输出及发布结果，并以新的 attempt 和固定输入重试；迁移 executor 需要新定义版本或明确的受控运行配置。
 
@@ -160,9 +160,9 @@ BLOCKED → READY → DISPATCHING → RUNNING → STAGED → VALIDATING
 
 Query Editor 仍用于授权的只读分析。定义修改要求 `pipeline:manage`，运行要求 `pipeline:run`，环境创建要求 `runtime:manage`；这些权限分别检查空间及可委派上限。
 
-Airflow 使用专用 Bearer Key，以幂等键提交指定 pipeline_version 和根输入版本，取得 run_id，轮询运行接口直到 PUBLISHED，再推进外部下游。超时后先按同一幂等键查询/重试；请求重试不会创建第二份业务运行。Airflow timeout 或调度进程退出不会自动取消 Cove 作业。
+Airflow 使用专用 Bearer Key，以幂等键提交指定 pipeline_version 和根输入版本，取得 run_id，轮询运行接口直到 PUBLISHED，再推进外部下游。超时后先按同一幂等键查询/重试；请求重试不会创建第二份业务运行。Airflow timeout 或调度进程退出不会自动取消 Colvenna Isle 作业。
 
-新运行接口、发布、调度 owner、环境 API 见 [API 契约](api-contract.md)。Airflow 负责外层工作流，Cove 内部任务的 SQL/Python 版本及发布规则只维护一份。
+新运行接口、发布、调度 owner、环境 API 见 [API 契约](api-contract.md)。Airflow 负责外层工作流，Colvenna Isle 内部任务的 SQL/Python 版本及发布规则只维护一份。
 
 ## 9. 验证范围
 
@@ -171,3 +171,5 @@ Airflow 使用专用 Bearer Key，以幂等键提交指定 pipeline_version 和�
 本仓库的[本地示例](../../examples/orders/README.md)不调用 AWS，只验证 SQL/Python 转换及文件合同。Lambda Managed Instances 与 Durable Functions profile 尚未实现。
 
 来源：[Lambda 配额](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html)、[Managed Instances 执行环境](https://docs.aws.amazon.com/lambda/latest/dg/lambda-managed-instances-execution-environment.html)、[Durable Functions](https://docs.aws.amazon.com/lambda/latest/dg/durable-functions.html)、[EventBridge Scheduler](https://docs.aws.amazon.com/scheduler/latest/UserGuide/schedule-types.html)。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

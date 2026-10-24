@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>cover 16:9 · Events in. Answers out.</title>
+<!-- 封面三要素：A 钩子「Events in. Answers out.」120px · B 对比视觉：杂乱事件 → 鸭子 → 整齐图表 · C 四边 ≥96px -->
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="kit.css">
+<style>
+  html, body { width: 1920px; height: 1080px; font-family: 'Inter', 'Noto Sans', 'Noto Sans CJK SC', sans-serif; }
+  .grid { opacity: .7; }
+  .brand { position: absolute; left: 120px; top: 110px; display: flex; align-items: center; gap: 22px; }
+  .brand svg { width: 80px; height: 80px; }
+  .brand .nm { font-size: 40px; font-weight: 800; letter-spacing: -.02em; }
+
+  .hook { position: absolute; left: 116px; top: 360px; font-family: 'Inter Display', 'Inter', 'Noto Sans CJK SC', sans-serif;
+    font-size: 124px; font-weight: 800; letter-spacing: -.035em; line-height: 1.04; white-space: nowrap; }
+  .hook em { font-style: normal; color: var(--accent); text-shadow: 0 0 60px var(--accent-glow); }
+  .sub { position: absolute; left: 122px; top: 640px; font-size: 32px; line-height: 1.45; color: var(--text-dim); font-weight: 500; }
+  .sub b { color: var(--text); font-weight: 700; }
+  .foot { position: absolute; left: 122px; top: 880px; display: flex; align-items: center; gap: 20px; font-size: 28px; color: var(--text-dim); }
+  .foot b { color: var(--text); font-weight: 600; }
+
+  .ev { position: absolute; left: 1010px; height: 56px; padding: 0 20px; display: flex; align-items: center; border-radius: 14px;
+    border: 2px solid var(--line); background: var(--panel); font-size: 23px; white-space: nowrap; }
+  .ev .k { color: var(--code-key); } .ev .s { color: var(--code-str); } .ev .d { color: var(--code-dim); }
+  svg.flow { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+  .mark-tile { position: absolute; left: 1354px; top: 436px; width: 132px; height: 132px; }
+  .mark-tile .halo { position: absolute; inset: -50px; border-radius: 50%; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 62%); opacity: .6; }
+  .mark-tile svg { position: absolute; inset: 0; width: 132px; height: 132px; }
+  .chart { position: absolute; left: 1530px; top: 330px; width: 270px; height: 360px; }
+  .chart .label { position: absolute; left: 24px; top: 22px; font-size: 22px; letter-spacing: .04em; }
+  .chart .bars { position: absolute; left: 24px; right: 24px; top: 80px; height: 250px; display: flex; align-items: flex-end; gap: 16px; }
+  .chart .bars i { flex: 1; display: block; border-radius: 8px; background: var(--aqua); }
+  .chart .bars i.top { background: var(--accent); box-shadow: 0 0 36px var(--accent-glow); }
+  .cap { position: absolute; left: 1010px; top: 760px; width: 790px; display: flex; justify-content: space-between; font-size: 24px; font-weight: 700;
+    letter-spacing: .16em; color: var(--text-faint); }
+  .cap span:last-child { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="brand">
+  <svg class="colvenna" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="promo-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="promo-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="promo-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs><use href="#promo-mark"/></svg>
+  <span class="nm">Colvenna Isle</span>
+</div>
+
+<div class="hook">Events in.<br><em>Answers</em> out.</div>
+<div class="sub">Write through an <b>API</b>.<br>Transform with <b>SQL</b> and <b>pandas</b>.<br>Query native <b>analytics</b> on <b>Amazon S3</b>.</div>
+<div class="foot"><span class="mono">github.com/<b>amliuyong/colvenna-isle</b></span><span class="pill on">APACHE-2.0</span></div>
+
+<svg class="flow" viewBox="0 0 1920 1080">
+  <path class="wire" d="M1300 378 C 1330 378, 1330 492, 1352 498"/>
+  <path class="wire" d="M1300 450 C 1325 450, 1330 500, 1352 506"/>
+  <path class="wire" d="M1300 522 C 1325 522, 1330 510, 1352 512"/>
+  <path class="wire" d="M1300 594 C 1325 594, 1330 520, 1352 518"/>
+  <path class="wire" d="M1300 666 C 1330 666, 1330 530, 1352 526"/>
+  <path class="wire hot" d="M1488 502 L 1528 502"/>
+</svg>
+<div class="ev mono" style="top:350px"><span class="d">{</span><span class="k">"order_id"</span><span class="d">:</span>1041<span class="d">}</span></div>
+<div class="ev mono" style="top:422px"><span class="d">{</span><span class="k">"op"</span><span class="d">:</span><span class="s">"upsert"</span><span class="d">}</span></div>
+<div class="ev mono" style="top:494px"><span class="d">{</span><span class="k">"amount"</span><span class="d">:</span><span class="s">"42.00"</span><span class="d">}</span></div>
+<div class="ev mono" style="top:566px"><span class="d">{</span><span class="k">"op"</span><span class="d">:</span><span class="s">"delete"</span><span class="d">}</span></div>
+<div class="ev mono" style="top:638px"><span class="d">{</span><span class="k">"order_id"</span><span class="d">:</span>1044<span class="d">}</span></div>
+
+<div class="mark-tile">
+  <div class="halo"></div>
+  <svg class="colvenna" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="promo-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="promo-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="promo-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs><use href="#promo-mark"/></svg>
+</div>
+
+<div class="card chart">
+  <div class="label">ads.dashboard</div>
+  <div class="bars"><i style="height:40%"></i><i style="height:58%"></i><i class="top" style="height:92%"></i><i style="height:66%"></i></div>
+</div>
+<div class="cap"><span>RAW EVENTS</span><span>PUBLISHED ANSWERS</span></div>
+</body>
+</html>

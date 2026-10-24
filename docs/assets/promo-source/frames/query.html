@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>query · Query Editor, async, export, data version</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="kit.css">
+<style>
+  html, body { width: 1920px; height: 1080px; font-family: 'Inter', 'Noto Sans', 'Noto Sans CJK SC', sans-serif; }
+  .win { left: 120px; top: 290px; width: 1680px; height: 600px; transform-origin: 50% 40%; }
+  .side { position: absolute; left: 0; top: 64px; width: 380px; bottom: 0; background: var(--ui-card); border-right: 2px solid var(--ui-border); padding: 26px 28px; }
+  .side .ui-h { margin-bottom: 18px; }
+  .tree { font-size: 22px; line-height: 46px; color: var(--ui-fg); }
+  .tree .sc { color: var(--ui-muted); }
+  .tree .hl { margin: 0 -14px; padding: 0 14px; border-radius: 8px; background: var(--ui-accent-soft); color: var(--ui-accent); font-weight: 700; }
+
+  .sql { left: 404px; top: 88px; width: 1252px; height: 210px; padding: 20px 26px; }
+  .sql .hd { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .sql .ln { height: 40px; overflow: hidden; white-space: nowrap; font-size: 26px; line-height: 40px; color: var(--ui-code); }
+  .sql .kw { color: var(--ui-accent); font-weight: 700; }
+
+  .ctl { position: absolute; left: 404px; top: 316px; display: flex; align-items: center; gap: 14px; }
+  .seg { display: flex; border: 2px solid var(--ui-border); border-radius: 10px; overflow: hidden; background: var(--ui-card); }
+  .seg span { height: 46px; padding: 0 18px; display: flex; align-items: center; font-size: 22px; color: var(--ui-muted); border-right: 2px solid var(--ui-border); }
+  .seg span:last-child { border-right: none; }
+  .seg span.on { background: var(--ui-accent-soft); color: var(--ui-accent); font-weight: 700; }
+
+  .res { left: 404px; top: 388px; width: 1252px; height: 192px; padding: 16px 26px; }
+  .res .hd { display: flex; align-items: center; gap: 14px; height: 46px; }
+  .res .st { position: relative; width: 180px; height: 36px; }
+  .res .st .ui-tag { position: absolute; left: 0; top: 0; }
+  .res .exp { margin-left: auto; }
+  .tbl { margin-top: 10px; font-size: 24px; }
+  .tbl .tr { display: grid; grid-template-columns: 300px 260px 260px 300px; height: 40px; align-items: center; }
+  .tbl .th { color: var(--ui-muted); font-size: 22px; font-weight: 700; }
+  .tbl .num { text-align: right; padding-right: 60px; }
+
+  .ver { position: absolute; left: 900px; top: 686px; display: flex; align-items: center; gap: 14px; padding: 14px 24px; border-radius: 14px;
+    background: var(--bg-1); border: 3px solid var(--accent); box-shadow: 0 0 60px var(--accent-glow); font-size: 26px; font-weight: 700; color: var(--text); white-space: nowrap; }
+  .ver .k { color: var(--accent); letter-spacing: .12em; font-size: 22px; font-weight: 800; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="hdr">
+  <svg class="mark colvenna" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="promo-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="promo-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="promo-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs><use href="#promo-mark"/></svg>
+  <span class="word">Colvenna Isle</span><span class="sep"></span><span class="chap"><b>04</b>Query</span>
+</div>
+
+<div class="stage">
+  <div class="title"><span class="w">Query</span> <span class="w"><em>published</em></span> <span class="w">results.</span></div>
+
+  <div class="win">
+    <div class="bar"><span class="bm"><svg width="26" height="26" viewBox="0 0 256 256" aria-hidden="true">
+  <defs>
+    <linearGradient id="promo-ui-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="promo-ui-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="promo-ui-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-ui-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-ui-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-ui-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-ui-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs><use href="#promo-ui-mark"/></svg></span><span class="bt">Colvenna Isle</span><span class="tab on">Query Editor</span><span class="tab">Admin Console</span>
+      <span class="conn"><i></i>shop · connected</span></div>
+    <div class="side">
+      <div class="ui-h">Authorized catalog</div>
+      <div class="tree mono">
+        <div class="hl">ads.dashboard</div>
+        <div><span class="sc">dws.</span>daily_sales</div>
+        <div><span class="sc">dwd.</span>orders</div>
+        <div><span class="sc">dwd.</span>order_scores</div>
+        <div><span class="sc">dwd.</span>accounts</div>
+        <div><span class="sc">ods.</span>orders</div>
+      </div>
+    </div>
+
+    <div class="ui-card sql">
+      <div class="hd"><span class="ui-h">SQL</span><span class="ui-tag acc">read-only</span></div>
+      <div class="ln mono" data-n="56"><span class="kw">SELECT</span> order_date, revenue, order_count, high_value_count</div>
+      <div class="ln mono" data-n="18"><span class="kw">FROM</span> ads.dashboard</div>
+      <div class="ln mono" data-n="22"><span class="kw">ORDER BY</span> order_date;</div>
+    </div>
+
+    <div class="ctl">
+      <div class="seg"><span class="on">Published</span><span>Current</span><span>After write</span></div>
+      <span class="ui-btn primary run">Run query</span><span class="ui-btn">Explain</span><span class="ui-btn">Cancel</span>
+    </div>
+
+    <div class="ui-card res">
+      <div class="hd"><span class="ui-h">Results</span>
+        <span class="st"><span class="ui-tag acc s1">QUEUED</span><span class="ui-tag acc s2">RUNNING</span><span class="ui-tag ok s3">SUCCEEDED</span></span>
+        <span class="ui-btn exp">Export JSON</span></div>
+      <div class="tbl mono">
+        <div class="tr th"><span>order_date</span><span class="num">revenue</span><span class="num">order_count</span><span class="num">high_value</span></div>
+        <div class="tr r1"><span>2026-10-14</span><span class="num">610.00</span><span class="num">3</span><span class="num">1</span></div>
+        <div class="tr r2"><span>2026-10-15</span><span class="num">50.00</span><span class="num">1</span><span class="num">0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ver"><span class="k">DATA VERSION</span><span class="mono">ads.dashboard</span><span>· published</span></div>
+</div>
+
+<script src="../assets/gsap.min.js"></script>
+<script src="query.beats.js"></script>
+<script>
+(function () {
+  var tl = gsap.timeline({ paused: true });
+  var SEG = window.__SEG__;
+  var t1 = B('Query published results'), t2 = B('asynchronous'), t3 = B('and stamped with');
+  var CH = 16.4;                                             // 等宽字宽（Noto Sans Mono 26px 实测约 16.2px，生成期常量）
+
+  tl.fromTo('.hdr .chap', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 0.02);
+  tl.fromTo('.title .w', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.08 }, t1 + 0.05);
+  tl.fromTo('.win', { opacity: 0, x: 90, scale: 0.94 }, { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: 'power3.out' }, t1 + 0.12);
+
+  // 1 · 逐字打出 SQL
+  gsap.set('.res .ui-tag, .tbl .r1, .tbl .r2, .ver', { opacity: 0 });
+  var tt = t1 + 0.6;
+  gsap.utils.toArray('.sql .ln').forEach(function (el) {
+    var n = +el.dataset.n, d = n * 0.016;
+    tl.fromTo(el, { width: 0 }, { width: n * CH + 10, duration: d, ease: 'steps(' + n + ')' }, tt);
+    tt += d + 0.08;
+  });
+
+  // 2 · 异步执行：运行 → QUEUED → RUNNING → SUCCEEDED；可导出
+  tl.to('.run', { scale: 0.93, duration: 0.08, ease: 'power2.in' }, t2);
+  tl.to('.run', { scale: 1, duration: 0.25, ease: 'back.out(3)' }, t2 + 0.08);
+  tl.to('.s1', { opacity: 1, duration: 0.15 }, t2 + 0.15);
+  tl.to('.s1', { opacity: 0, duration: 0.12 }, t2 + 0.55);
+  tl.to('.s2', { opacity: 1, duration: 0.12 }, t2 + 0.55);
+  tl.to('.s2', { opacity: 0, duration: 0.12 }, t2 + 1.05);
+  tl.fromTo('.s3', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2.4)' }, t2 + 1.05);
+  tl.fromTo('.tbl .r1, .tbl .r2', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out', stagger: 0.12 }, t2 + 1.15);
+  tl.to('.exp', { scale: 1.08, duration: 0.18, ease: 'power2.out' }, t2 + 1.6);
+  tl.to('.exp', { scale: 1, duration: 0.3, ease: 'power2.inOut' }, t2 + 1.78);
+
+  // 3 · 主角：数据版本标签
+  tl.fromTo('.ver', { opacity: 0, y: 26, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(2)' }, t3 + 0.05);
+  tl.to({}, { duration: 0.01 }, SEG.duration + SEG.gap);
+
+  if (SEG.gap > 0) {
+    var x1 = SEG.duration + SEG.gap - 0.04;
+    var x0 = Math.min(Math.max(SEG.speech_end - 0.05, SEG.duration - 0.2), x1 - 0.32);
+    tl.to('.stage', { opacity: 0, x: -90, duration: x1 - x0, ease: 'power2.in' }, x0);
+    tl.to('.hdr .chap', { opacity: 0, y: -14, duration: x1 - x0, ease: 'power2.in' }, x0);
+  }
+
+  window.__tl = tl;
+  if (!window.__MG_RENDER__) {
+    requestAnimationFrame(function () { requestAnimationFrame(function () { tl.play(0); }); });
+  }
+})();
+</script>
+</body>
+</html>

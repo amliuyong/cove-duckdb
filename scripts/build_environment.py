@@ -231,7 +231,7 @@ def build_images(specification, identity, output, *, private_directory=None):
                    'VOLUME ["/tmp"]\nUSER 10001:10001\n'
                    'ENTRYPOINT ["python", "-m", "cove_duckdb.pipeline.environment_adapter"]\nCMD []\n')
         (context / ("Dockerfile." + executor)).write_text(dockerfile + footer)
-        tag = "cove-duck-environment:" + identity + "-" + executor
+        tag = "colvenna-isle-environment:" + identity + "-" + executor
         stage("IMAGE")
         run(["docker", "build", "--platform", "linux/arm64", "--network", "none",
              "--provenance=false", "--sbom=false",
@@ -296,7 +296,7 @@ def runtime_role(session, specification):
     except iam.exceptions.NoSuchEntityException:
         role = iam.create_role(RoleName=name, AssumeRolePolicyDocument=canonical(trust),
             PermissionsBoundary=specification["policy"]["runtime_boundary_arn"],
-            Tags=[{"Key": "Project", "Value": "cove-duckdb"},
+            Tags=[{"Key": "Project", "Value": "colvenna-isle"},
                   {"Key": "SpaceId", "Value": space}, {"Key": "Generation", "Value": generation}])["Role"]
     tags = {x["Key"]: x["Value"] for x in role["Tags"]}
     # IAM can reorder the service-principal array when returning an existing role.
@@ -309,7 +309,7 @@ def runtime_role(session, specification):
         actual_trust["Statement"][0]["Principal"]["Service"] = sorted(services)
     except (KeyError, IndexError, TypeError, ValueError):
         raise RuntimeError("ENVIRONMENT_ROLE_OWNERSHIP_MISMATCH") from None
-    if (tags != {"Project": "cove-duckdb", "SpaceId": space, "Generation": generation}
+    if (tags != {"Project": "colvenna-isle", "SpaceId": space, "Generation": generation}
             or role.get("PermissionsBoundary", {}).get("PermissionsBoundaryArn")
             != specification["policy"]["runtime_boundary_arn"]
             or actual_trust != trust
@@ -390,7 +390,7 @@ def publish_executors(session, specification, identity, tags, output, *, sql=Fal
         Role=role, Architectures=["arm64"], Timeout=900, MemorySize=2048,
         EphemeralStorage={"Size": 1024}, Publish=True,
         LoggingConfig={"LogGroup": policy["runtime_log_group"]},
-        Tags={"Project": "cove-duckdb", "BuildId": identity})
+        Tags={"Project": "colvenna-isle", "BuildId": identity})
     version = function["Version"]
     if not re.fullmatch(r"[1-9][0-9]*", version):
         raise RuntimeError("LAMBDA_VERSION_NOT_NUMERIC")
@@ -416,7 +416,7 @@ def publish_executors(session, specification, identity, tags, output, *, sql=Fal
             "logConfiguration": {"logDriver": "awslogs", "options": {
                 "awslogs-group": policy["runtime_log_group"], "awslogs-region": REGION,
                 "awslogs-stream-prefix": identity}}}],
-        volumes=[{"name": "work"}], tags=[{"key": "Project", "value": "cove-duckdb"},
+        volumes=[{"name": "work"}], tags=[{"key": "Project", "value": "colvenna-isle"},
                                         {"key": "BuildId", "value": identity}])["taskDefinition"]
     return images, [
         *[{"executor": "lambda", "profile": profile, "lambda_mode": "standard", "function_arn": arn}

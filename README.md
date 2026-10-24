@@ -1,11 +1,13 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
-    <img src="docs/assets/logo-light.svg" alt="Cove DuckDB" width="480">
+    <img src="docs/assets/logo-light.svg" alt="Colvenna Isle" width="480">
   </picture>
 </p>
 
-<p align="center"><strong>Write through an API. Transform with SQL and Python. Analyze durable data in S3.</strong></p>
+# Colvenna Isle
+
+<p align="center"><strong>Durable analytics databases on S3</strong></p>
 
 <p align="center">
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-0b6b69"></a>
@@ -13,18 +15,20 @@
 </p>
 
 <p align="center">
-  <a href="docs/assets/promo.mp4"><img src="docs/assets/promo.gif" alt="Cove DuckDB in one minute: API ingestion, DuckDB on Amazon S3, SQL and pandas pipelines, the Query Editor and the Admin Console" width="960"></a>
+  <a href="docs/assets/promo.mp4"><img src="docs/assets/promo.gif" alt="Colvenna Isle in one minute: API ingestion, durable databases on Amazon S3, SQL and pandas pipelines, the Query Editor and the Admin Console" width="960"></a>
 </p>
 
 <p align="center"><a href="docs/assets/promo.mp4">▶ Watch with narration (MP4, 1 min)</a></p>
 
 [中文说明](README.zh-CN.md) · [Release notes](docs/release-notes.md) · [Installation guide](docs/installation.md) · [User guide](docs/user-guide.md) · [Quickstart](examples/quickstart/README.md) · [Documentation](docs/README.md) · [Contributing](CONTRIBUTING.md)
 
-Cove DuckDB is a database and analytics product for AWS. Applications write through an API, data teams transform with SQL and Python pipelines, and analysts query durable DuckDB databases stored in Amazon S3 from a Query Editor, with an Admin Console for keys, pipelines, runtime environments and operations.
+Colvenna Isle is a database and analytics product for AWS. Applications write through an API, data teams transform with SQL and Python pipelines, and analysts query durable DuckDB databases stored in Amazon S3 from a Query Editor, with an Admin Console for keys, pipelines, runtime environments and operations.
 
 ## Release 1.1.0
 
-Version 1.1.0 ([GitHub Release `v1.1.0`](https://github.com/amliuyong/cove-duckdb/releases/tag/v1.1.0)) covers the current contract and capabilities, accepted on AWS:
+The next release adopts the Colvenna Isle name; `main` is `1.2.0.dev0` (unreleased). Branding checks do not establish AWS acceptance for this candidate. See the [rename and upgrade notes](docs/release-notes.md#120-unreleased).
+
+Published version 1.1.0 ([GitHub Release `v1.1.0`](https://github.com/amliuyong/colvenna-isle/releases/tag/v1.1.0)) covers the current contract and capabilities, accepted on AWS:
 
 - a single AWS account of your choice (the account ID is taken from the deployment, never from the source), ARM64;
 - a standard commercial AWS region chosen at installation (`--region` / `COVE_REGION`): `us-east-2` passed fresh installation, all 56 functional UAT cases, backup and isolated restore, upgrade, interrupted redeploy and uninstall; `us-west-2` passed regression; other commercial regions are accepted by configuration but not qualified;
@@ -67,7 +71,7 @@ Version 1.1.0 ([GitHub Release `v1.1.0`](https://github.com/amliuyong/cove-duckd
 
 ## Architecture
 
-![Cove DuckDB AWS architecture](docs/assets/architecture.svg)
+![Colvenna Isle AWS architecture](docs/assets/architecture.svg)
 
 The write path is:
 
@@ -127,3 +131,5 @@ Releases make no backward-compatibility or data-migration commitment. Upgrades a
 Project source code, documentation, design specifications, and original brand assets are licensed under [Apache-2.0](LICENSE). Third-party components (DuckDB and its extensions, locked Python distributions, base images and the Archify viewer runtime) keep their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
 
 DuckDB and AWS are third-party technologies. This project is not an official DuckDB or AWS product.
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

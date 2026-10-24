@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "date": "2026-10-20",
+  "date": "2026-10-24",
   "svg_validation": "pass",
   "browser_render": "pass",
   "visual_review": "pass",
@@ -13,37 +13,41 @@
       "evidence": "complete Chromium screenshot; no DOM overflow measurement claimed"
     },
     {
-      "asset": "logo-light.svg + logo-dark.svg",
-      "width": 800,
-      "height": 520,
-      "scroll_width": 800,
-      "scroll_height": 520
+      "asset": "brand-preview.svg: light/dark logos and 96/64/32/24px icons",
+      "width": 960,
+      "height": 670,
+      "scroll_width": 960,
+      "scroll_height": 670
     }
   ],
   "files": {
     "docs/assets/architecture.svg": {
-      "sha256": "ce8dc1c567b4fe721a532ad7cc5749a23aacb2f99c61d2440911cc27bf0f2f51",
-      "bytes": 14299
+      "sha256": "6df88f093f9dbbe86121a51468c8a5f5ab86b8f68671ba6209dece92c0767d46",
+      "bytes": 14303
     },
     "docs/assets/icon.svg": {
-      "sha256": "395fd862f483ae16641995d362b209676674ab0534f8b4c027d2906940a680db",
-      "bytes": 829
+      "sha256": "ad156ae1685a72c33c35a3957262618e88df795fd1c7b672f39b937d871c11a9",
+      "bytes": 1534
     },
     "docs/assets/logo-light.svg": {
-      "sha256": "9451f26b4e8de1fc1767155613cf8f4cdeadfb6f6f5faac8fc8589e09f8ea758",
-      "bytes": 1168
+      "sha256": "5edfa91d191c28f568d5180cd235c0584d4135e9280229297947eb26621082f6",
+      "bytes": 1994
     },
     "docs/assets/logo-dark.svg": {
-      "sha256": "bc35cc00d5cf2fa1bb1d1d829fa9fbc262e1d3eea977a2d798cd9560f5626ca6",
-      "bytes": 1167
+      "sha256": "527e737dbed379794e5bc614df7d456db147df328830730567d07f6ab157f2d4",
+      "bytes": 1981
     },
     "docs/design/evidence/architecture-svg.png": {
-      "sha256": "6e62d2c37a0921ca992ab2acbcc9c1c89daf65050c4d3b3812be34d1c02f9b1a",
-      "bytes": 222813
+      "sha256": "88df52c85fedc6a5d204dcf38a86bbaaceda329cac098f533d8b3298f74ba10d",
+      "bytes": 191088
     },
     "docs/design/evidence/logos.png": {
-      "sha256": "1900def3e562eb9d244a0583a8815c5798b025915c38943b47936e11f7058a15",
-      "bytes": 29947
+      "sha256": "afd1271541a9345222fd921f1bb88c4dfdd5477ddec58ae993803db741f62041",
+      "bytes": 93278
+    },
+    "docs/assets/brand-preview.svg": {
+      "sha256": "3c36c8579c47c2db821a6a0bbaf38707bacd951805c5d5d7963f7add571c1ab4",
+      "bytes": 6120
     }
   },
   "architecture_visual_review": {
@@ -55,5 +59,5 @@
     ],
     "scope": "Integrated Query Editor and controlled receipt-read path; actual complete screenshot inspected"
   },
-  "logo_evidence_date": "2026-10-15_UNCHANGED_ASSETS"
+  "logo_evidence_date": "2026-10-24"
 }

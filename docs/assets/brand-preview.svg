@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="960" height="670" viewBox="0 0 960 670"
+     role="img" aria-labelledby="colvenna-isle-preview-title colvenna-isle-preview-desc">
+  <title id="colvenna-isle-preview-title">Colvenna Isle</title>
+  <desc id="colvenna-isle-preview-desc">Light and dark Colvenna Isle wordmarks, with application icons at 96, 64, 32 and 24 pixels.</desc>
+
+  <rect width="960" height="670" fill="#E8F0EE"/>
+  <text x="32" y="42" fill="#123D4A" font-family="Arial, Helvetica, sans-serif"
+        font-size="24" font-weight="700">Colvenna<tspan
+        dx="7" font-weight="400">Isle</tspan></text>
+  <text x="32" y="67" fill="#52707A" font-family="Arial, Helvetica, sans-serif"
+        font-size="12" letter-spacing="1.5">DURABLE ANALYTICS DATABASES ON S3</text>
+  <rect x="32" y="92" width="896" height="184" rx="24" fill="#FAFCFB"/>
+  <g transform="translate(58 104)">
+
+  <defs>
+    <linearGradient id="preview-light-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="preview-light-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="preview-light-mark">
+      <rect width="256" height="256" rx="56" fill="url(#preview-light-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#preview-light-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#preview-light-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#preview-light-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs>
+  <use href="#preview-light-mark" transform="translate(8 16) scale(.5)"/>
+  <text x="162" y="85" fill="#123D4A" font-family="Arial, Helvetica, sans-serif"
+        font-size="59" font-weight="700" letter-spacing="-1.7">Colvenna<tspan
+        dx="16" font-weight="400">Isle</tspan></text>
+  <text x="165" y="118" fill="#52707A" font-family="Arial, Helvetica, sans-serif"
+        font-size="12" font-weight="600" letter-spacing="1.8">DURABLE ANALYTICS DATABASES ON S3</text>
+  </g>
+  <rect x="32" y="294" width="896" height="184" rx="24" fill="#071D29"/>
+  <g transform="translate(58 306)">
+
+  <defs>
+    <linearGradient id="preview-dark-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="preview-dark-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="preview-dark-mark">
+      <rect width="256" height="256" rx="56" fill="url(#preview-dark-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#preview-dark-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#preview-dark-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#preview-dark-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs>
+  <use href="#preview-dark-mark" transform="translate(8 16) scale(.5)"/>
+  <text x="162" y="85" fill="#EAF7F4" font-family="Arial, Helvetica, sans-serif"
+        font-size="59" font-weight="700" letter-spacing="-1.7">Colvenna<tspan
+        dx="16" font-weight="400">Isle</tspan></text>
+  <text x="165" y="118" fill="#A8C9C4" font-family="Arial, Helvetica, sans-serif"
+        font-size="12" font-weight="600" letter-spacing="1.8">DURABLE ANALYTICS DATABASES ON S3</text>
+  </g>
+
+  <defs>
+    <linearGradient id="preview-size-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="preview-size-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="preview-size-mark">
+      <rect width="256" height="256" rx="56" fill="url(#preview-size-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#preview-size-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#preview-size-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#preview-size-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs>
+  <use href="#preview-size-mark" transform="translate(52 520) scale(.375)"/>
+  <use href="#preview-size-mark" transform="translate(210 552) scale(.25)"/>
+  <use href="#preview-size-mark" transform="translate(358 584) scale(.125)"/>
+  <use href="#preview-size-mark" transform="translate(486 592) scale(.09375)"/>
+  <g fill="#52707A" font-family="Arial, Helvetica, sans-serif" font-size="12">
+    <text x="76" y="646">96 px</text>
+    <text x="226" y="646">64 px</text>
+    <text x="358" y="646">32 px</text>
+    <text x="482" y="646">24 px</text>
+  </g>
+  <rect x="580" y="518" width="348" height="126" rx="24" fill="#071D29"/>
+  <use href="#preview-size-mark" transform="translate(610 549) scale(.25)"/>
+  <text x="698" y="573" fill="#EAF7F4" font-family="Arial, Helvetica, sans-serif"
+        font-size="14" font-weight="700">Columns and flow.</text>
+  <text x="698" y="597" fill="#A8C9C4" font-family="Arial, Helvetica, sans-serif"
+        font-size="12">Every stream reaches a result.</text>
+</svg>

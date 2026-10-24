@@ -1,4 +1,6 @@
-# Cove DuckDB：AWS 数据库与分析产品设计
+# Colvenna Isle：AWS 数据库与分析产品设计
+
+当前未发行的 `1.2.0.dev0` 候选仅采用新品牌与部署命名空间，功能架构沿用下文的 1.1.0。栈、ECR、备份库、归属标签与运行时前缀统一采用 `colvenna-isle`；升级边界见[发行说明](../release-notes.md#120-unreleased)与[安装手册](../installation.md#10-破坏性升级)。不将历史 AWS 验收计入新候选。
 
 适用版本：1.1.0。本文描述 1.1.0 的产品架构；支持矩阵、规格与限制见[发行说明](../release-notes.md)。文中标为演进方向的内容（拆库、多 DuckDB 分片、Lambda Managed Instances / Durable Functions）尚未实现，不在 1.1.0 范围内。
 
@@ -217,7 +219,7 @@ S3 与 SQS 没有跨服务原子事务。未成功排队的原始对象可能暂
 
 ### 内置流水线、Python 与依赖
 
-定义集成到 Cove，Console / API 管理同一份版本化 DAG；Git 中的 YAML、SQL 和 Python 可发布为不可变版本。周期 EventBridge Scheduler、上游发布通知和手动运行进入同一个调度器。调度以权威提交水位为准，运行期间继续接入的数据合并为下一轮待处理区间。
+定义集成到 Colvenna Isle，Console / API 管理同一份版本化 DAG；Git 中的 YAML、SQL 和 Python 可发布为不可变版本。周期 EventBridge Scheduler、上游发布通知和手动运行进入同一个调度器。调度以权威提交水位为准，运行期间继续接入的数据合并为下一轮待处理区间。
 
 每个任务声明语言、执行器、输入别名、目标 schema、输出替换模式、环境版本和资源 profile。短 SQL 可在写者执行；Python 一律在 Lambda 或 ECS 独立运行。Python 读取 context.json 指定的固定 Parquet，输出 Parquet 与清单；适配器重新核对类型、hash、行数和业务键，再交给唯一写者导入发布。
 
@@ -387,3 +389,5 @@ S3 权限依实际扩展操作确定；实测 READ_ONLY 进程也会写对象：
 - [EventBridge Scheduler](https://docs.aws.amazon.com/scheduler/latest/UserGuide/schedule-types.html)
 
 架构图的确定性验证、内容 hash 和浏览器检查状态见 [architecture-validation.md](architecture-validation.md) 及关联 receipt；这些检查不验证 AWS 运行行为。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

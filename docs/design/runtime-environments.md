@@ -89,3 +89,5 @@ python3 -m venv /tmp/cove-pipeline-demo-venv
 实际包管理 API 和 scopes 见 [API 契约](api-contract.md)，执行合同见 [Python 任务合同](python-task-contract.md)。
 
 来源（查阅日期 2026-10-15）：[Lambda 配额](https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html)、[Lambda 容器镜像](https://docs.aws.amazon.com/lambda/latest/dg/images-create.html)、[Python Layers](https://docs.aws.amazon.com/lambda/latest/dg/python-layers.html)、[Managed Instances](https://docs.aws.amazon.com/lambda/latest/dg/lambda-managed-instances-execution-environment.html)。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

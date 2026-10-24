@@ -134,7 +134,7 @@ def main():
          "writer_image": writer_image, "template_sha256": hashlib.sha256(body.encode()).hexdigest()})
     result = update_stack(cf, StackName=baseline["StackId"], **template_arguments(current, body),
         Capabilities=["CAPABILITY_IAM"], Parameters=parameters, ClientRequestToken=token,
-        Tags=[{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "core"},
+        Tags=[{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "core"},
               {"Key": "SourceCommit", "Value": head}])
     save("deployment-dispatch", result)
     if wait(cf, result["StackId"], directory / "deployment-terminal.json") != "UPDATE_COMPLETE":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deploy only the owned Cove ARM environment builder; never dispatch a build."""
+"""Deploy only the owned Colvenna Isle ARM environment builder; never dispatch a build."""
 
 import argparse
 import hashlib
@@ -23,7 +23,7 @@ def lambda_image_access(current, repository, prefix, directory):
     actual = ecr.describe_repositories(registryId=ACCOUNT, repositoryNames=[repository])["repositories"][0]
     tags = {x["Key"]: x["Value"] for x in ecr.list_tags_for_resource(
         resourceArn=actual["repositoryArn"])["tags"]}
-    if actual["imageTagMutability"] != "IMMUTABLE" or tags.get("Project") != "cove-duckdb":
+    if actual["imageTagMutability"] != "IMMUTABLE" or tags.get("Project") != "colvenna-isle":
         raise RuntimeError("ENVIRONMENT_REPOSITORY_OWNERSHIP_UNCONFIRMED")
     try:
         previous = json.loads(ecr.get_repository_policy(
@@ -33,7 +33,7 @@ def lambda_image_access(current, repository, prefix, directory):
     # The repository is shared; each environment adds its own runtime-prefix statement.
     suffix = STACKS["environment"].capitalize()
     statement = {
-        "Sid": "CoveEnvironmentLambdaImageRetrieval" + suffix, "Effect": "Allow",
+        "Sid": "ColvennaIsleEnvironmentLambdaImageRetrieval" + suffix, "Effect": "Allow",
         "Principal": {"Service": "lambda.amazonaws.com"},
         "Action": ["ecr:BatchGetImage", "ecr:GetDownloadUrlForLayer"],
         "Condition": {"ArnLike": {"aws:SourceArn":
@@ -116,7 +116,7 @@ def main():
     policy.update(
         source_commit=head, adapter_sha256=manifest["adapter_sha256"],
         builder_source_sha256=manifest["builder_source_sha256"], bucket=values["DataBucket"],
-        repository="cove-duckdb-images", runtime_prefix=STACKS["runtime_prefix"],
+        repository="colvenna-isle-images", runtime_prefix=STACKS["runtime_prefix"],
         private_wheels=private_wheels(current, values["DataBucket"], args.private_wheel_policy))
     directory.mkdir(parents=True)
     (directory / "identity.json").write_text(encode(identity))
@@ -132,7 +132,7 @@ def main():
         existing = None
     if existing:
         tags = {x["Key"]: x["Value"] for x in existing["Tags"]}
-        if (tags.get("Project") != "cove-duckdb" or tags.get("Component") != "builder"
+        if (tags.get("Project") != "colvenna-isle" or tags.get("Component") != "builder"
                 or outputs(existing)["BaselineStackId"] != baseline["StackId"]
                 or existing["StackStatus"] not in {"CREATE_COMPLETE", "UPDATE_COMPLETE"}):
             raise RuntimeError("BUILDER_STACK_OWNERSHIP_UNCONFIRMED")
@@ -163,7 +163,7 @@ def main():
     result = operation(
         StackName=stack_name, **template_arguments(current, body), Capabilities=["CAPABILITY_IAM"],
         ClientRequestToken=token, Tags=[
-            {"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "builder"},
+            {"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "builder"},
             {"Key": "SourceCommit", "Value": head}])
     (directory / "dispatch.json").write_text(encode(result))
     if wait(cf, result["StackId"], directory / "terminal.json") not in {"CREATE_COMPLETE", "UPDATE_COMPLETE"}:

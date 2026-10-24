@@ -1,7 +1,7 @@
-Cove DuckDB
-Copyright 2026 Cove DuckDB contributors
+Colvenna Isle
+Copyright 2026 Colvenna Isle contributors
 
-This repository contains the Cove DuckDB source code, product
+This repository contains the Colvenna Isle source code, product
 documentation, engineering designs, and original brand assets,
 licensed under the Apache License, Version 2.0 (see LICENSE).
 
@@ -15,3 +15,6 @@ Copyright (c) 2026 tt-a1i (Archify)
 Copyright (c) 2025 Cocoon AI
 These portions retain their MIT license. See THIRD_PARTY_NOTICES.md
 and third_party/archify.LICENSE.
+
+DuckDB is a trademark of the DuckDB Foundation.
+Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

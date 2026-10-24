@@ -4,7 +4,7 @@
 
 ## 1. 写入目标与成功语义
 
-Cove DuckDB 提供同步业务表写入和异步批量接入。同步请求在指定原生 DuckDB 表的事务持久提交后返回；异步接入保留 S3 归档和 SQS FIFO 缓冲。
+Colvenna Isle 提供同步业务表写入和异步批量接入。同步请求在指定原生 DuckDB 表的事务持久提交后返回；异步接入保留 S3 归档和 SQS FIFO 缓冲。
 
 | 入口 | 处理对象 | 成功回执 |
 | --- | --- | --- |
@@ -107,3 +107,5 @@ HTTP 超时不承诺数据库回滚，也不自动转成 `202` 异步接入。�
 - [DuckDB 约束与限制](https://duckdb.org/docs/stable/sql/constraints)
 - [DuckDB 并发](https://duckdb.org/docs/stable/connect/concurrency)
 - [HTTP API 配额](https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-quotas.html)
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

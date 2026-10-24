@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deploy, inspect, stop and clean only the tagged Cove baseline (core) stack."""
+"""Deploy, inspect, stop and clean only the tagged Colvenna Isle baseline (core) stack."""
 
 import argparse
 import base64
@@ -26,7 +26,7 @@ from infra.template import template
 from cove_duckdb.region import region
 
 REGION = region()
-REPOSITORY = "cove-duckdb-images"
+REPOSITORY = "colvenna-isle-images"
 # One environment per process, named by the required COVE_ENVIRONMENT.
 STACKS = names()
 
@@ -80,7 +80,7 @@ def session():
 def owned_stack(cf, name):
     value = cf.describe_stacks(StackName=name)["Stacks"][0]
     tags = {tag["Key"]: tag["Value"] for tag in value.get("Tags", [])}
-    if tags.get("Project") != "cove-duckdb" or tags.get("Component") != "core":
+    if tags.get("Project") != "colvenna-isle" or tags.get("Component") != "core":
         raise RuntimeError("Refuse operations on a stack without the project's core-stack tags")
     if f":{REGION}:{account()}:stack/{name}/" not in value["StackId"]:
         raise RuntimeError("Stack identity does not match the scoped account/region/name")
@@ -98,7 +98,7 @@ def vault_bucket(cf):
             return ""
         raise
     tags = {tag["Key"]: tag["Value"] for tag in stack.get("Tags", [])}
-    if (tags.get("Project") != "cove-duckdb" or tags.get("Environment") != "backups"
+    if (tags.get("Project") != "colvenna-isle" or tags.get("Environment") != "backups"
             or f":{REGION}:{account()}:stack/{STACK}/" not in stack["StackId"]
             or stack["StackStatus"] not in {"CREATE_COMPLETE", "UPDATE_COMPLETE"}):
         raise RuntimeError("Backup vault stack not positively owned and terminal")
@@ -241,7 +241,7 @@ def cleanup_guardduty(current, stack, values, directory):
     ec2 = current.client("ec2")
     vpc = ec2.describe_vpcs(VpcIds=[values["Vpc"]])["Vpcs"][0]
     tags = {tag["Key"]: tag["Value"] for tag in vpc.get("Tags", [])}
-    if tags.get("aws:cloudformation:stack-id") != stack["StackId"] or tags.get("Project") != "cove-duckdb":
+    if tags.get("aws:cloudformation:stack-id") != stack["StackId"] or tags.get("Project") != "colvenna-isle":
         raise RuntimeError("VPC ownership does not match this stack")
     endpoints = ec2.describe_vpc_endpoints(Filters=[{"Name": "vpc-id", "Values": [vpc["VpcId"]]}])["VpcEndpoints"]
     matched = [endpoint for endpoint in endpoints
@@ -295,8 +295,8 @@ def main():
     parser.add_argument("--bundle", type=Path, help="source-bound development bundle for publish")
     parser.add_argument("--query-desired", type=int, choices=[0, 1], default=0)
     args = parser.parse_args()
-    if not re.fullmatch(r"cove-duck-[a-z][a-z0-9]{1,11}-core", args.stack):
-        parser.error("stack name must be an environment's Cove core stack (cove-duck-<environment>-core)")
+    if not re.fullmatch(r"colvenna-isle-[a-z][a-z0-9]{1,11}-core", args.stack):
+        parser.error("stack name must be an environment's Colvenna Isle core stack (colvenna-isle-<environment>-core)")
     directory = args.output.resolve()
     if directory.exists() or directory == ROOT or ROOT in directory.parents:
         parser.error("use a new external receipt directory")
@@ -325,7 +325,7 @@ def main():
             repository = ecr.create_repository(repositoryName=REPOSITORY, imageTagMutability="IMMUTABLE",
                 imageScanningConfiguration={"scanOnPush": True},
                 encryptionConfiguration={"encryptionType": "AES256"},
-                tags=[{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "core"}])["repository"]
+                tags=[{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "core"}])["repository"]
         if repository["imageTagMutability"] != "IMMUTABLE":
             raise RuntimeError("Expected immutable private artifact repository")
         image_tag = "source-" + manifest["source_commit"]
@@ -368,7 +368,7 @@ def main():
                   "Parameters": [{"ParameterKey": "SourceCommit", "ParameterValue": head},
                                  {"ParameterKey": "StorageImage", "ParameterValue": args.image},
                                  {"ParameterKey": "QueryDesired", "ParameterValue": str(args.query_desired)}],
-                  "Tags": [{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "core"},
+                  "Tags": [{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "core"},
                            {"Key": "SourceCommit", "Value": head}], "ClientRequestToken": token}
         if args.operation == "update":
             existing = owned_stack(cf, args.stack)

@@ -44,7 +44,7 @@ def deploy_intake(current, baseline, artifact, head, directory, *, enabled=False
     result = update_stack(
         cf, StackName=baseline["StackId"], **template_arguments(current, body), Capabilities=["CAPABILITY_IAM"],
         Parameters=parameters, ClientRequestToken=token,
-        Tags=[{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "core"},
+        Tags=[{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "core"},
               {"Key": "SourceCommit", "Value": head}])
     (directory / "dispatch.json").write_text(encode(result))
     if wait(cf, result["StackId"], directory / "terminal.json") != "UPDATE_COMPLETE":

@@ -28,9 +28,9 @@ from cove_duckdb.pipeline.task_objects import TaskObjects
 from test_environments import Artifacts, Builds, Table, specification
 from test_pipelines import Objects
 
-LAMBDA = "arn:aws:lambda:us-west-2:123456789012:function:cove-duck-env-test:1"
-TASKDEF = "arn:aws:ecs:us-west-2:123456789012:task-definition/cove-duck-env-test:1"
-IMAGE = "123456789012.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-environments@sha256:" + "b" * 64
+LAMBDA = "arn:aws:lambda:us-west-2:123456789012:function:colvenna-isle-env-test:1"
+TASKDEF = "arn:aws:ecs:us-west-2:123456789012:task-definition/colvenna-isle-env-test:1"
+IMAGE = "123456789012.dkr.ecr.us-west-2.amazonaws.com/colvenna-isle-environments@sha256:" + "b" * 64
 CLEAN = [{"name": "order_id", "type": "BIGINT", "nullable": False},
          {"name": "order_date", "type": "DATE", "nullable": False},
          {"name": "amount", "type": "DECIMAL(18,2)", "nullable": False}]
@@ -662,7 +662,7 @@ class RunControllerTests(unittest.TestCase):
             "owner": "external", "state": "ENABLED"}, '"' + enabled["revision"] + '"')
         self.now += 60
         self.assertEqual(scheduler.triggers(), [])
-        # External owner: API runs are recorded as external; Cove still drives the DAG.
+        # External owner: API runs are recorded as external; Colvenna Isle still drives the DAG.
         receipt = self.start_run("airflow-1")
         self.assertEqual(self.record(receipt["run_id"])["trigger"]["kind"], "external")
 

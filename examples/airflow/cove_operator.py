@@ -1,10 +1,10 @@
-"""Submit one fixed Cove pipeline version from Airflow and wait for its publication.
+"""Submit one fixed Colvenna Isle pipeline version from Airflow and wait for its publication.
 
-Cove owns the pipeline's internal DAG, fixed inputs, imports and publication;
+Colvenna Isle owns the pipeline's internal DAG, fixed inputs, imports and publication;
 Airflow only orchestrates across systems. The Idempotency-Key is derived from
 the Airflow DAG run and task (not the try number), so retries, worker restarts
-and reconnects observe the same Cove run. An Airflow timeout never cancels the
-Cove run; cancellation is an explicit, separate API call.
+and reconnects observe the same Colvenna Isle run. An Airflow timeout never cancels the
+Colvenna Isle run; cancellation is an explicit, separate API call.
 """
 
 import json
@@ -47,7 +47,7 @@ class CoveClient:
 
 
 class CovePipelineRunOperator(BaseOperator):
-    """Run a fixed Cove pipeline version; succeed only once Cove reports PUBLISHED."""
+    """Run a fixed Colvenna Isle pipeline version; succeed only once Colvenna Isle reports PUBLISHED."""
 
     template_fields = ("pipeline_version", "parameters")
 
@@ -77,11 +77,11 @@ class CovePipelineRunOperator(BaseOperator):
                 break
             time.sleep(self.poll_seconds)
         else:
-            raise AirflowException("Cove run admission unconfirmed; retry this task with the same key")
+            raise AirflowException("Colvenna Isle run admission unconfirmed; retry this task with the same key")
         if status != 202:
-            raise AirflowException(f"Cove rejected the run request: {status} {value}")
+            raise AirflowException(f"Colvenna Isle rejected the run request: {status} {value}")
         run_id = value["run_id"]
-        self.log.info("Cove run %s (Idempotency-Key %s)", run_id, key)
+        self.log.info("Colvenna Isle run %s (Idempotency-Key %s)", run_id, key)
         deadline = time.monotonic() + self.wait_seconds
         while time.monotonic() < deadline:
             try:
@@ -91,13 +91,13 @@ class CovePipelineRunOperator(BaseOperator):
                 continue
             if status == 200 and value["status"] in TERMINAL:
                 if value["status"] != "PUBLISHED":
-                    raise AirflowException(f"Cove run {run_id} ended {value['status']}")
+                    raise AirflowException(f"Colvenna Isle run {run_id} ended {value['status']}")
                 releases = {task["task_id"]: task.get("release_id") for task in value["tasks"]}
-                self.log.info("Cove run %s PUBLISHED: %s", run_id, releases)
+                self.log.info("Colvenna Isle run %s PUBLISHED: %s", run_id, releases)
                 return {"run_id": run_id, "status": value["status"], "releases": releases,
                         "observed_at": value["observed_at"]}
             if status not in {200, 503}:
-                raise AirflowException(f"Cove run status unavailable: {status} {value}")
+                raise AirflowException(f"Colvenna Isle run status unavailable: {status} {value}")
             time.sleep(self.poll_seconds)
-        # Timing out stops waiting only; the Cove run keeps its own outcome.
-        raise AirflowException(f"Cove run {run_id} not published within {self.wait_seconds}s (not cancelled)")
+        # Timing out stops waiting only; the Colvenna Isle run keeps its own outcome.
+        raise AirflowException(f"Colvenna Isle run {run_id} not published within {self.wait_seconds}s (not cancelled)")

@@ -62,7 +62,7 @@ def main():
     shutil.copy2(args.bundle / "manifest.json", context / "manifest.json")
     shutil.copy2(ROOT / "runtime/Dockerfile.writer", context / "Dockerfile")
     shutil.copy2(ROOT / "runtime/columnar-requirements.lock", context / "columnar-requirements.lock")
-    tag = "cove-duckdb-" + args.service + ":" + head
+    tag = "colvenna-isle-" + args.service + ":" + head
     with (output / "build.log").open("x") as stream:
         subprocess.run(["docker", "build", "--platform", "linux/arm64",
             "--build-arg", "STORAGE_IMAGE=" + storage,

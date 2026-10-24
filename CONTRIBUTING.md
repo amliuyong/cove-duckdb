@@ -1,6 +1,6 @@
 # Contributing
 
-This repository contains Cove DuckDB: the product services (API, intake, writer, query, control plane, built-in pipelines), the Query Editor and Admin Console, the deployment tools, the contracts and the design documents.
+This repository contains Colvenna Isle: the product services (API, intake, writer, query, control plane, built-in pipelines), the Query Editor and Admin Console, the deployment tools, the contracts and the design documents.
 
 1. Create an independent branch for your change and open a focused pull request that explains the change and its validation.
 2. Keep the API contract, design documents, user guide, installation guide, release notes and README aligned with the code.

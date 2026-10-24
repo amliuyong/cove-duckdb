@@ -1,4 +1,4 @@
-"""Stack and runtime resource names of one Cove deployment environment.
+"""Stack and runtime resource names of one Colvenna Isle deployment environment.
 
 Every environment is an independent installation named by COVE_ENVIRONMENT: its stacks and the runtime
 resources its environment builder creates never share a name or an IAM wildcard with another environment.
@@ -25,5 +25,5 @@ def names(value=None):
     # IAM roles are account-global. The same environment name in two regions
     # must not share a runtime role or the wildcard used during uninstall.
     namespace = hashlib.sha256((name + "/" + region()).encode()).hexdigest()[:16]
-    return {"environment": name, "baseline": "cove-duck-" + name + "-core", "control": "cove-duck-" + name + "-control",
-            "environments": "cove-duck-" + name + "-builder", "runtime_prefix": "cove-duck-" + namespace + "-env-"}
+    return {"environment": name, "baseline": "colvenna-isle-" + name + "-core", "control": "colvenna-isle-" + name + "-control",
+            "environments": "colvenna-isle-" + name + "-builder", "runtime_prefix": "colvenna-isle-" + namespace + "-"}

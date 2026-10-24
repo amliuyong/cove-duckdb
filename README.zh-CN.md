@@ -1,13 +1,13 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
-    <img src="docs/assets/logo-light.svg" alt="Cove DuckDB" width="480">
+    <img src="docs/assets/logo-light.svg" alt="Colvenna Isle" width="480">
   </picture>
 </p>
 
-# Cove DuckDB
+# Colvenna Isle
 
-**通过 API 写入，用 SQL 和 Python 加工，在 S3 上持久保存并分析数据。**
+**S3 上的持久化分析数据库**
 
 <p align="center">
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-0b6b69"></a>
@@ -15,18 +15,20 @@
 </p>
 
 <p align="center">
-  <a href="docs/assets/promo.mp4"><img src="docs/assets/promo.gif" alt="一分钟了解 Cove DuckDB：API 接入、Amazon S3 上的 DuckDB、SQL 与 pandas 流水线、Query Editor 和 Admin Console" width="960"></a>
+  <a href="docs/assets/promo.mp4"><img src="docs/assets/promo.gif" alt="一分钟了解 Colvenna Isle：API 接入、Amazon S3 上的持久化数据库、SQL 与 pandas 流水线、Query Editor 和 Admin Console" width="960"></a>
 </p>
 
 <p align="center"><a href="docs/assets/promo.mp4">▶ 观看带英文配音的完整版（MP4，1 分钟）</a></p>
 
 [English](README.md) · [发行说明](docs/release-notes.md) · [安装部署手册](docs/installation.md) · [用户手册](docs/user-guide.md) · [Quickstart](examples/quickstart/README.md) · [文档目录](docs/README.md) · [完整产品发布文档](docs/product/press-release.md) · [贡献说明](CONTRIBUTING.md)
 
-Cove DuckDB 是面向 AWS 的数据库与分析产品，整合 API 接入、S3 上的 DuckDB、SQL/Python 分层加工、Query Editor 和 Admin Console。
+Colvenna Isle 是面向 AWS 的数据库与分析产品，整合 API 接入、S3 上的 DuckDB、SQL/Python 分层加工、Query Editor 和 Admin Console。
 
 ## 1.1.0 发行
 
-1.1.0（[GitHub Release `v1.1.0`](https://github.com/amliuyong/cove-duckdb/releases/tag/v1.1.0)）包含当前合同与能力，均已在实际 AWS 中验收：
+下一版本采用 Colvenna Isle 名称；`main` 为 `1.2.0.dev0`（未发行）。本次品牌检查不构成该候选版本的 AWS 验收，见[改名与升级说明](docs/release-notes.md#120-unreleased)。
+
+已发布的 1.1.0（[GitHub Release `v1.1.0`](https://github.com/amliuyong/colvenna-isle/releases/tag/v1.1.0)）包含当前合同与能力，均已在实际 AWS 中验收：
 
 - 由你选择的单个 AWS 账号（账号 ID 来自部署环境，不写在源码中）、ARM64；
 - 安装时指定的标准 AWS 商业区域（`--region` / `COVE_REGION`）：`us-east-2` 完成全新安装、全部 56 项功能 UAT、备份与隔离还原、升级、中断重部署与卸载，`us-west-2` 完成回归；其他商业区域在配置上可用，但未单独验收；
@@ -66,7 +68,7 @@ Cove DuckDB 是面向 AWS 的数据库与分析产品，整合 API 接入、S3 �
 
 ## 架构
 
-![Cove DuckDB AWS 架构](docs/assets/architecture.svg)
+![Colvenna Isle AWS 架构](docs/assets/architecture.svg)
 
 ```text
 API Gateway → 接入 Lambda → SQS FIFO → ECS Fargate 写者 → S3 上的 DuckDB
@@ -122,3 +124,5 @@ python3 scripts/check_docs.py
 项目源码、文档、设计及原创品牌资源采用 [Apache-2.0](LICENSE)。第三方组件（DuckDB 及其扩展、锁定的 Python 发行包、基础镜像、Archify 架构图运行代码）保留各自许可，详见[第三方许可](THIRD_PARTY_NOTICES.md)。
 
 项目不属于 DuckDB 或 AWS 官方产品。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

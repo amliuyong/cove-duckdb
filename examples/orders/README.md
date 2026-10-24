@@ -1,6 +1,6 @@
 # Orders：SQL + Python 流水线示例
 
-这是本地文件合同演示，不是 Cove 的服务实现。定义中的 Lambda、ECS 和 writer 选择是目标配置；本地检查使用临时 DuckDB 和 Python 子进程执行转换，不调用 AWS。
+这是本地文件合同演示，不是 Colvenna Isle 的服务实现。定义中的 Lambda、ECS 和 writer 选择是目标配置；本地检查使用临时 DuckDB 和 Python 子进程执行转换，不调用 AWS。
 
 [pipeline.yaml](pipeline.yaml) 定义四个任务：
 
@@ -43,3 +43,5 @@ python3 -m venv /tmp/cove-pipeline-demo-venv
 本地 PASS 只验证 SQL / pandas 转换与文件合同，不涉及 Lambda、ECS、S3/IAM、运行环境构建、调度、故障恢复或写者发布；这些在已安装环境中由 [quickstart](../quickstart/README.md) 覆盖。
 
 协议和设计：[内置流水线](../../docs/design/pipeline-design.md)、[增量与全量](../../docs/design/processing-modes.md)、[Python 输入输出](../../docs/design/python-task-contract.md)、[依赖环境](../../docs/design/runtime-environments.md)。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

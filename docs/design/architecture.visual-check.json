@@ -6,11 +6,11 @@
   "status": "pass",
   "visualReview": "pending",
   "provenance": "current",
-  "deliveryReceiptId": "bd027f24-05c1-48be-a1a7-c815e1718b87",
+  "deliveryReceiptId": "39b6c592-984d-44fb-8e22-85fb686c2f26",
   "artifact": {
-    "path": "/home/ubuntu/my/cove-duckdb/docs/design/architecture.html",
-    "sha256": "b1d1ce153a67bb0a004cc70ba2c76b6cdf78402bd7601922e0f016cfe74328c6",
-    "bytes": 837023
+    "path": "/home/ubuntu/.codex/worktrees/9b90/issue-19-colvenna-isle/docs/design/architecture.html",
+    "sha256": "6b6099bbed458b6995b5652138aea77c54b7bbe736dc6f907db8dc5e05c9c55a",
+    "bytes": 837029
   },
   "state": {
     "detail": "read",
@@ -18,7 +18,7 @@
   },
   "chrome": {
     "status": "available",
-    "executable": "/tmp/archify-cove/bin/chrome"
+    "executable": "/home/ubuntu/.cache/ms-playwright/chromium-1223/chrome-linux/chrome"
   },
   "diagnostics": [],
   "containment": {
@@ -928,6 +928,7 @@
     "contactSheet": "architecture.visual-check.html"
   },
   "sidecars": {
+    "directory": "/tmp/issue19-archify-captures-final",
     "receipt": "architecture.visual-check.json",
     "contactSheet": "architecture.visual-check.html",
     "files": [
@@ -937,23 +938,23 @@
         "file": "architecture.visual-check.html"
       },
       {
-        "sha256": "efc29917816090fcf7ea2a3eed26c16a3de1ccb4ae4b89012a73021d3df24ddb",
-        "bytes": 117430,
+        "sha256": "a245a796272e8b62dd58e4a68d12f93b0f13cb4eab366e7f9243f096c28f0626",
+        "bytes": 117304,
         "file": "architecture.visual-check.1440x900.light.png"
       },
       {
-        "sha256": "3dc1dff55bde8edb3a455feab852d855a980a824d6d92bb425bc52800b3fc9f9",
-        "bytes": 129496,
+        "sha256": "fca76d0504616bf13298f804660f3cf344254a2273a95864fe78183b95489199",
+        "bytes": 129540,
         "file": "architecture.visual-check.1440x900.dark.png"
       },
       {
-        "sha256": "24c72bf51ec8a610a119c908cd0d706fee4eb5591ae3f43394c213aedd5c19de",
-        "bytes": 174654,
+        "sha256": "fb9eba22c38c7e003fe5ff3bd6ed007d13adf5f99328dc58ed631f989b7fef29",
+        "bytes": 174479,
         "file": "architecture.visual-check.2048x1320.light.png"
       },
       {
-        "sha256": "18d3ecaec4a1eb28a72b99d0e8618f0a69fd6a6bb4c85c77854f45864e2225f2",
-        "bytes": 195938,
+        "sha256": "8b3a239ce3c5bbcf7a472d8dd3e7a3b074a6a4e31de06ca35a443300171b0fe8",
+        "bytes": 195749,
         "file": "architecture.visual-check.2048x1320.dark.png"
       }
     ]

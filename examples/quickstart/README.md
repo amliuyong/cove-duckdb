@@ -38,3 +38,5 @@ python3 examples/quickstart/quickstart.py --api-url <ApiUrl> --space <space> --a
 | 2026-10-15 | 50.00 | 1 | 0 |
 
 运行环境构建通常需要 5–10 分钟。脚本不写入任何凭证文件，签发的 Key 只保存在进程内存中。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

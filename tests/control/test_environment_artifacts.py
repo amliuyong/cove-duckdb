@@ -15,9 +15,9 @@ from cove_duckdb.control.registry import ControlError, canonical
 ACCOUNT = "123456789012"
 BUCKET = "test-bucket"
 PREFIX = "spaces/space_one/environment-builds/gen_original/build_original/"
-ROLE = ("arn:aws:iam::123456789012:role/cove-duck-env-"
+ROLE = ("arn:aws:iam::123456789012:role/colvenna-isle-env-"
         + hashlib.sha256(b"space_one/gen_original").hexdigest()[:16])
-RESOURCE_NAME = "cove-duck-env-" + "1" * 32
+RESOURCE_NAME = "colvenna-isle-env-" + "1" * 32
 FUNCTION = "arn:aws:lambda:us-west-2:123456789012:function:" + RESOURCE_NAME + ":7"
 TASK = "arn:aws:ecs:us-west-2:123456789012:task-definition/" + RESOURCE_NAME + ":3"
 WHEEL = b"actual synthetic wheel fixture bytes"
@@ -134,8 +134,8 @@ class Tasks:
 class ArtifactTests(unittest.TestCase):
     def setUp(self):
         self.objects, self.images = Objects(), Images()
-        image = f"{ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-images@" + self.images.digest
-        ecs_image = f"{ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-images@" + self.images.ecs_digest
+        image = f"{ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/colvenna-isle-images@" + self.images.digest
+        ecs_image = f"{ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/colvenna-isle-images@" + self.images.ecs_digest
         self.lam, self.ecs = Function(image), Tasks(ecs_image)
         self.artifacts = EnvironmentArtifacts(
             self.objects, self.images, self.lam, self.ecs, BUCKET, self.images.fetch)
@@ -143,7 +143,7 @@ class ArtifactTests(unittest.TestCase):
             "source_version": "original-source-version", "source_commit": "d" * 40,
             "source_location": "test-bucket/artifacts/builders/original.zip",
             "adapter_sha256": "e" * 64, "base_image": "public.ecr.aws/lambda/python@sha256:" + "f" * 64,
-            "repository": "cove-duckdb-images", "runtime_prefix": "cove-duck-env-",
+            "repository": "colvenna-isle-images", "runtime_prefix": "colvenna-isle-env-",
             "maximum_image_bytes": 1024 * 1024 * 1024,
             "execution_role_arn": "arn:aws:iam::123456789012:role/approved-execution",
             "python_version": "3.12.13", "maximum_packages": 128, "maximum_wheel_bytes": 536870912,
@@ -350,7 +350,7 @@ class ArtifactTests(unittest.TestCase):
             image_sha = "sha256:" + hashlib.sha256(manifest.encode()).hexdigest()
             self.images.configurations[config_sha] = raw
             self.images.manifests[image_sha] = manifest
-            image = f"{ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-images@" + image_sha
+            image = f"{ACCOUNT}.dkr.ecr.us-west-2.amazonaws.com/colvenna-isle-images@" + image_sha
             self.receipt["images"]["lambda"] = image
             self.lam.value["Code"]["ResolvedImageUri"] = image
             self.save_receipt()
