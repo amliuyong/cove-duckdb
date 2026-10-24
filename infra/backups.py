@@ -6,15 +6,15 @@ retained when this stack is deleted. Objects are written once (conditional
 creation) and read by exact version; access is TLS-only.
 """
 
-STACK = "cove-duck-backups"
+STACK = "colvenna-isle-backups"
 
 
 def template(source_commit):
-    tags = [{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Environment", "Value": "backups"},
+    tags = [{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Environment", "Value": "backups"},
             {"Key": "SourceCommit", "Value": source_commit}]
     return {
         "AWSTemplateFormatVersion": "2010-09-09",
-        "Description": "Cove DuckDB backup vault (retained; outside environment lifecycles)",
+        "Description": "Colvenna Isle backup vault (retained; outside environment lifecycles)",
         "Resources": {
             "Vault": {"Type": "AWS::S3::Bucket", "DeletionPolicy": "Retain", "UpdateReplacePolicy": "Retain",
                       "Properties": {

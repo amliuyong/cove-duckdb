@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>console · writer health, backlog, scoped rotatable keys</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="kit.css">
+<style>
+  html, body { width: 1920px; height: 1080px; }
+  .win { left: 120px; top: 290px; width: 1680px; height: 600px; }
+  .nav { position: absolute; left: 0; top: 64px; width: 300px; bottom: 0; background: var(--ui-card); border-right: 2px solid var(--ui-border); padding: 22px 16px; }
+  .nav .it { position: relative; height: 50px; padding: 0 16px; display: flex; align-items: center; font-size: 22px; color: var(--ui-muted); }
+  .nav .hl { position: absolute; left: 16px; top: 22px; width: 268px; height: 50px; border-radius: 9px; background: var(--ui-accent-soft); }
+  .nav .it.on { color: var(--ui-accent); font-weight: 700; }
+
+  .pane { position: absolute; left: 324px; top: 88px; width: 1332px; height: 488px; }
+  .tile { position: absolute; top: 0; width: 428px; height: 300px; padding: 22px 24px; }
+  .tile .hd { display: flex; align-items: center; justify-content: space-between; height: 40px; }
+  .t1 { left: 0; } .t2 { left: 452px; } .t3 { left: 904px; }
+  .big { font-family: 'Inter Display', 'Inter', 'Noto Sans CJK SC', sans-serif; font-size: 72px; font-weight: 800; color: var(--ui-fg); line-height: 1; }
+  .hb { display: flex; align-items: center; gap: 14px; margin-top: 30px; font-size: 24px; color: var(--ui-fg); }
+  .hb .d { position: relative; width: 18px; height: 18px; border-radius: 50%; background: var(--ui-ok); }
+  .hb .d i { position: absolute; inset: 0; border-radius: 50%; background: var(--ui-ok); display: block; }
+  .kv { margin-top: 18px; font-size: 22px; color: var(--ui-muted); line-height: 1.7; }
+  .kv b { color: var(--ui-fg); font-weight: 600; }
+  .q { position: relative; height: 80px; margin-top: 22px; }
+  .q .big { position: absolute; left: 0; top: 0; }
+  .spark { position: absolute; right: 0; top: 6px; display: flex; align-items: flex-end; gap: 8px; height: 70px; }
+  .spark i { width: 16px; border-radius: 4px; background: var(--ui-accent); display: block; transform-origin: 50% 100%; }
+  .fr { margin-top: 18px; }
+  .fr .rw { display: grid; grid-template-columns: 70px 1fr 90px; align-items: center; gap: 12px; height: 46px; font-size: 22px; }
+  .fr .ly { font-weight: 800; color: var(--ui-accent); letter-spacing: .08em; }
+  .fr .bar { height: 10px; border-radius: 5px; background: var(--ui-accent-soft); position: relative; overflow: hidden; }
+  .fr .bar i { position: absolute; inset: 0; background: var(--ui-accent); display: block; transform-origin: 0 50%; }
+  .fr .age { text-align: right; color: var(--ui-muted); }
+
+  .keys { position: absolute; left: 324px; top: 88px; width: 1332px; height: 488px; padding: 20px 26px; }
+  .keys .hd { display: flex; align-items: center; gap: 14px; height: 50px; }
+  .keys .hd .ui-btn { margin-left: auto; }
+  .kt { margin-top: 12px; }
+  .kr { position: relative; display: grid; grid-template-columns: 330px 300px 230px 200px 180px; align-items: center; height: 62px; font-size: 22px;
+    border-top: 2px solid var(--ui-border); }
+  .kr.th { border-top: none; color: var(--ui-muted); font-weight: 700; height: 46px; }
+  .kr .nm { font-weight: 700; }
+  .kr .fp { color: var(--ui-muted); font-weight: 400; margin-left: 10px; }
+  .kr .stc { position: relative; height: 36px; }
+  .kr .stc .ui-tag { position: absolute; left: 0; top: 0; }
+  .kr .rot { position: relative; justify-self: start; }
+  .kr .ring { position: absolute; inset: -6px; border-radius: 13px; border: 3px solid var(--accent); box-shadow: 0 0 40px var(--accent-glow); }
+  .kr.new { background: var(--ui-amber-soft); }
+  .once { position: absolute; right: 26px; top: 430px; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="hdr">
+  <svg class="mark colvenna" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="promo-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--brand)"/>
+      <stop offset="1" stop-color="var(--mark-bg-end)"/>
+    </linearGradient>
+    <linearGradient id="promo-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--teal)"/>
+      <stop offset="1" stop-color="var(--aqua)"/>
+    </linearGradient>
+    <g id="promo-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="var(--accent)"/>
+    </g>
+  </defs><use href="#promo-mark"/></svg>
+  <span class="word">Colvenna Isle</span><span class="sep"></span><span class="chap"><b>05</b>Operate</span>
+</div>
+
+<div class="stage">
+  <div class="title"><span class="w">Watch</span> <span class="w">it.</span> <span class="w"><em>Govern</em></span> <span class="w"><em>it.</em></span></div>
+
+  <div class="win">
+    <div class="bar"><span class="bm"><svg width="26" height="26" viewBox="0 0 256 256" aria-hidden="true">
+  <defs>
+    <linearGradient id="promo-ui-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--brand)"/>
+      <stop offset="1" stop-color="var(--mark-bg-end)"/>
+    </linearGradient>
+    <linearGradient id="promo-ui-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--teal)"/>
+      <stop offset="1" stop-color="var(--aqua)"/>
+    </linearGradient>
+    <g id="promo-ui-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-ui-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-ui-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-ui-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-ui-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="var(--accent)"/>
+    </g>
+  </defs><use href="#promo-ui-mark"/></svg></span><span class="bt">Colvenna Isle</span><span class="tab">Query Editor</span><span class="tab on">Admin Console</span>
+      <span class="conn"><i></i>shop · connected</span></div>
+    <div class="nav">
+      <div class="hl"></div>
+      <div class="it i0 on">Overview</div>
+      <div class="it i1">API Keys</div>
+      <div class="it">Pipelines</div>
+      <div class="it">Runtime environments</div>
+      <div class="it">Audit</div>
+      <div class="it">Retention</div>
+      <div class="it">Quotas &amp; costs</div>
+    </div>
+
+    <div class="pane">
+      <div class="ui-card tile t1">
+        <div class="hd"><span class="ui-h">Writer</span><span class="ui-tag ok">OK</span></div>
+        <div class="hb"><span class="d"><i></i></span>heartbeat · 2 s ago</div>
+        <div class="kv">active task <b>writer-1</b><br>last commit <b>4 s ago</b></div>
+      </div>
+      <div class="ui-card tile t2">
+        <div class="hd"><span class="ui-h">Queue backlog</span><span class="ui-tag acc">SQS FIFO</span></div>
+        <div class="q"><span class="big b1">128</span><span class="big b2">42</span><span class="big b3">0</span>
+          <span class="spark"><i style="height:70px"></i><i style="height:58px"></i><i style="height:44px"></i><i style="height:26px"></i><i style="height:12px"></i><i style="height:4px"></i></span></div>
+        <div class="kv">oldest message <b>0 s</b> · DLQ <b>0</b></div>
+      </div>
+      <div class="ui-card tile t3">
+        <div class="hd"><span class="ui-h">Freshness</span><span class="ui-tag ok">PUBLISHED</span></div>
+        <div class="fr">
+          <div class="rw"><span class="ly">ODS</span><span class="bar"><i></i></span><span class="age">5 s</span></div>
+          <div class="rw"><span class="ly">DWD</span><span class="bar"><i></i></span><span class="age">48 s</span></div>
+          <div class="rw"><span class="ly">DWS</span><span class="bar"><i></i></span><span class="age">52 s</span></div>
+          <div class="rw"><span class="ly">ADS</span><span class="bar"><i></i></span><span class="age">55 s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ui-card keys">
+      <div class="hd"><span class="ui-h">API Keys</span><span class="ui-tag acc">space · shop</span><span class="ui-btn primary">Create API Key</span></div>
+      <div class="kt">
+        <div class="kr th"><span>Name</span><span>Scopes</span><span>Expires (UTC)</span><span>Status</span><span></span></div>
+        <div class="kr k1"><span class="nm">ingest-app<span class="fp mono">…3f9a</span></span><span><span class="ui-tag acc">ingest:write</span></span><span>2026-12-31</span>
+          <span class="stc"><span class="ui-tag ok a">ACTIVE</span><span class="ui-tag warn r">REVOKED</span></span><span class="ui-btn rot">Rotate<span class="ring"></span></span></div>
+        <div class="kr new k4"><span class="nm">ingest-app<span class="fp mono">…c27e</span></span><span><span class="ui-tag acc">ingest:write</span></span><span>2026-12-31</span>
+          <span class="stc"><span class="ui-tag ok">ACTIVE</span></span><span class="ui-tag amb">replacement</span></div>
+        <div class="kr k2"><span class="nm">analyst<span class="fp mono">…81d0</span></span><span><span class="ui-tag acc">query:read</span></span><span>2026-12-31</span>
+          <span class="stc"><span class="ui-tag ok">ACTIVE</span></span><span></span></div>
+        <div class="kr k3"><span class="nm">pipeline-bot<span class="fp mono">…5b62</span></span><span><span class="ui-tag acc">pipeline:run</span></span><span>2026-11-30</span>
+          <span class="stc"><span class="ui-tag ok">ACTIVE</span></span><span></span></div>
+      </div>
+      <span class="ui-tag amb once">token shown once at creation</span>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/gsap.min.js"></script>
+<script src="console.beats.js"></script>
+<script>
+(function () {
+  var tl = gsap.timeline({ paused: true });
+  var SEG = window.__SEG__;
+  var t1 = B('The Admin Console'), t2 = B('and queue backlog'), t3 = B('and manages scoped');
+
+  tl.fromTo('.hdr .chap', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, 0.02);
+  tl.fromTo('.title .w', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.08 }, t1 + 0.05);
+  tl.fromTo('.win', { opacity: 0, x: 90, scale: 0.96 }, { opacity: 1, x: 0, scale: 1, duration: 0.7, ease: 'power3.out' }, t1 + 0.1);
+
+  gsap.set('.keys', { opacity: 0, x: 60 });
+  gsap.set('.b2, .b3, .t3 .rw', { opacity: 0 });
+  gsap.set('.fr .bar i', { scaleX: 0 });
+  gsap.set('.k4, .kr .r, .kr .ring, .once', { opacity: 0 });
+
+  // 1 · 写者健康：OK + 心跳
+  tl.fromTo('.tile', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.12 }, t1 + 0.45);
+  tl.fromTo('.t1 .ui-tag', { scale: 0.6 }, { scale: 1, duration: 0.4, ease: 'back.out(2.6)' }, t1 + 0.9);
+  tl.fromTo('.hb .d i', { scale: 1, opacity: 0.7 }, { scale: 2.6, opacity: 0, duration: 0.8, ease: 'sine.out', repeat: 3 }, t1 + 0.9);
+
+  // 2 · 队列积压排空 128 → 42 → 0；新鲜度逐层就绪
+  tl.to('.b1', { opacity: 0, y: -20, duration: 0.2 }, t2 + 0.1);
+  tl.fromTo('.b2', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.2 }, t2 + 0.15);
+  tl.to('.b2', { opacity: 0, y: -20, duration: 0.2 }, t2 + 0.55);
+  tl.fromTo('.b3', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.25, ease: 'back.out(2)' }, t2 + 0.6);
+  tl.fromTo('.spark i', { scaleY: 1 }, { scaleY: 0.25, duration: 0.7, ease: 'power2.out', stagger: 0.04, immediateRender: false }, t2 + 0.1);
+  tl.to('.t3 .rw', { opacity: 1, duration: 0.25, stagger: 0.1 }, t2 + 0.3);
+  tl.to('.fr .bar i', { scaleX: 1, duration: 0.45, ease: 'power2.out', stagger: 0.1 }, t2 + 0.35);
+
+  // 3 · 导航高亮滑到 API Keys（承接），面板换成 Key 列表
+  tl.to('.nav .hl', { y: 50, duration: 0.4, ease: 'power3.inOut' }, t3);
+  tl.to('.i0', { color: 'var(--ui-muted)', fontWeight: 400, duration: 0.01 }, t3 + 0.2);
+  tl.to('.i1', { color: 'var(--ui-accent)', fontWeight: 700, duration: 0.01 }, t3 + 0.2);
+  tl.to('.pane', { opacity: 0, x: -60, duration: 0.35, ease: 'power2.in' }, t3);
+  tl.to('.keys', { opacity: 1, x: 0, duration: 0.45, ease: 'power3.out' }, t3 + 0.3);
+  tl.fromTo('.kt .kr', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power3.out', stagger: 0.07, immediateRender: false }, t3 + 0.4);
+  tl.set('.k4', { opacity: 0 }, t3 + 0.39);
+
+  // 轮换：按 Rotate → 替换 Key 出现 → 旧 Key 吊销
+  tl.to('.kr .ring', { opacity: 1, duration: 0.2 }, t3 + 1.1);
+  tl.to('.kr .rot', { scale: 0.93, duration: 0.08 }, t3 + 1.3);
+  tl.to('.kr .rot', { scale: 1, duration: 0.25, ease: 'back.out(3)' }, t3 + 1.38);
+  tl.fromTo('.k4', { opacity: 0, x: 40 }, { opacity: 1, x: 0, duration: 0.45, ease: 'power3.out' }, t3 + 1.55);
+  tl.fromTo('.once', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.35 }, t3 + 1.9);
+  tl.to('.kr .ring', { opacity: 0, duration: 0.3 }, t3 + 2.1);
+  tl.to('.k1 .a', { opacity: 0, duration: 0.15 }, t3 + 2.3);
+  tl.fromTo('.k1 .r', { opacity: 0, scale: 1.3 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'back.out(2.2)' }, t3 + 2.3);
+  tl.to('.k1 .nm, .k1 .rot', { opacity: 0.45, duration: 0.3 }, t3 + 2.4);
+  tl.to({}, { duration: 0.01 }, SEG.duration + SEG.gap);
+
+  if (SEG.gap > 0) {
+    var x1 = SEG.duration + SEG.gap - 0.04;
+    var x0 = Math.min(Math.max(SEG.speech_end - 0.05, SEG.duration - 0.2), x1 - 0.32);
+    tl.to('.stage', { opacity: 0, scale: 0.94, duration: x1 - x0, ease: 'power2.in' }, x0);
+    tl.to('.hdr', { opacity: 0, duration: x1 - x0, ease: 'power2.in' }, x0);
+  }
+
+  window.__tl = tl;
+  if (!window.__MG_RENDER__) {
+    requestAnimationFrame(function () { requestAnimationFrame(function () { tl.play(0); }); });
+  }
+})();
+</script>
+</body>
+</html>

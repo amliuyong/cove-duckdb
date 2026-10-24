@@ -1,16 +1,29 @@
-# Cove DuckDB 1.1.0 发行说明与支持矩阵
+# Colvenna Isle 发行说明与支持矩阵
+
+<a id="120-unreleased"></a>
+## 1.2.0（未发行）
+
+当前开发版本为 `1.2.0.dev0`；尚未创建发行 tag 或 Release。产品名改为 **Colvenna Isle**，副标题为「S3 上的持久化分析数据库」/「Durable analytics databases on S3」。仓库、Python 发行包、制品、CI 和新部署资源采用 `colvenna-isle` 前缀，控制台与宣传素材采用 Colvenna 系列的 C 形流线标识。命名来源与 2026-10-24 的商标核查见[品牌说明](assets/README.md)。
+
+本次不改变数据库、API 路由、请求/响应、权限或存储格式。Python 模块 `cove_duckdb`、`COVE_*` 配置、`X-Cove-*` 协议头与 `_cove_*` 内部字段保留。JSON Schema 的标识域名改为 `colvenna-isle.invalid`，OpenAPI 显示名同步更新；schema 内容与合同版本保持一致。
+
+**部署升级是破坏性的**：ECR 仓库改为 `colvenna-isle-images`，栈、备份库、运行时资源与归属标签一并改名。新工具只管理新名称、新标签的资源，不能用于卸载旧环境。必须先使用旧版本工具备份并卸载旧运行时，再安装新版本，按当前合同重新生成数据；备份库与原生镜像的处理见[安装手册](installation.md#10-破坏性升级)。不自动迁移旧备份库、不承诺跨版本还原。运行时前缀为 `colvenna-isle-<namespace>-`，保留环境名与区域的 16 位 SHA-256 namespace，使加上 32 位构建 ID 的 Lambda 名称仍不超过 64 字符。
+
+本次本地合同、服务、构建与浏览器检查只验证改名候选；该候选的 AWS 部署、功能 UAT 与性能验收为 `NOT_RUN`。下文的 1.1.0 / 1.0.0 记录仅属于已发布的历史源码。Colvenna 律师检索与商标申请为 `WAIVED_BY_REQUESTER_NOT_PASS`，请求者决定不作为发布门槛。
+
+## 1.1.0（已发布，历史）
 
 1.1.0 在 1.0.0 的基础上支持在标准 AWS 商业区域中部署，并修复了写后读快照在万行级表上超时的问题。本文只列出已在实际 AWS 中验收的合同与能力。安装见[安装部署手册](installation.md)，使用见[用户手册](user-guide.md)，验收用例见 [UAT 测试用例](uat/test-cases.md)。计划中、尚未实现的能力单独列出。
 
 ## 1.1.0 的变更
 
-- **区域由部署配置决定**（[#8](https://github.com/amliuyong/cove-duckdb/issues/8)）：安装工具读取显式的 `COVE_REGION` / `AWS_REGION`，设置冲突或属于其他分区时拒绝执行。AWS 资源使用栈所在区域，区域也注入运行时服务和原生 S3 secret。运行时资源命名空间包含区域，用来隔离账号级的 IAM 角色；CloudFront OAC 与策略名包含栈区域，所以同一个环境名可以装在多个区域。执行器合同接受各商业区域的 Lambda / ECS / ECR 地址。价目表按实际区域索引，没有该区域的价目表时成本报告返回 `UNKNOWN`，不借用其他区域的价格，也不按零计价。
-- **写后读快照改为批量装载**（[#5](https://github.com/amliuyong/cove-duckdb/issues/5)）：`after_write` / `after_ingestion` 快照不再逐行装载，改用带类型的 Arrow 批次。写者和查询镜像都安装同一个 hash 锁定的 pyarrow 24.0.0。写者在取任何行之前，先在原读事务中检查行数和保守的 JSON 字节估算，超出返回 `QUERY_SOURCE_QUOTA`。上限仍为 100,000 行、2 MiB，复制预算 5 秒。精确编码、回执权威、不重复捕获和封存 SQL 隔离保持不变。
+- **区域由部署配置决定**（[#8](https://github.com/colvenna/colvenna-isle/issues/8)）：安装工具读取显式的 `COVE_REGION` / `AWS_REGION`，设置冲突或属于其他分区时拒绝执行。AWS 资源使用栈所在区域，区域也注入运行时服务和原生 S3 secret。运行时资源命名空间包含区域，用来隔离账号级的 IAM 角色；CloudFront OAC 与策略名包含栈区域，所以同一个环境名可以装在多个区域。执行器合同接受各商业区域的 Lambda / ECS / ECR 地址。价目表按实际区域索引，没有该区域的价目表时成本报告返回 `UNKNOWN`，不借用其他区域的价格，也不按零计价。
+- **写后读快照改为批量装载**（[#5](https://github.com/colvenna/colvenna-isle/issues/5)）：`after_write` / `after_ingestion` 快照不再逐行装载，改用带类型的 Arrow 批次。写者和查询镜像都安装同一个 hash 锁定的 pyarrow 24.0.0。写者在取任何行之前，先在原读事务中检查行数和保守的 JSON 字节估算，超出返回 `QUERY_SOURCE_QUOTA`。上限仍为 100,000 行、2 MiB，复制预算 5 秒。精确编码、回执权威、不重复捕获和封存 SQL 隔离保持不变。
 - **升级是破坏性的**：运行时命名空间变了，1.0.0 的环境不能原地升级。先用 1.0.0 的工具备份并卸载运行时资源，再用 1.1.0 全新安装，按当前合同重新生成数据，见[安装部署手册](installation.md#10-破坏性升级)。
 
 ## 验收
 
-1.1.0 的运行时代码（`src/`、`infra/`、`runtime/`、`scripts/`、`install.sh`）与下表的验收源码 `7005fee` 相同，只有版本号不同。之后的提交只改文档和测试。
+tag `v1.1.0` 的运行时代码（`src/`、`infra/`、`runtime/`、`scripts/`、`install.sh`）与下表的验收源码 `7005fee` 相同，只有版本号不同。从该验收源码到历史 tag 的其他变更只涉及文档和测试；当前改名候选的资源与部署代码另有变更，不能沿用这项源码等同结论。
 
 2026-10-21 的区域验收：
 
@@ -27,17 +40,17 @@
 
 写后读快照（#5）于 2026-10-21 在一套全新的 `us-west-2` 环境中做了针对性回归，源码 `69201586e526ca5a2c507919a49cd9ba52587eba`，查询 Task 为 2 vCPU / 4 GiB。通过公开 API 查询 10,210 行、4 列的表，聚合结果与独立计算一致：`after_write` 6.751 秒，`after_ingestion` 3.839 秒，`current` 2.884 秒。超过 2 MiB 的源在 2.766 秒内返回 `QUERY_SOURCE_QUOTA`。这些耗时包含客户端轮询，不是延迟保证。本地原生检查另外覆盖了 100,000 行的捕获 / 装载预算、精确类型和复制前拒绝。
 
-验收中失败的安装与部署回执与成功的验收分开保留：VPC 配额失败和全局 CloudFront 名称冲突都已核对到终态的回滚 / 删除；一次 Airflow CLI 设置失败被证明发生在 Cove 派发之前，修正字面参数后原 DAG 身份继续执行，没有重新接入数据。
+验收中失败的安装与部署回执与成功的验收分开保留：VPC 配额失败和全局 CloudFront 名称冲突都已核对到终态的回滚 / 删除；一次 Airflow CLI 设置失败被证明发生在 Colvenna Isle 派发之前，修正字面参数后原 DAG 身份继续执行，没有重新接入数据。
 
-发行构建从 tag `v1.1.0` 的干净检出构建，在一个区域全新安装后执行 Quickstart、上述两项变更的针对性回归与发行用例 `UAT-DOC-02` / `UAT-DOC-03`，然后卸载。结果见 [GitHub Release v1.1.0](https://github.com/amliuyong/cove-duckdb/releases/tag/v1.1.0) 附带的验证报告。
+发行构建从 tag `v1.1.0` 的干净检出构建，在一个区域全新安装后执行 Quickstart、上述两项变更的针对性回归与发行用例 `UAT-DOC-02` / `UAT-DOC-03`，然后卸载。结果见 [GitHub Release v1.1.0](https://github.com/colvenna/colvenna-isle/releases/tag/v1.1.0) 附带的验证报告。
 
 ## 发行身份
 
 | 项目 | 值 |
 | --- | --- |
-| 版本 | `1.1.0`（`src/cove_duckdb/_version.py`） |
+| 版本 | `1.1.0`（tag `v1.1.0` 中的 `src/cove_duckdb/_version.py`；当前源码为 `1.2.0.dev0`） |
 | Git tag | `v1.1.0` |
-| GitHub Release | [v1.1.0](https://github.com/amliuyong/cove-duckdb/releases/tag/v1.1.0) |
+| GitHub Release | [v1.1.0](https://github.com/colvenna/colvenna-isle/releases/tag/v1.1.0) |
 | 源码 | tag 指向的提交；release `manifest.json` 记录其 commit / tree |
 | 构建 | `scripts/build_product.py`，见[安装部署手册](installation.md#5-构建-release) |
 
@@ -149,7 +162,7 @@ GitHub Release 附带这些 manifest。镜像和 ZIP 本体由安装工具发布
 
 | 项目 | 值 |
 | --- | --- |
-| 版本 / tag | `1.0.0` / `v1.0.0`（[GitHub Release](https://github.com/amliuyong/cove-duckdb/releases/tag/v1.0.0)，2026-10-20） |
+| 版本 / tag | `1.0.0` / `v1.0.0`（[GitHub Release](https://github.com/colvenna/colvenna-isle/releases/tag/v1.0.0)，2026-10-20） |
 | 区域 | 只支持 `us-west-2`：区域写在模板和服务代码中 |
 | 写后读快照 | 沙箱逐行装载，约 1 万行、4 列的表超过 30 秒查询时限，返回 `QUERY_TIMEOUT` |
 
@@ -158,3 +171,5 @@ GitHub Release 附带这些 manifest。镜像和 ZIP 本体由安装工具发布
 ## 许可
 
 项目源码、文档与品牌资产使用 [Apache-2.0](../LICENSE)。第三方组件（DuckDB、扩展、Python 依赖、基础镜像、Archify 等）保留各自的许可，见 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)。构建产物另附所含 Python 发行包自带的许可文件。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

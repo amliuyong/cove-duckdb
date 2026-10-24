@@ -1,6 +1,6 @@
 # Architecture validation
 
-Date: 2026-10-20. Scope: documentation artifacts and their presentation.
+Date: 2026-10-24. Scope: documentation artifacts and their presentation. The 2026-10-24 refresh changes branding only; topology and product behavior remain unchanged.
 
 The current diagram includes the S3/CloudFront Query Editor and its authenticated `/v1/*` proxy to API Gateway without API caching. It shows the VPC synchronous Lambda on private port 8082 and the receipt-conditioned query path through the private Writer Control Lambda. The writer copies approved Native values; user SQL executes on the query process's sealed local snapshot. Lambda-mediated DynamoDB access, FIFO polling and the VPC Link/internal ALB/query Service remain distinct. The control group now includes trusted CodeBuild environment builds and immutable ECR images; numeric Lambda/ECS bindings retain separate identities. Planned Lambda Invoke / ECS RunTask executors retain fixed SQL/Python inputs and staged outputs. Native DuckDB/SlateDB storage and Parquet compute files remain separate.
 
@@ -17,14 +17,14 @@ python3 scripts/render_brand.py
 
 The SVG uses the same [architecture specification](architecture.json) as the supplementary interactive viewer, with explicitly authored orthogonal routes. The checker verifies its component IDs, relationship IDs, and semantic labels against the source.
 
-Native SVG XML validation passed. Chromium rendered the complete SVG at 1440×1100; the retained image was inspected for fit. This screenshot does not claim a separate DOM overflow measurement. An image-capable review checked its text, labels, routes, node fit, and conclusion cards. The logo's light/dark variants were reviewed together at 800×520.
+Native SVG XML validation passed. Chromium rendered the complete SVG at 1440×1100; the retained image was inspected for fit. This screenshot does not claim a separate DOM overflow measurement. An image-capable review checked its text, labels, routes, node fit, and conclusion cards. The logo's light/dark variants were reviewed together at 960×670 (including 96/64/32/24px marks).
 
 Evidence: [SVG render](evidence/architecture-svg.png), [logo render](evidence/logos.png), and [asset receipt](evidence/assets.json).
 
 SVG SHA-256:
 
 ```text
-ce8dc1c567b4fe721a532ad7cc5749a23aacb2f99c61d2440911cc27bf0f2f51
+68e6afaccc8524e1df9e9c8c9fe27a94d4a237d83eb9ae06d8d29e33fe8d9eda
 ```
 
 ## Supplementary interactive viewer
@@ -53,13 +53,13 @@ Light/dark screenshots at the smallest and largest viewports are retained in the
 Specification SHA-256:
 
 ```text
-7817c7a2b1de335599f9fed5c0236f71ed610ced1b0273c5f6915aae4ff830f8
+2a7ae527b6c92f2edda41e9d84330cbd1f2b7f7a1506cb70359bc0d3910a0b51
 ```
 
 HTML SHA-256:
 
 ```text
-b1d1ce153a67bb0a004cc70ba2c76b6cdf78402bd7601922e0f016cfe74328c6
+6b6099bbed458b6995b5652138aea77c54b7bbe736dc6f907db8dc5e05c9c55a
 ```
 
 ## Scope of the evidence
@@ -67,3 +67,5 @@ b1d1ce153a67bb0a004cc70ba2c76b6cdf78402bd7601922e0f016cfe74328c6
 These checks validate documents, diagrams, and presentation. They do not run the product API, DuckDB storage extension, ECS writer, SQS delivery, SQL query service, authentication service, or AWS recovery scenarios.
 
 This diagram does not establish AWS acceptance; product acceptance is defined by the [UAT test cases](../uat/test-cases.md).
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

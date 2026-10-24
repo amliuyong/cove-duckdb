@@ -1,0 +1,22 @@
+{
+  "slug": "colvenna-isle-promo",
+  "lang": "en-US",
+  "fps": 30,
+  "width": 1920,
+  "height": 1080,
+  "gap": 0.35,
+  "order": [
+    "hook",
+    "ingest",
+    "storage",
+    "pipeline",
+    "query",
+    "console",
+    "outro"
+  ],
+  "theme": "colvenna",
+  "progress": true,
+  "provider": "ali",
+  "voice": "Andy_v3.1",
+  "rate": "+0%"
+}

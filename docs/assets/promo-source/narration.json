@@ -1,0 +1,30 @@
+[
+  {
+    "id": "hook",
+    "text": "Your app writes events.|Your team needs answers.|Colvenna Isle connects the two, on AWS."
+  },
+  {
+    "id": "ingest",
+    "text": "Apps write through one API,|with schema checks, idempotency|and a FIFO buffer.|Need it now?|A synchronous write returns COMMITTED."
+  },
+  {
+    "id": "storage",
+    "text": "Underneath is a native analytics database,|stored durably in Amazon S3,|with native transactions and recovery."
+  },
+  {
+    "id": "pipeline",
+    "text": "Transform it with SQL and pandas.|Versioned pipelines carry data from ODS to ADS|on Lambda or ECS,|with a watermark at every layer."
+  },
+  {
+    "id": "query",
+    "text": "Query published results in the Query Editor,|asynchronous, exportable,|and stamped with its data version."
+  },
+  {
+    "id": "console",
+    "text": "The Admin Console watches writer health|and queue backlog,|and manages scoped, rotatable API keys."
+  },
+  {
+    "id": "outro",
+    "text": "Colvenna Isle,|in your own AWS account,|with backup and restore built in.|Open source, Apache 2.0."
+  }
+]

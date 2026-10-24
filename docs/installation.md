@@ -1,6 +1,6 @@
-# Cove DuckDB 安装部署手册
+# Colvenna Isle 安装部署手册
 
-本手册适用于 1.1.0，面向在自己的 AWS 账号和商业区域（partition `aws`）中安装和运维 Cove DuckDB 的运维人员，涵盖以下内容：
+本手册适用于当前未发行的 `1.2.0.dev0` 候选，面向在自己的 AWS 账号和商业区域（partition `aws`）中安装和运维 Colvenna Isle 的运维人员。改名后的 AWS 安装验收为 `NOT_RUN`；1.1.0 的历史验收不代表当前候选通过。涵盖以下内容：
 
 - 准备部署主机与原生存储镜像；
 - 构建 release；
@@ -16,7 +16,9 @@
 部署主机满足第 3 节的前置条件，账号中也已有原生存储镜像（第 4 节）时，仓库根目录的 `install.sh` 可以用一条命令完成第 3.4 节到第 8 节的工作：
 
 ```bash
-git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git checkout --detach v1.1.0
+git clone https://github.com/colvenna/colvenna-isle.git
+cd colvenna-isle
+git checkout --detach <已审查的候选提交>
 ./install.sh fresh --environment prod --account <12 位账号 ID> --region <目标区域> \
   --space sales_prod --token-output /secure/path/sales_prod-admin.token
 ```
@@ -27,7 +29,7 @@ git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git 
    - ARM64、Python 3.12、Docker、Node.js、AWS CLI；
    - 干净的检出；
    - 当前凭证是该账号的实例角色。
-2. 在 `--work-dir`（默认 `../cove-duckdb-work`）中按锁定依赖建立构建环境。
+2. 在 `--work-dir`（默认 `../colvenna-isle-work`）中按锁定依赖建立构建环境。
 3. 检查原生存储镜像；本机没有时，从本账号 ECR 按锁定的 digest 拉取。
 4. 构建 release。同一提交已有通过的 release 时直接复用。
 5. 运行 `install.py fresh` 或 `upgrade`，回执写入 `<work-dir>/receipts/`。
@@ -62,20 +64,20 @@ git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb && git 
 
 | 栈 | 内容 | 名称（环境 `<name>`） |
 | --- | --- | --- |
-| 基线 | VPC 与网络、API Gateway 与 authorizer、接入 Lambda 与 SQS FIFO、写者与查询 ECS 服务、同步写代理、控制表、数据桶、CloudFront（Query Editor / Admin Console） | `cove-duck-<name>-core` |
-| 控制面 | 管理接口、流水线运行控制与调度、回收 | `cove-duck-<name>-control` |
-| 运行环境构建器 | CodeBuild 项目、运行时角色边界、流水线事件队列 | `cove-duck-<name>-builder` |
+| 基线 | VPC 与网络、API Gateway 与 authorizer、接入 Lambda 与 SQS FIFO、写者与查询 ECS 服务、同步写代理、控制表、数据桶、CloudFront（Query Editor / Admin Console） | `colvenna-isle-<name>-core` |
+| 控制面 | 管理接口、流水线运行控制与调度、回收 | `colvenna-isle-<name>-control` |
+| 运行环境构建器 | CodeBuild 项目、运行时角色边界、流水线事件队列 | `colvenna-isle-<name>-builder` |
 
 另有两类账号级资源，独立于所有环境：
 
-- **备份库**：每个目标区域各自的 `cove-duck-backups` 栈中的版本化 S3 桶，删除环境时保留。
-- **镜像仓库**：ECR `cove-duckdb-images`，存放原生存储镜像、写者与查询镜像，以及运行环境镜像。
+- **备份库**：每个目标区域各自的 `colvenna-isle-backups` 栈中的版本化 S3 桶，删除环境时保留。
+- **镜像仓库**：ECR `colvenna-isle-images`，存放原生存储镜像、写者与查询镜像，以及运行环境镜像。
 
-环境名为 2–12 位小写字母或数字，以字母开头；`env`、`core`、`control`、`builder` 保留不可用。所有运维工具都要求显式设置 `COVE_ENVIRONMENT`，未设置时拒绝执行。每个栈都带有标签 `Project=cove-duckdb` 与 `Component=core|control|builder`。
+环境名为 2–12 位小写字母或数字，以字母开头；`env`、`core`、`control`、`builder` 保留不可用。所有运维工具都要求显式设置 `COVE_ENVIRONMENT`，未设置时拒绝执行。每个栈都带有标签 `Project=colvenna-isle` 与 `Component=core|control|builder`。
 
 同一账号可以在不同区域安装多套环境，它们之间相互隔离：
 
-- 每套环境的运行时资源使用各自的前缀 `cove-duck-<namespace>-env-`（namespace 是环境名与区域的 SHA-256 前 16 位）；
+- 每套环境的运行时资源使用各自的前缀 `colvenna-isle-<namespace>-`（namespace 是环境名与区域的 SHA-256 前 16 位）；
 - IAM 通配符不会匹配其他环境或区域的函数、任务定义或角色。IAM 角色属于整个账号，因此同名环境在不同区域也使用不同 namespace；运行时函数名仍不超过 64 字符。
 - CloudFront 的 OAC、响应头策略、缓存策略和源请求策略属于账号全局资源；名称包含栈名与区域，避免同名环境跨区安装时冲突。
 
@@ -128,7 +130,7 @@ python3 -m venv /tmp/cove-build
 写者与查询镜像都叠加在一个经过验证的原生存储镜像上，镜像内含 DuckDB 1.5.6 与 duckdb-object-storage 扩展。[writer-lock.json](../runtime/writer-lock.json) 锁定了它的仓库名和 digest：
 
 ```json
-"storage_repository": "cove-duckdb-images",
+"storage_repository": "colvenna-isle-images",
 "storage_digest": "sha256:8ec8ab61…"
 ```
 
@@ -137,7 +139,7 @@ python3 -m venv /tmp/cove-build
 ```bash
 aws ecr get-login-password --region "$COVE_REGION" | \
   docker login --username AWS --password-stdin $COVE_ACCOUNT.dkr.ecr.$COVE_REGION.amazonaws.com
-docker pull $COVE_ACCOUNT.dkr.ecr.$COVE_REGION.amazonaws.com/cove-duckdb-images@sha256:8ec8ab61…
+docker pull $COVE_ACCOUNT.dkr.ecr.$COVE_REGION.amazonaws.com/colvenna-isle-images@sha256:8ec8ab61…
 ```
 
 账号中还没有这个镜像时，先从固定的上游源码构建并发布：
@@ -179,9 +181,9 @@ docker pull $COVE_ACCOUNT.dkr.ecr.$COVE_REGION.amazonaws.com/cove-duckdb-images@
 从所选提交的干净检出构建（构建回执绑定精确 commit / tree），构建目录放在仓库之外：
 
 ```bash
-git clone https://github.com/amliuyong/cove-duckdb.git && cd cove-duckdb
-git checkout --detach v1.1.0
-COVE_ACCOUNT=$COVE_ACCOUNT /tmp/cove-build/bin/python scripts/build_product.py --output /path/outside/repo/release-1.1.0
+git clone https://github.com/colvenna/colvenna-isle.git && cd colvenna-isle
+git checkout --detach <已审查的候选提交>
+COVE_ACCOUNT=$COVE_ACCOUNT /tmp/cove-build/bin/python scripts/build_product.py --output /path/outside/repo/release-candidate
 ```
 
 `build_product.py` 只接受干净的工作区，依次构建并测试：
@@ -210,7 +212,7 @@ release 目录中的 `manifest.json` 记录以下内容，任何一项失败都�
 
 ```bash
 $COVE /tmp/cove-build/bin/python scripts/aws/install.py fresh \
-  --release /path/outside/repo/release-1.1.0 --output /path/outside/repo/receipts/install-<name>
+  --release /path/outside/repo/release-candidate --output /path/outside/repo/receipts/install-<name>
 ```
 
 `fresh` 依次执行以下步骤。每一步调用仓库自己的部署工具，回执写入 `--output` 下的独立子目录：
@@ -233,7 +235,7 @@ $COVE /tmp/cove-build/bin/python scripts/aws/install.py fresh \
 全新安装通常需要约 25 分钟。完成后读取基线栈的输出：
 
 ```bash
-aws cloudformation describe-stacks --region "$COVE_REGION" --stack-name cove-duck-<name>-core \
+aws cloudformation describe-stacks --region "$COVE_REGION" --stack-name colvenna-isle-<name>-core \
   --query "Stacks[0].Outputs[?OutputKey=='ApiUrl' || OutputKey=='WebUrl']"
 ```
 
@@ -317,6 +319,8 @@ $COVE /tmp/cove-build/bin/python scripts/aws/admission.py timing --timing on|off
 部署写者时，接入队列与 DLQ 都必须为空。仍有排队的原件时，先开放让写者处理完，或者按原身份核对后再处置。部署工具不会越过未核对的工作。
 
 ## 10. 破坏性升级
+
+从 1.1.0 或更早版本采用新品牌时，先使用对应旧 tag 的工具关闭、备份并卸载旧环境；新工具的资源名与 `Project` 标签已变，不能发现或清理旧环境。保留旧备份库，勿把它当作新版本的备份库，也不支持跨产品版本直接还原。再用已审查的新源码全新安装并重新导入业务数据。原生存储镜像的 digest 未变，但安装前需由运维人员将同一镜像发布到新 ECR 仓库 `colvenna-isle-images`；本次改名不会操作线上资源。`upgrade` 仅适用于新命名空间内部的源码升级。
 
 1.1.0 的区域化改变了运行时 IAM 命名空间。已有 tag `v1.0.0` 环境需先用该版本的工具备份并卸载，再用 1.1.0 全新安装，按当前合同重新生成数据。下面的 `upgrade` 流程用于运行时命名空间相同的源码版本之间升级。
 
@@ -429,7 +433,7 @@ $COVE /tmp/cove-build/bin/python scripts/aws/uninstall.py --output <new-dir>
 
 1. 关闭接入：写者取得终止回执，查询服务缩到 0。
 2. 删除控制面栈。
-3. 删除构建器创建的运行时 Lambda、任务定义和执行角色。每一项都必须同时带有本环境前缀和 `Project=cove-duckdb` 标签，否则拒绝删除。
+3. 删除构建器创建的运行时 Lambda、任务定义和执行角色。每一项都必须同时带有本环境前缀和 `Project=colvenna-isle` 标签，否则拒绝删除。
 4. 删除构建器栈。
 5. 删除基线栈。只清空该栈自己的桶，只清理附着在该栈 VPC 上的 GuardDuty 端点。
 6. 核对三个栈都已不存在。
@@ -460,3 +464,5 @@ $COVE /tmp/cove-build/bin/python scripts/aws/uninstall.py --output <new-dir>
 | `admission.py open` 拒绝开放 | 组件源码不一致（部署中断），对同一 release 重新运行 `upgrade` |
 | `503 WRITER_DATABASE_LIMIT` | 写者已打开 2 个空间，见第 7 节 |
 | 查询 `QUERY_TIMEOUT` | 写入高峰期间或刚结束时，分析查询会变慢；设置更长的 `timeout_ms`（最大 300,000）或错开高峰，见[发行说明](release-notes.md#限制) |
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

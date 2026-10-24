@@ -62,7 +62,7 @@ def deploy_authorizer(current, baseline, artifact, head, directory, *, enabled=F
     result = update_stack(
         cf, StackName=baseline["StackId"], **template_arguments(current, body), Capabilities=["CAPABILITY_IAM"],
         Parameters=updates,
-        ClientRequestToken=token, Tags=[{"Key": "Project", "Value": "cove-duckdb"},
+        ClientRequestToken=token, Tags=[{"Key": "Project", "Value": "colvenna-isle"},
             {"Key": "Component", "Value": "core"}, {"Key": "SourceCommit", "Value": head}])
     (directory / "dispatch.json").write_text(encode(result))
     if wait(cf, result["StackId"], directory / "terminal.json") != "UPDATE_COMPLETE":
@@ -133,7 +133,7 @@ def main():
             existing = None
         if existing:
             tags = {tag["Key"]: tag["Value"] for tag in existing["Tags"]}
-            if (tags.get("Project") != "cove-duckdb" or tags.get("Component") != "control"
+            if (tags.get("Project") != "colvenna-isle" or tags.get("Component") != "control"
                     or outputs(existing).get("BaselineStackId") != baseline["StackId"]
                     or existing["StackStatus"] not in {"CREATE_COMPLETE", "UPDATE_COMPLETE"}):
                 raise RuntimeError("Existing control stack not positively owned/terminal")
@@ -154,7 +154,7 @@ def main():
             actual_projects = current.client("codebuild").batch_get_projects(
                 names=[environment["project"]])
             if (environment["project"] != STACKS["environments"]
-                    or builder_tags.get("Project") != "cove-duckdb"
+                    or builder_tags.get("Project") != "colvenna-isle"
                     or builder_tags.get("Component") != "builder"
                     or builder_stack["StackStatus"] not in {"CREATE_COMPLETE", "UPDATE_COMPLETE"}
                     or builder_values["BaselineStackId"] != baseline["StackId"]
@@ -208,7 +208,7 @@ def main():
         operation = (lambda **arguments: update_stack(cf, **arguments)) if existing else cf.create_stack
         result = operation(
             StackName=args.stack, **template_arguments(current, body), Capabilities=["CAPABILITY_IAM"],
-            ClientRequestToken=token, Tags=[{"Key": "Project", "Value": "cove-duckdb"},
+            ClientRequestToken=token, Tags=[{"Key": "Project", "Value": "colvenna-isle"},
                 {"Key": "Component", "Value": "control"}, {"Key": "SourceCommit", "Value": head}])
         (directory / "dispatch.json").write_text(encode(result))
         terminal = wait(cf, result["StackId"], directory / "terminal.json")

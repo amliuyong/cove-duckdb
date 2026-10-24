@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Remove one Cove environment completely and prove what is gone.
+"""Remove one Colvenna Isle environment completely and prove what is gone.
 
 Admission is closed first (writer stopped with a terminal receipt, query at zero). Then the control stack is
 deleted, then every runtime resource the builder created under this environment's prefix (Lambda functions, task
@@ -31,7 +31,7 @@ def delete_stack(cf, name, directory):
             return "ABSENT"
         raise
     tags = {tag["Key"]: tag["Value"] for tag in stack.get("Tags", [])}
-    if tags.get("Project") != "cove-duckdb" or f":{REGION}:{ACCOUNT}:stack/{name}/" not in stack["StackId"]:
+    if tags.get("Project") != "colvenna-isle" or f":{REGION}:{ACCOUNT}:stack/{name}/" not in stack["StackId"]:
         raise RuntimeError("Refuse to delete a stack that is not positively owned: " + name)
     cf.delete_stack(StackName=stack["StackId"])
     status = wait(cf, stack["StackId"], directory / (name + "-terminal.json"))
@@ -49,7 +49,7 @@ def runtime_resources(current, prefix, directory):
             if not function["FunctionName"].startswith(prefix):
                 continue
             tags = lam.list_tags(Resource=function["FunctionArn"])["Tags"]
-            if tags.get("Project") != "cove-duckdb":
+            if tags.get("Project") != "colvenna-isle":
                 raise RuntimeError("Runtime function without the project tag: " + function["FunctionName"])
             lam.delete_function(FunctionName=function["FunctionName"])
             removed["functions"].append(function["FunctionArn"])
@@ -61,7 +61,7 @@ def runtime_resources(current, prefix, directory):
             for page in ecs.get_paginator("list_task_definitions").paginate(familyPrefix=family, status=status):
                 for arn in page["taskDefinitionArns"]:
                     described = ecs.describe_task_definition(taskDefinition=arn, include=["TAGS"])
-                    if {tag["key"]: tag["value"] for tag in described.get("tags", [])}.get("Project") != "cove-duckdb":
+                    if {tag["key"]: tag["value"] for tag in described.get("tags", [])}.get("Project") != "colvenna-isle":
                         raise RuntimeError("Runtime task definition without the project tag: " + arn)
                     if status == "ACTIVE":
                         ecs.deregister_task_definition(taskDefinition=arn)
@@ -72,7 +72,7 @@ def runtime_resources(current, prefix, directory):
             if not role["RoleName"].startswith(prefix):
                 continue
             tags = {tag["Key"]: tag["Value"] for tag in iam.list_role_tags(RoleName=role["RoleName"])["Tags"]}
-            if tags.get("Project") != "cove-duckdb":
+            if tags.get("Project") != "colvenna-isle":
                 raise RuntimeError("Runtime role without the project tag: " + role["RoleName"])
             for name in iam.list_role_policies(RoleName=role["RoleName"])["PolicyNames"]:
                 iam.delete_role_policy(RoleName=role["RoleName"], PolicyName=name)

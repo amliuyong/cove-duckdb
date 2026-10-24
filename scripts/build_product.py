@@ -44,7 +44,7 @@ def main():
     version = re.fullmatch(r'__version__ = "([^"]+)"\n', (ROOT / "src/cove_duckdb/_version.py").read_text())[1]
     lock = json.loads((ROOT / "runtime/writer-lock.json").read_text())
     output.mkdir(parents=True)
-    manifest = {"format_version": 1, "product": "cove-duckdb", "version": version, "source_commit": head,
+    manifest = {"format_version": 1, "product": "colvenna-isle", "version": version, "source_commit": head,
                 "source_tree": tree, "status": "BUILDING", "started_unix": time.time(),
                 "storage_image": {name: lock["storage_" + name] for name in ["repository", "digest"]},
                 "components": {}}

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Cove DuckDB quickstart: the documented API, SQL and Python examples against one installed environment.
+"""Colvenna Isle quickstart: the documented API, SQL and Python examples against one installed environment.
 
 Given the API URL, a new space and its bootstrap administrator token (scripts/aws/control.py bootstrap-key), it:
 creates role keys, registers the datasets of examples/orders, builds the two runtime environments, publishes

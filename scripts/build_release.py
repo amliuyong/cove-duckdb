@@ -47,7 +47,7 @@ def main():
         if importlib.metadata.version(package) != version:
             raise RuntimeError(f"Build package differs from the lock: {package}")
     output.mkdir(parents=True)
-    archive = output / f"cove-duckdb-{head}.tar"
+    archive = output / f"colvenna-isle-{head}.tar"
     subprocess.run(["git", "archive", "--format=tar", "-o", str(archive), head], cwd=ROOT, check=True)
     source = output / "source"
     source.mkdir()

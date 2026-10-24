@@ -149,8 +149,8 @@ class Artifacts:
                 "executor_bindings": [{
                     "executor": "ecs_task", "profile": "python_ecs_medium",
                     "task_definition_arn":
-                        "arn:aws:ecs:us-west-2:123456789012:task-definition/cove-duck-env-test:1",
-                    "image": "123456789012.dkr.ecr.us-west-2.amazonaws.com/cove-duckdb-environments@sha256:"
+                        "arn:aws:ecs:us-west-2:123456789012:task-definition/colvenna-isle-env-test:1",
+                    "image": "123456789012.dkr.ecr.us-west-2.amazonaws.com/colvenna-isle-environments@sha256:"
                              + "b" * 64}]}
 
 

@@ -59,11 +59,11 @@ def main():
             raise RuntimeError("Reconcile original queue work before changing the environment")
     save("queues", queues)
     ecr = current.client("ecr")
-    repository = "cove-duckdb-images"
+    repository = "colvenna-isle-images"
     record = ecr.describe_repositories(repositoryNames=[repository])["repositories"][0]
     if (record["registryId"] != ACCOUNT or record["imageTagMutability"] != "IMMUTABLE"
             or {item["Key"]: item["Value"] for item in ecr.list_tags_for_resource(
-                resourceArn=record["repositoryArn"])["tags"]}.get("Project") != "cove-duckdb"):
+                resourceArn=record["repositoryArn"])["tags"]}.get("Project") != "colvenna-isle"):
         raise RuntimeError("Artifact repository ownership/immutability mismatch")
     tag = "query-" + head
     save("image-admission", {"source_commit": head, "local_image_id": image["image_id"],
@@ -85,7 +85,7 @@ def main():
     dispatched = update_stack(
         cf, StackName=baseline["StackId"], **template_arguments(current, body), Capabilities=["CAPABILITY_IAM"],
         Parameters=parameters, ClientRequestToken=token,
-        Tags=[{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "core"},
+        Tags=[{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "core"},
               {"Key": "SourceCommit", "Value": head}])
     save("deployment-dispatch", dispatched)
     if wait(cf, dispatched["StackId"], directory / "deployment-terminal.json") != "UPDATE_COMPLETE":

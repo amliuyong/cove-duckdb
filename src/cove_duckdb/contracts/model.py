@@ -802,7 +802,7 @@ def schemas():
             {"required": ["affected_rows"]}, {"required": ["dataset_watermark"]}]}},
     }]
     return {"$schema": "https://json-schema.org/draft/2020-12/schema",
-            "$id": "https://cove-duckdb.invalid/contracts/v1/contracts.schema.json", "$defs": d}
+            "$id": "https://colvenna-isle.invalid/contracts/v1/contracts.schema.json", "$defs": d}
 
 
 # Query parameters by response definition; every other route accepts none.
@@ -955,7 +955,7 @@ def openapi():
                 "schema": {"$ref": f"contracts.schema.json#/$defs/{request}"}}}}
         paths.setdefault(path, {})[method.lower()] = operation
     return {
-        "openapi": "3.1.0", "info": {"title": "Cove DuckDB current contract", "version": "1"},
+        "openapi": "3.1.0", "info": {"title": "Colvenna Isle current contract", "version": "1"},
         "security": [{"BearerApiKey": []}], "paths": paths,
         "components": {"securitySchemes": {"BearerApiKey": {"type": "http", "scheme": "bearer",
                                                            "bearerFormat": "opaque API Key"}}},

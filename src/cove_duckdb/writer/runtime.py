@@ -51,7 +51,7 @@ def identity():
         task = json.load(response)
     container = [entry for entry in task["Containers"] if entry["Name"] == "baseline"]
     if len(container) != 1:
-        raise RuntimeError("Expected one essential Cove process")
+        raise RuntimeError("Expected one essential Colvenna Isle process")
     container = container[0]
     address = container["Networks"][0]["IPv4Addresses"][0]
     if not ipaddress.ip_address(address).is_private:

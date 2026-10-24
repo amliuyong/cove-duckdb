@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "date": "2026-10-20",
+  "date": "2026-10-24",
   "svg_validation": "pass",
   "browser_render": "pass",
   "visual_review": "pass",
@@ -13,37 +13,53 @@
       "evidence": "complete Chromium screenshot; no DOM overflow measurement claimed"
     },
     {
-      "asset": "logo-light.svg + logo-dark.svg",
-      "width": 800,
-      "height": 520,
-      "scroll_width": 800,
-      "scroll_height": 520
+      "asset": "brand-preview.svg: light/dark logos and 96/64/32/24px icons",
+      "width": 960,
+      "height": 670,
+      "scroll_width": 960,
+      "scroll_height": 670
     }
   ],
   "files": {
     "docs/assets/architecture.svg": {
-      "sha256": "ce8dc1c567b4fe721a532ad7cc5749a23aacb2f99c61d2440911cc27bf0f2f51",
-      "bytes": 14299
+      "sha256": "68e6afaccc8524e1df9e9c8c9fe27a94d4a237d83eb9ae06d8d29e33fe8d9eda",
+      "bytes": 14432
     },
     "docs/assets/icon.svg": {
-      "sha256": "395fd862f483ae16641995d362b209676674ab0534f8b4c027d2906940a680db",
-      "bytes": 829
+      "sha256": "ad156ae1685a72c33c35a3957262618e88df795fd1c7b672f39b937d871c11a9",
+      "bytes": 1534
     },
     "docs/assets/logo-light.svg": {
-      "sha256": "9451f26b4e8de1fc1767155613cf8f4cdeadfb6f6f5faac8fc8589e09f8ea758",
-      "bytes": 1168
+      "sha256": "5edfa91d191c28f568d5180cd235c0584d4135e9280229297947eb26621082f6",
+      "bytes": 1994
     },
     "docs/assets/logo-dark.svg": {
-      "sha256": "bc35cc00d5cf2fa1bb1d1d829fa9fbc262e1d3eea977a2d798cd9560f5626ca6",
-      "bytes": 1167
+      "sha256": "527e737dbed379794e5bc614df7d456db147df328830730567d07f6ab157f2d4",
+      "bytes": 1981
     },
     "docs/design/evidence/architecture-svg.png": {
-      "sha256": "6e62d2c37a0921ca992ab2acbcc9c1c89daf65050c4d3b3812be34d1c02f9b1a",
-      "bytes": 222813
+      "sha256": "88df52c85fedc6a5d204dcf38a86bbaaceda329cac098f533d8b3298f74ba10d",
+      "bytes": 191088
     },
     "docs/design/evidence/logos.png": {
-      "sha256": "1900def3e562eb9d244a0583a8815c5798b025915c38943b47936e11f7058a15",
-      "bytes": 29947
+      "sha256": "afd1271541a9345222fd921f1bb88c4dfdd5477ddec58ae993803db741f62041",
+      "bytes": 93278
+    },
+    "docs/assets/brand-preview.svg": {
+      "sha256": "3c36c8579c47c2db821a6a0bbaf38707bacd951805c5d5d7963f7add571c1ab4",
+      "bytes": 6120
+    },
+    "docs/assets/promo.gif": {
+      "sha256": "0206b5e9da251e8bd9cd33c1a73157bb544eb78ed7c72cbf82fa53266934be3c",
+      "bytes": 14434794
+    },
+    "docs/assets/promo.mp4": {
+      "sha256": "334c95c306192f9de7178c1139caac61ec4d9b68111ae8b7bf12a3004c1f8c24",
+      "bytes": 7575595
+    },
+    "docs/design/evidence/promo-contact.jpg": {
+      "sha256": "707354c85823f30222135ff3b27d2e629dea938b026670d4b8a8e3f0f1d309f3",
+      "bytes": 194673
     }
   },
   "architecture_visual_review": {
@@ -55,5 +71,32 @@
     ],
     "scope": "Integrated Query Editor and controlled receipt-read path; actual complete screenshot inspected"
   },
-  "logo_evidence_date": "2026-10-15_UNCHANGED_ASSETS"
+  "logo_evidence_date": "2026-10-24",
+  "promotion": {
+    "date": "2026-10-24",
+    "render_channel": "PNG-fast",
+    "mp4": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "frames": 1660,
+      "duration_seconds": 55.333333,
+      "audio_seconds": 55.17
+    },
+    "gif": {
+      "width": 960,
+      "height": 540,
+      "fps": 12,
+      "audio": false
+    },
+    "layout_errors": 0,
+    "layout_warnings": 0,
+    "frame_lint": "PASS",
+    "beat_references": "PASS",
+    "single_frame_jitter": "NONE_DETECTED",
+    "authored_scene_cuts": 1,
+    "visual_review": "PASS",
+    "review_contact_sheet": "docs/design/evidence/promo-contact.jpg",
+    "runtime_acceptance": "NOT_RUN"
+  }
 }

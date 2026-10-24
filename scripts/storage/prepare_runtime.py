@@ -39,7 +39,7 @@ def git_identity(path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--workspace", type=Path, required=True)
-    parser.add_argument("--image", default="cove-duckdb-storage:local")
+    parser.add_argument("--image", default="colvenna-isle-storage:local")
     parser.add_argument("--jobs", type=int, default=8)
     args = parser.parse_args()
     workspace = args.workspace.resolve()

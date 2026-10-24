@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>hook · events → Colvenna Isle → answers</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="kit.css">
+<style>
+  html, body { width: 1920px; height: 1080px; }
+  .say { position: absolute; top: 196px; font-family: 'Inter Display', 'Inter', 'Noto Sans CJK SC', sans-serif;
+    font-size: 72px; font-weight: 800; letter-spacing: -.025em; line-height: 1.08; }
+  .say .w { display: inline-block; }
+  .say em { font-style: normal; color: var(--accent); text-shadow: 0 0 46px var(--accent-glow); }
+  .say.l { left: 120px; }
+  .say.r { right: 120px; text-align: right; }
+
+  .evs { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+  .ev { position: absolute; left: 120px; height: 56px; padding: 0 22px; display: flex; align-items: center;
+    border-radius: 14px; border: 2px solid var(--line); background: var(--panel);
+    font-size: 22px; white-space: nowrap; }
+  .ev .k { color: var(--code-key); } .ev .s { color: var(--code-str); } .ev .d { color: var(--code-dim); }
+
+  .chart { position: absolute; left: 1400px; top: 420px; width: 400px; height: 440px; padding: 30px 34px; }
+  .chart .label { position: absolute; left: 34px; top: 28px; }
+  .chart .ring { position: absolute; inset: -2px; border-radius: 22px; border: 2px solid var(--accent-border); box-shadow: 0 0 60px var(--accent-glow) inset; }
+  .chart .bars { position: absolute; left: 34px; right: 34px; top: 102px; height: 300px; display: flex; align-items: flex-end; gap: 22px; }
+  .chart .slot { flex: 1; height: 100%; position: relative; border-radius: 10px; border: 2px dashed var(--line); }
+  .chart .fill { position: absolute; left: -2px; right: -2px; bottom: -2px; border-radius: 10px; background: var(--aqua); transform-origin: 50% 100%; }
+  .chart .slot.top .fill { background: var(--accent); box-shadow: 0 0 40px var(--accent-glow); }
+
+  .logo { position: absolute; left: 860px; top: 370px; width: 200px; height: 200px; transform-origin: 50% 50%; }
+  .logo .halo { position: absolute; inset: -70px; border-radius: 50%;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 62%); opacity: .55; }
+  .logo svg { position: absolute; inset: 0; width: 200px; height: 200px; }
+  .brand { position: absolute; left: 0; right: 0; top: 604px; text-align: center; font-family: 'Inter Display', 'Inter', 'Noto Sans CJK SC', sans-serif;
+    font-size: 92px; font-weight: 800; letter-spacing: -.03em; }
+  .tag { position: absolute; left: 0; right: 0; top: 718px; text-align: center; font-size: 28px; line-height: 1.45; color: var(--text-dim); font-weight: 500; }
+  .tag b { color: var(--text); font-weight: 700; }
+  .aws { position: absolute; left: 0; right: 0; top: 820px; text-align: center; }
+  svg.flow { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="stage">
+  <div class="say l"><span class="w">Your</span> <span class="w">app</span><br><span class="w">writes</span> <span class="w"><em>events.</em></span></div>
+  <div class="say r"><span class="w">Your</span> <span class="w">team</span><br><span class="w">needs</span> <span class="w"><em>answers.</em></span></div>
+
+  <div class="evs">
+  <div class="ev mono" style="top:420px"><span class="d">{</span><span class="k">"order_id"</span><span class="d">:</span>1041<span class="d">, </span><span class="k">"amount"</span><span class="d">:</span><span class="s">"610.00"</span><span class="d">}</span></div>
+  <div class="ev mono" style="top:494px"><span class="d">{</span><span class="k">"order_id"</span><span class="d">:</span>1042<span class="d">, </span><span class="k">"amount"</span><span class="d">:</span><span class="s">"42.00"</span><span class="d">}</span></div>
+  <div class="ev mono" style="top:568px"><span class="d">{</span><span class="k">"op"</span><span class="d">:</span><span class="s">"upsert"</span><span class="d">, </span><span class="k">"order_id"</span><span class="d">:</span>1042<span class="d">}</span></div>
+  <div class="ev mono" style="top:642px"><span class="d">{</span><span class="k">"order_id"</span><span class="d">:</span>1043<span class="d">, </span><span class="k">"amount"</span><span class="d">:</span><span class="s">"50.00"</span><span class="d">}</span></div>
+  <div class="ev mono" style="top:716px"><span class="d">{</span><span class="k">"op"</span><span class="d">:</span><span class="s">"delete"</span><span class="d">, </span><span class="k">"order_id"</span><span class="d">:</span>1039<span class="d">}</span></div>
+  <div class="ev mono" style="top:790px"><span class="d">{</span><span class="k">"order_id"</span><span class="d">:</span>1044<span class="d">, </span><span class="k">"amount"</span><span class="d">:</span><span class="s">"18.50"</span><span class="d">}</span></div>
+
+  </div>
+
+  <div class="card chart">
+    <div class="ring"></div>
+    <div class="label">ads.dashboard</div>
+    <div class="bars">
+      <div class="slot"><div class="fill" style="height:38%"></div></div>
+      <div class="slot"><div class="fill" style="height:56%"></div></div>
+      <div class="slot"><div class="fill" style="height:47%"></div></div>
+      <div class="slot top"><div class="fill" style="height:88%"></div></div>
+      <div class="slot"><div class="fill" style="height:64%"></div></div>
+    </div>
+  </div>
+
+  <svg class="flow" viewBox="0 0 1920 1080">
+    <path id="pathOut" class="wire hot" d="M1068 470 C 1200 470, 1260 640, 1392 640"/>
+    <circle id="pulse" class="dot" r="9" cx="0" cy="0"/>
+  </svg>
+
+  <div class="brand">Colvenna Isle</div>
+  <div class="tag">Write through an <b>API</b>. Transform with <b>SQL</b> and <b>Python</b>.<br>Analyze durable data in <b>S3</b>.</div>
+  <div class="aws"><span class="pill on">ON AWS</span></div>
+</div>
+
+<div class="logo">
+  <div class="halo"></div>
+  <svg class="colvenna" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="promo-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--brand)"/>
+      <stop offset="1" stop-color="var(--mark-bg-end)"/>
+    </linearGradient>
+    <linearGradient id="promo-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--teal)"/>
+      <stop offset="1" stop-color="var(--aqua)"/>
+    </linearGradient>
+    <g id="promo-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="var(--accent)"/>
+    </g>
+  </defs><use href="#promo-mark"/></svg>
+</div>
+
+<script src="../assets/gsap.min.js"></script>
+<script src="hook.beats.js"></script>
+<script>
+(function () {
+  var tl = gsap.timeline({ paused: true });
+  var SEG = window.__SEG__;
+  var t1 = B('Your app writes'), t2 = B('Your team needs'), t3 = B('Colvenna Isle connects');
+
+  // 1 · 事件流入：左侧大字逐词升起，事件 JSON 一条条落下
+  tl.fromTo('.say.l .w', { opacity: 0, y: 46 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.09 }, t1 + 0.05);
+  tl.fromTo('.ev', { opacity: 0, y: -36 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', stagger: 0.16 }, t1 + 0.25);
+  // 漂移放在容器上：不与卡片自身的入场 y 补间重叠（相对补间的起点不再取决于 seek 历史）
+  tl.to('.evs', { y: -26, duration: t3 - (t1 + 0.75), ease: 'none' }, t1 + 0.75);
+
+  // 2 · 右侧问题：空图表（虚线槽）
+  tl.fromTo('.say.r .w', { opacity: 0, y: 46 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.09 }, t2 + 0.02);
+  tl.fromTo('.chart', { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: 0.7, ease: 'power3.out' }, t2 + 0.2);
+  gsap.set('.chart .fill', { scaleY: 0 });
+
+  // 3 · 事件汇入鸭子 → 鸭子把答案送进图表（因果链）
+  var evs = gsap.utils.toArray('.ev');
+  evs.forEach(function (el, i) {
+    var top = 420 + i * 74;                              // 生成期已知坐标（契约 9：不量布局）；芯片约 500×56
+    tl.to(el, { x: 960 - (120 + 250), y: 470 - (top + 28) + 26, scale: 0.18, opacity: 0, duration: 0.62, ease: 'power2.in' }, t3 + 0.02 + i * 0.06);
+  });
+  tl.fromTo('.logo', { opacity: 0, scale: 0.35, rotation: -8 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.8, ease: 'back.out(1.8)' }, t3 + 0.42);
+  tl.fromTo('.logo .halo', { scale: 0.4, opacity: 0 }, { scale: 1, opacity: .55, duration: 0.9, ease: 'sine.out' }, t3 + 0.55);
+  tl.fromTo('.say', { opacity: 1 }, { opacity: .38, duration: 0.6, ease: 'power2.out', immediateRender: false }, t3 + 0.4);
+
+  var path = document.getElementById('pathOut'), L = path.getTotalLength();
+  tl.fromTo(path, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: 0.55, ease: 'power2.inOut' }, t3 + 1.05);
+  var pulse = { u: 0 };
+  gsap.set('#pulse', { opacity: 0 });
+  tl.to('#pulse', { opacity: 1, duration: 0.1 }, t3 + 1.1);
+  tl.to(pulse, { u: 1, duration: 0.55, ease: 'power1.inOut', onUpdate: function () {
+    var p = path.getPointAtLength(pulse.u * L); gsap.set('#pulse', { attr: { cx: p.x, cy: p.y } });
+  } }, t3 + 1.1);
+  tl.to('#pulse', { opacity: 0, duration: 0.15 }, t3 + 1.62);
+  tl.to('.chart .fill', { scaleY: 1, duration: 0.6, ease: 'back.out(1.4)', stagger: 0.07 }, t3 + 1.55);
+  tl.fromTo('.chart .ring', { opacity: 0 }, { opacity: 1, duration: 0.5, ease: 'sine.out' }, t3 + 1.7);
+
+  tl.fromTo('.brand', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out' }, t3 + 0.75);
+  tl.fromTo('.tag', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, t3 + 1.2);
+  tl.fromTo('.aws', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'back.out(2)' }, t3 + 2.35);
+  tl.to({}, { duration: 0.01 }, SEG.duration + SEG.gap);   // 轴长 = 本场帧长
+
+  // 出场：其余淡出，鸭子缩小飞向页眉位置（下一场页眉的 mark 就在这里）
+  if (SEG.gap > 0) {
+    var x1 = SEG.duration + SEG.gap - 0.04;
+    var x0 = Math.min(Math.max(SEG.speech_end - 0.05, SEG.duration - 0.2), x1 - 0.32);
+    tl.to('.stage', { opacity: 0, duration: x1 - x0, ease: 'power2.in' }, x0);
+    tl.to('.logo .halo', { opacity: 0, duration: (x1 - x0) * 0.6 }, x0);
+    // 中心 (960,470) 200px → 页眉 mark 中心 (148,92) 56px
+    tl.to('.logo', { x: 148 - 960, y: 92 - 470, scale: 56 / 200, duration: x1 - x0, ease: 'power3.inOut' }, x0);
+  }
+
+  window.__tl = tl;
+  if (!window.__MG_RENDER__) {
+    requestAnimationFrame(function () { requestAnimationFrame(function () { tl.play(0); }); });
+  }
+})();
+</script>
+</body>
+</html>

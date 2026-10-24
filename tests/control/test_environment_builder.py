@@ -21,14 +21,14 @@ class RuntimeRoleTests(unittest.TestCase):
     def setUp(self):
         self.specification = {"space_id": "owned", "generation": "gen_owned", "policy": {
             "bucket": "owned-bucket", "runtime_boundary_arn": "owned-boundary",
-            "runtime_log_arn": "owned-logs", "runtime_prefix": "cove-duck-env-"}}
+            "runtime_log_arn": "owned-logs", "runtime_prefix": "colvenna-isle-env-"}}
         self.trust = {"Version": "2012-10-17", "Statement": [{
             "Effect": "Allow", "Principal": {"Service": [
                 "lambda.amazonaws.com", "ecs-tasks.amazonaws.com"]}, "Action": "sts:AssumeRole"}]}
         self.iam = Mock()
         self.iam.get_role.return_value = {"Role": {
             "Arn": "owned-role", "AssumeRolePolicyDocument": self.trust,
-            "Tags": [{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "SpaceId", "Value": "owned"},
+            "Tags": [{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "SpaceId", "Value": "owned"},
                      {"Key": "Generation", "Value": "gen_owned"}],
             "PermissionsBoundary": {"PermissionsBoundaryArn": "owned-boundary"}}}
         self.iam.list_attached_role_policies.return_value = {"AttachedPolicies": []}

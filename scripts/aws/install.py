@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install or upgrade one Cove environment from one fixed release build, in dependency order.
+"""Install or upgrade one Colvenna Isle environment from one fixed release build, in dependency order.
 
 COVE_ENVIRONMENT (required) names the environment. `fresh` creates every stack
 of a new environment; `upgrade` first closes admission of an installed

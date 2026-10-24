@@ -202,3 +202,5 @@ ECS container exit、Lambda 返回和 completion notification 都要经过产物
 [score_orders.py](../../examples/orders/python/score_orders.py) 使用 PyArrow 逐批读取 Parquet、pandas 分类、Decimal 保留金额精度，并写出显式 schema 的 Parquet 和清单。
 
 [本地演示](../../examples/orders/README.md) 验证重复事件取最新版本、删除、退款、Python 分类、SQL 聚合、空输入及产物校验，不调用 AWS。云端执行时，适配器在 Lambda / ECS 中读取固定版本的 S3 对象，在资源预算内以子进程运行脚本，并上传 staging 产物；原生导入与发布由唯一写者按第 6 节完成。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.

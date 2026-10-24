@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ingest · one API, async receipt, sync COMMITTED</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="kit.css">
+<style>
+  html, body { width: 1920px; height: 1080px; font-family: 'Inter', 'Noto Sans', 'Noto Sans CJK SC', sans-serif; }
+  .req { left: 120px; width: 520px; padding: 24px 30px; }
+  .req .code { font-size: 22px; line-height: 1.55; }
+  .req.a { top: 318px; height: 270px; }
+  .req.b { top: 664px; height: 200px; }
+  .lane-tag { position: absolute; left: 120px; font-size: 20px; font-weight: 700; letter-spacing: .2em; color: var(--text-faint); }
+
+  .gate { position: absolute; top: 398px; height: 124px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px;
+    border-radius: 18px; border: 2px solid var(--line); background: var(--panel); font-size: 22px; font-weight: 700; color: var(--text-dim); }
+  .gate .ring { width: 44px; height: 44px; border-radius: 50%; border: 3px solid var(--line); position: relative; }
+  .gate .tick { position: absolute; inset: -3px; border-radius: 50%; background: var(--aqua); color: var(--bg-0);
+    display: grid; place-items: center; font-size: 26px; font-weight: 900; }
+  .g1 { left: 668px; width: 160px; }
+  .g2 { left: 852px; width: 186px; }
+
+  .fifo-l { position: absolute; left: 1064px; top: 372px; font-size: 20px; font-weight: 700; letter-spacing: .16em; color: var(--text-faint); }
+  .fifo { position: absolute; left: 1064px; top: 410px; width: 282px; height: 100px; border-radius: 50px; border: 2px solid var(--line);
+    background: var(--panel); overflow: hidden; }
+  .fifo .m { position: absolute; top: 30px; left: 0; width: 40px; height: 40px; border-radius: 10px; background: var(--teal); }
+
+  .token { position: absolute; left: 622px; top: 442px; width: 36px; height: 36px; border-radius: 9px; background: var(--accent);
+    box-shadow: 0 0 30px var(--accent-glow); }
+
+  .rcpt { left: 1374px; top: 318px; width: 426px; height: 270px; padding: 26px 30px; }
+  .rcpt .label { margin-bottom: 18px; }
+  .row { position: relative; height: 56px; display: flex; align-items: center; gap: 18px; }
+  .row .pill { position: absolute; left: 0; top: 8px; }
+  .row .note { position: absolute; left: 214px; top: 15px; font-size: 22px; color: var(--text-faint); white-space: nowrap; }
+
+  svg.flow { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+  .stamp { left: 930px; top: 702px; }
+  .stamp-cap { position: absolute; left: 934px; top: 846px; font-size: 22px; color: var(--text-dim); white-space: nowrap; }
+  .stamp-cap b { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="hdr">
+  <svg class="mark colvenna" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="promo-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--brand)"/>
+      <stop offset="1" stop-color="var(--mark-bg-end)"/>
+    </linearGradient>
+    <linearGradient id="promo-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--teal)"/>
+      <stop offset="1" stop-color="var(--aqua)"/>
+    </linearGradient>
+    <g id="promo-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="var(--accent)"/>
+    </g>
+  </defs><use href="#promo-mark"/></svg>
+  <span class="word">Colvenna Isle</span><span class="sep"></span><span class="chap"><b>01</b>Ingest</span>
+</div>
+
+<div class="stage">
+  <div class="title"><span class="w">Write</span> <span class="w">through</span> <span class="w"><em>one API.</em></span></div>
+
+  <div class="lane top">
+    <div class="card req a"><div class="code"><span class="m">POST</span> /v1/spaces/shop/<span class="k">ingestions</span>
+<span class="d">Authorization: Bearer ••••••••</span>
+<span class="d">Idempotency-Key:</span> orders-0042
+{<span class="k">"dataset"</span>: <span class="s">"orders"</span>,
+ <span class="k">"operation"</span>: <span class="s">"upsert"</span>,
+ <span class="k">"records"</span>: […]}</div></div>
+
+    <div class="gate g1"><div class="ring"><div class="tick">✓</div></div>Schema</div>
+    <div class="gate g2"><div class="ring"><div class="tick">✓</div></div>Idempotency</div>
+
+    <div class="fifo-l">SQS FIFO</div>
+    <div class="fifo">
+      <div class="m"></div><div class="m"></div><div class="m"></div><div class="m"></div><div class="m"></div><div class="m"></div>
+    </div>
+
+    <div class="card rcpt">
+      <div class="label">Receipt · ing_0042</div>
+      <div class="row r1"><span class="pill">ACCEPTED</span><span class="pill on">ACCEPTED</span><span class="note">202 · queued</span></div>
+      <div class="row r2"><span class="pill">COMMITTED</span><span class="pill on">COMMITTED</span><span class="note">in analytics</span></div>
+      <div class="row r3"><span class="pill">PUBLISHED</span><span class="note">by pipeline</span></div>
+    </div>
+
+    <div class="token"></div>
+  </div>
+
+  <div class="lane bot">
+    <div class="card req b"><div class="code"><span class="m">POST</span> /v1/spaces/shop/<span class="k">writes</span>
+<span class="d">Idempotency-Key:</span> account-7
+{<span class="k">"dataset"</span>: <span class="s">"dwd.accounts"</span>,
+ <span class="k">"operation"</span>: <span class="s">"upsert"</span>}</div></div>
+    <svg class="flow" viewBox="0 0 1920 1080">
+      <path id="syncWire" class="wire hot" d="M648 764 L 906 764"/>
+      <path id="syncHead" class="wire hot" d="M892 752 L 908 764 L 892 776"/>
+    </svg>
+    <div class="stamp"><span class="code3">200</span><span class="txt">COMMITTED</span></div>
+    <div class="stamp-cap">data · receipt · watermark in <b>one native transaction</b></div>
+  </div>
+</div>
+
+<script src="../assets/gsap.min.js"></script>
+<script src="ingest.beats.js"></script>
+<script>
+(function () {
+  var tl = gsap.timeline({ paused: true });
+  var SEG = window.__SEG__;
+  var t1 = B('Apps write through'), t2 = B('with schema checks'), t3 = B('and a FIFO buffer'),
+      t4 = B('Need it now'), t5 = B('A synchronous write');
+
+  // 页眉：mark 已由上一场飞到位，文字长出
+  tl.fromTo('.hdr .word, .hdr .sep, .hdr .chap', { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out', stagger: 0.08 }, 0.02);
+
+  // 1 · 请求卡从右侧推入（全片统一向左推进的方向）
+  tl.fromTo('.title .w', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.08 }, t1 + 0.05);
+  tl.fromTo('.req.a', { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out' }, t1 + 0.2);
+  tl.fromTo('.gate, .fifo-l, .fifo, .rcpt', { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 0.6, ease: 'power3.out', stagger: 0.07 }, t1 + 0.35);
+  gsap.set('.gate .tick', { scale: 0, opacity: 0 });
+  gsap.set('.row .pill.on', { opacity: 0 });
+  gsap.set('.fifo .m', { x: -50 });
+
+  // 2 · 批次方块穿过两道闸门：经过即打勾（因果）
+  tl.fromTo('.token', { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.3, ease: 'back.out(2)' }, t2);
+  tl.to('.token', { x: 748 - 640, duration: 0.45, ease: 'power2.inOut' }, t2 + 0.25);
+  tl.to('.g1 .tick', { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2.4)' }, t2 + 0.62);
+  tl.to('.token', { x: 945 - 640, duration: 0.5, ease: 'power2.inOut' }, t2 + 0.95);
+  tl.to('.g2 .tick', { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(2.4)' }, t2 + 1.38);
+  tl.to('.g1, .g2', { color: 'var(--text)', duration: 0.3 }, t2 + 1.4);
+
+  // 3 · 进 FIFO：队列流动，回执 ACCEPTED → COMMITTED
+  tl.to('.token', { x: 1084 - 640, duration: 0.35, ease: 'power2.in' }, t3);
+  tl.to('.token', { opacity: 0, scale: 0.6, duration: 0.2 }, t3 + 0.3);
+  gsap.utils.toArray('.fifo .m').forEach(function (el, i) {
+    tl.to(el, { x: 330, duration: 2.6, ease: 'none' }, t3 + 0.1 + i * 0.32);
+  });
+  tl.to('.r1 .pill.on', { opacity: 1, duration: 0.25 }, t3 + 0.35);
+  tl.to('.r1 .pill:not(.on)', { opacity: 0, duration: 0.25 }, t3 + 0.35);
+  tl.fromTo('.r1 .pill.on', { scale: 0.8 }, { scale: 1, duration: 0.4, ease: 'back.out(2.5)', immediateRender: false }, t3 + 0.35);
+  tl.to('.r2 .pill.on', { opacity: 1, duration: 0.25 }, t3 + 1.0);
+  tl.to('.r2 .pill:not(.on)', { opacity: 0, duration: 0.25 }, t3 + 1.0);
+  tl.fromTo('.r2 .pill.on', { scale: 0.8 }, { scale: 1, duration: 0.4, ease: 'back.out(2.5)', immediateRender: false }, t3 + 1.0);
+
+  // 4 · 同步写：上排退为背景，下排进场
+  tl.to('.lane.top', { opacity: 0.32, duration: 0.45, ease: 'power2.out' }, t4);
+  tl.fromTo('.req.b', { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 0.55, ease: 'power3.out' }, t4 + 0.05);
+  var wire = document.getElementById('syncWire'), WL = wire.getTotalLength();
+  gsap.set('#syncWire', { strokeDasharray: WL, strokeDashoffset: WL });
+  gsap.set('#syncHead', { opacity: 0 });
+  tl.to('#syncWire', { strokeDashoffset: 0, duration: 0.45, ease: 'power2.inOut' }, t5 - 0.25);
+  tl.to('#syncHead', { opacity: 1, duration: 0.15 }, t5 + 0.15);
+
+  // 5 · 主角：200 COMMITTED 盖章
+  tl.fromTo('.stamp', { opacity: 0, scale: 1.35, transformOrigin: '30% 50%' }, { opacity: 1, scale: 1, duration: 0.55, ease: 'back.out(1.9)' }, t5 + 0.22);
+  tl.fromTo('.stamp-cap', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, t5 + 0.75);
+  tl.to({}, { duration: 0.01 }, SEG.duration + SEG.gap);
+
+  if (SEG.gap > 0) {
+    var x1 = SEG.duration + SEG.gap - 0.04;
+    var x0 = Math.min(Math.max(SEG.speech_end - 0.05, SEG.duration - 0.2), x1 - 0.32);
+    tl.to('.stage', { opacity: 0, x: -90, duration: x1 - x0, ease: 'power2.in' }, x0);
+    tl.to('.hdr .chap', { opacity: 0, y: -14, duration: x1 - x0, ease: 'power2.in' }, x0);
+  }
+
+  window.__tl = tl;
+  if (!window.__MG_RENDER__) {
+    requestAnimationFrame(function () { requestAnimationFrame(function () { tl.play(0); }); });
+  }
+})();
+</script>
+</body>
+</html>

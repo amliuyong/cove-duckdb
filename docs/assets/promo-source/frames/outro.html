@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>outro · in your AWS account, backup/restore, Apache-2.0</title>
+<link rel="stylesheet" href="../theme.css">
+<link rel="stylesheet" href="kit.css">
+<style>
+  html, body { width: 1920px; height: 1080px; }
+  .head { position: absolute; left: 0; right: 0; top: 150px; text-align: center; font-family: 'Inter Display', 'Inter', 'Noto Sans CJK SC', sans-serif;
+    font-size: 104px; font-weight: 800; letter-spacing: -.03em; line-height: 1.05; }
+  .head em { font-style: normal; color: var(--accent); text-shadow: 0 0 50px var(--accent-glow); }
+
+  .arch { position: absolute; inset: 0; transform-origin: 960px 580px; }
+  .blk { position: absolute; top: 420px; width: 230px; height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 6px; }
+  .blk .t { font-size: 28px; font-weight: 800; }
+  .blk .s { font-size: 22px; color: var(--text-dim); white-space: nowrap; }
+  .blk.db { border-color: var(--aqua); }
+  .chev { position: absolute; top: 462px; width: 40px; text-align: center; font-size: 30px; font-weight: 800; color: var(--aqua); }
+
+  svg.flow { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: visible; }
+  .acct { stroke: var(--accent); stroke-width: 3; fill: none; stroke-dasharray: 14 10; }
+  .acct-l { position: absolute; left: 170px; top: 340px; }
+  .bk { stroke: var(--aqua); stroke-width: 3; fill: none; }
+  .bkh { fill: var(--aqua); }
+  .vault { left: 980px; top: 690px; width: 230px; height: 112px; }
+  .restored { left: 1370px; top: 690px; width: 290px; height: 112px; border-style: dashed; }
+  .lbl { position: absolute; font-size: 22px; font-weight: 700; letter-spacing: .14em; color: var(--aqua); white-space: nowrap; }
+
+  .logo { position: absolute; left: 875px; top: 300px; width: 170px; height: 170px; }
+  .logo .halo { position: absolute; inset: -60px; border-radius: 50%; background: radial-gradient(circle, var(--accent-glow) 0%, transparent 62%); opacity: .5; }
+  .logo svg { position: absolute; inset: 0; width: 170px; height: 170px; }
+  .meta { position: absolute; left: 0; right: 0; top: 690px; display: flex; justify-content: center; align-items: center; gap: 18px; }
+  .repo { position: absolute; left: 0; right: 0; top: 770px; text-align: center; font-size: 30px; color: var(--text-dim); }
+  .repo b { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="stage">
+  <div class="arch">
+    <svg class="flow" viewBox="0 0 1920 1080">
+      <path id="acct" class="acct" d="M168 364 H1752 A28 28 0 0 1 1780 392 V806 A28 28 0 0 1 1752 834 H168 A28 28 0 0 1 140 806 V392 A28 28 0 0 1 168 364 Z"/>
+      <path id="bkDown" class="bk" d="M1095 548 L 1095 680"/>
+      <path id="bkDownH" class="bkh" d="M1083 668 L 1095 688 L 1107 668 Z"/>
+      <path id="bkRight" class="bk" d="M1218 746 L 1360 746"/>
+      <path id="bkRightH" class="bkh" d="M1348 734 L 1368 746 L 1348 758 Z"/>
+    </svg>
+    <div class="acct-l"><span class="pill hot">YOUR AWS ACCOUNT</span></div>
+
+    <div class="card blk" style="left:170px"><span class="t">API</span><span class="s">Bearer API keys</span></div>
+    <div class="chev" style="left:400px">›</div>
+    <div class="card blk" style="left:440px"><span class="t">SQS FIFO</span><span class="s">ingest buffer</span></div>
+    <div class="chev" style="left:670px">›</div>
+    <div class="card blk" style="left:710px"><span class="t">Writer</span><span class="s">ECS Fargate</span></div>
+    <div class="chev" style="left:940px">›</div>
+    <div class="card blk db" style="left:980px"><span class="t">analytics</span><span class="s">on Amazon S3</span></div>
+    <div class="chev" style="left:1210px">›</div>
+    <div class="card blk" style="left:1250px"><span class="t">Pipelines</span><span class="s">Lambda · ECS</span></div>
+    <div class="chev" style="left:1480px">›</div>
+    <div class="card blk" style="left:1520px"><span class="t">Query &amp; Admin</span><span class="s">in the browser</span></div>
+
+    <div class="lbl l-bk" style="left:920px; top:600px">BACKUP</div>
+    <div class="card blk vault"><span class="t">Backup vault</span><span class="s">consistent backup</span></div>
+    <div class="lbl l-rs" style="left:1230px; top:704px">RESTORE</div>
+    <div class="card blk restored"><span class="t">Restored space</span><span class="s">isolated from source</span></div>
+  </div>
+
+  <div class="head">Colvenna Isle</div>
+
+  <div class="logo">
+    <div class="halo"></div>
+    <svg class="colvenna" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="promo-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="var(--brand)"/>
+      <stop offset="1" stop-color="var(--mark-bg-end)"/>
+    </linearGradient>
+    <linearGradient id="promo-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="var(--teal)"/>
+      <stop offset="1" stop-color="var(--aqua)"/>
+    </linearGradient>
+    <g id="promo-mark">
+      <rect width="256" height="256" rx="56" fill="url(#promo-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#promo-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#promo-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#promo-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="var(--accent)"/>
+    </g>
+  </defs><use href="#promo-mark"/></svg>
+  </div>
+  <div class="meta"><span class="pill on">OPEN SOURCE</span><span class="pill hot">APACHE-2.0</span></div>
+  <div class="repo mono">github.com/<b>colvenna/colvenna-isle</b></div>
+</div>
+
+<script src="../assets/gsap.min.js"></script>
+<script src="outro.beats.js"></script>
+<script>
+(function () {
+  var tl = gsap.timeline({ paused: true });
+  var SEG = window.__SEG__;
+  var t1 = B('Colvenna Isle'), t2 = B('in your own AWS'), t3 = B('with backup and restore'), t4 = B('Open source');
+
+  gsap.set('.logo, .meta, .repo, .acct-l, .vault, .restored, .lbl, #bkDownH, #bkRightH', { opacity: 0 });
+
+  // 1 · 标题 + 产品链（前面各场的部件收拢成一条线）
+  tl.fromTo('.head', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, t1 + 0.05);
+  tl.fromTo('.blk:not(.vault):not(.restored)', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.6)', stagger: 0.12 }, t1 + 0.35);
+  tl.fromTo('.chev', { opacity: 0, x: -10 }, { opacity: 1, x: 0, duration: 0.3, stagger: 0.12 }, t1 + 0.6);
+
+  // 2 · 画出账号边界：全部资源都在你自己的 AWS 账号里
+  var ta = Math.max(t2 + 0.1, t1 + 1.3);                     // 产品链出完再画边框
+  var acct = document.getElementById('acct'), AL = acct.getTotalLength();
+  gsap.set('#acct', { strokeDasharray: AL, strokeDashoffset: AL });
+  tl.to('#acct', { strokeDashoffset: 0, duration: 1.1, ease: 'power2.inOut' }, ta);
+  tl.set('#acct', { strokeDasharray: '14 10' }, ta + 1.15);
+  tl.fromTo('.acct-l', { opacity: 0, y: 12, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.45, ease: 'back.out(2)' }, ta + 0.5);
+
+  // 3 · 备份 → 隔离还原
+  ['bkDown', 'bkRight'].forEach(function (id, i) {
+    var p = document.getElementById(id), L = p.getTotalLength();
+    gsap.set(p, { strokeDasharray: L, strokeDashoffset: L });
+    tl.to(p, { strokeDashoffset: 0, duration: 0.4, ease: 'power2.out' }, t3 + 0.1 + i * 0.9);
+    tl.to('#' + id + 'H', { opacity: 1, duration: 0.12 }, t3 + 0.45 + i * 0.9);
+  });
+  tl.fromTo('.l-bk', { opacity: 0, x: 10 }, { opacity: 1, x: 0, duration: 0.3 }, t3 + 0.15);
+  tl.fromTo('.vault', { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 0.45, ease: 'back.out(1.8)' }, t3 + 0.4);
+  tl.fromTo('.l-rs', { opacity: 0, y: -8 }, { opacity: 1, y: 0, duration: 0.3 }, t3 + 1.05);
+  tl.fromTo('.restored', { opacity: 0, x: 30 }, { opacity: 1, x: 0, duration: 0.45, ease: 'back.out(1.8)' }, t3 + 1.3);
+
+  // 4 · 收拢成落版：架构退场，标题下移成字标，logo 落位
+  var tg = t4 - 0.3;                                         // 落版提前收拢，片尾留足停留
+  tl.to('.arch', { opacity: 0, scale: 0.86, duration: 0.55, ease: 'power2.in' }, tg - 0.1);
+  tl.to('.head', { y: 360, scale: 0.92, duration: 0.8, ease: 'power3.inOut' }, tg);
+  tl.fromTo('.logo', { opacity: 0, scale: 0.4, y: -40 }, { opacity: 1, scale: 1, y: 0, duration: 0.7, ease: 'back.out(1.8)' }, tg + 0.45);
+  tl.fromTo('.meta .pill', { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.4, ease: 'back.out(2)', stagger: 0.1, immediateRender: false }, tg + 0.8);
+  tl.set('.meta', { opacity: 1 }, tg + 0.79);
+  gsap.set('.meta .pill', { opacity: 0 });
+  tl.fromTo('.repo', { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.45, ease: 'power3.out' }, tg + 1.1);
+  tl.to({}, { duration: 0.01 }, SEG.duration + SEG.gap);
+
+  window.__tl = tl;
+  if (!window.__MG_RENDER__) {
+    requestAnimationFrame(function () { requestAnimationFrame(function () { tl.play(0); }); });
+  }
+})();
+</script>
+</body>
+</html>

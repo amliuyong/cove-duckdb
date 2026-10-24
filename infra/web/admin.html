@@ -3,13 +3,30 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Console · Cove DuckDB</title>
+  <title>Admin Console · Colvenna Isle</title>
   <link rel="stylesheet" href="/admin/app.css">
   <script src="/admin/app.js" defer></script>
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="/admin.html" aria-label="Cove DuckDB Admin Console"><span class="brand-mark">C</span>Cove DuckDB</a>
+    <a class="brand" href="/admin.html" aria-label="Colvenna Isle Admin Console"><svg class="brand-mark" viewBox="0 0 256 256" aria-hidden="true">
+  <defs>
+    <linearGradient id="colvenna-isle-web-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#11556B"/>
+      <stop offset="1" stop-color="#062533"/>
+    </linearGradient>
+    <linearGradient id="colvenna-isle-web-flow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#1BB59E"/>
+      <stop offset="1" stop-color="#4FF2D6"/>
+    </linearGradient>
+    <g id="colvenna-isle-web-mark">
+      <rect width="256" height="256" rx="56" fill="url(#colvenna-isle-web-bg)"/>
+      <path d="M193.9 183.3 A86 86 0 1 1 193.9 72.7" fill="none" stroke="url(#colvenna-isle-web-flow)" stroke-opacity="1" stroke-width="15" stroke-linecap="round"/>
+      <path d="M166.2 176.9 A62 62 0 1 1 181.7 97.0" fill="none" stroke="url(#colvenna-isle-web-flow)" stroke-opacity=".8" stroke-width="15" stroke-linecap="round"/>
+      <path d="M143.5 162.7 A38 38 0 1 1 164.7 118.2" fill="none" stroke="url(#colvenna-isle-web-flow)" stroke-opacity=".6" stroke-width="15" stroke-linecap="round"/>
+      <circle cx="186.7" cy="114.2" r="12" fill="#F5CB68"/>
+    </g>
+  </defs><use href="#colvenna-isle-web-mark"/></svg>Colvenna Isle</a>
     <span class="product">Admin Console</span>
     <a class="nav-link" href="/">Query Editor</a>
     <span id="connection-status" class="connection-status">未连接</span>

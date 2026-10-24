@@ -9,7 +9,7 @@ from cove_duckdb.region import regional
 def template(baseline, source, policy, project, *, account):
     bucket, repository, prefix = baseline["DataBucket"], policy["repository"], policy["runtime_prefix"]
     cluster_arn = f"arn:aws:ecs:{REGION}:{account}:cluster/{baseline['Cluster']}"
-    tags = [{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "builder"},
+    tags = [{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "builder"},
             {"Key": "SourceCommit", "Value": policy["source_commit"]}]
     repository_arn = f"arn:aws:ecr:{REGION}:{account}:repository/{repository}"
     role_prefix = f"arn:aws:iam::{account}:role/{prefix}*"
@@ -103,7 +103,7 @@ def template(baseline, source, policy, project, *, account):
                            "startedBy": [{"prefix": "cove-"}]}},
             "Targets": [{"Id": "pipeline-events", "Arn": {"Fn::GetAtt": ["PipelineEvents", "Arn"]}}]}},
         "RuntimeBoundary": {"Type": "AWS::IAM::ManagedPolicy", "Properties": {
-            "Description": "Cove user execution: generation inputs/staging and runtime logs only",
+            "Description": "Colvenna Isle user execution: generation inputs/staging and runtime logs only",
             "PolicyDocument": {"Version": "2012-10-17", "Statement": [
                 {"Effect": "Allow", "Action": ["s3:GetObjectVersion"], "Resource": runtime_files},
                 {"Effect": "Allow", "Action": ["s3:PutObject"],
@@ -142,7 +142,7 @@ def template(baseline, source, policy, project, *, account):
     }
     return regional({
         "AWSTemplateFormatVersion": "2010-09-09",
-        "Description": "Cove DuckDB immutable Python environments",
+        "Description": "Colvenna Isle immutable Python environments",
         "Resources": resources,
         "Outputs": {
             "Project": {"Value": {"Ref": "Builder"}},

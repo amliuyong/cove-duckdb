@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cove DuckDB: one command from a clean checkout to an installed (or upgraded) environment.
+# Colvenna Isle: one command from a clean checkout to an installed (or upgraded) environment.
 #
 #   ./install.sh fresh   --environment <name> --account <12-digit account> [options] [-- <install.py options>]
 #   ./install.sh upgrade --environment <name> --account <12-digit account> [options] [-- <install.py options>]
@@ -17,7 +17,7 @@
 #   --environment NAME     environment name (2-12 lowercase letters or digits, starting with a letter); required
 #   --account ID           target AWS account (defaults to $COVE_ACCOUNT); must match the instance role's account
 #   --region NAME          target commercial AWS region (or COVE_REGION / AWS_REGION); required
-#   --work-dir DIR         build environment, release and receipts (default: ../cove-duckdb-work); outside the repo
+#   --work-dir DIR         build environment, release and receipts (default: ../colvenna-isle-work); outside the repo
 #   --steps LIST           resume a failed install from the given install.py steps (after reconciling the failed one)
 #   --space ID             after installing: provision this space and issue its first administrator key
 #   --token-output FILE    new private file for that key (required with --space)
@@ -67,7 +67,7 @@ for configured in "${COVE_REGION:-}" "${AWS_REGION:-}" "${AWS_DEFAULT_REGION:-}"
   [ -z "$configured" ] || [ "$configured" = "$REGION" ] || fail "configured AWS regions disagree with --region"
 done
 if [ -n "$SPACE" ] && [ -z "$TOKEN_OUTPUT" ]; then fail "--space needs --token-output"; fi
-WORK="$(mkdir -p "${WORK:-$ROOT/../cove-duckdb-work}" && cd "${WORK:-$ROOT/../cove-duckdb-work}" && pwd)"
+WORK="$(mkdir -p "${WORK:-$ROOT/../colvenna-isle-work}" && cd "${WORK:-$ROOT/../colvenna-isle-work}" && pwd)"
 case "$WORK/" in "$ROOT"/*) fail "--work-dir must be outside the repository" ;; esac
 
 # The operator tools accept only the EC2 instance-role credential chain, never a profile or static keys.
@@ -84,7 +84,7 @@ command -v docker >/dev/null || fail "Docker is required"
 docker info >/dev/null 2>&1 || fail "Docker is not usable by this user"
 command -v node >/dev/null || fail "Node.js is required"
 command -v aws >/dev/null || fail "AWS CLI v2 is required"
-git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1 || fail "run from a git checkout of cove-duckdb"
+git -C "$ROOT" rev-parse --git-dir >/dev/null 2>&1 || fail "run from a git checkout of colvenna-isle"
 [ -z "$(git -C "$ROOT" status --porcelain)" ] || fail "the checkout has uncommitted changes; install only a committed source"
 COMMIT=$(git -C "$ROOT" rev-parse HEAD)
 CALLER=$("${AWS_ENV[@]}" aws sts get-caller-identity --output json) || fail "no AWS credentials from the instance role"
@@ -154,7 +154,7 @@ if [ -n "$SPACE" ]; then
 fi
 
 step "Endpoints"
-"${AWS_ENV[@]}" aws cloudformation describe-stacks --stack-name "cove-duck-$ENVIRONMENT-core" \
+"${AWS_ENV[@]}" aws cloudformation describe-stacks --stack-name "colvenna-isle-$ENVIRONMENT-core" \
   --query "Stacks[0].Outputs[?OutputKey=='ApiUrl' || OutputKey=='WebUrl'].[OutputKey,OutputValue]" --output text
 echo
 echo "Query Editor: <WebUrl>/   Admin Console: <WebUrl>/admin.html   Next: examples/quickstart/README.md"

@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 1060" role="img" aria-labelledby="title desc">
-<title id="title">Cove DuckDB：AWS 数据接入与分析架构</title>
-<desc id="desc">The S3/CloudFront Query Editor retains its key in page memory and forwards authenticated API requests to API Gateway without caching API responses. API Gateway and intake Lambda buffer writes through SQS FIFO. Authorizer and management Lambda functions access the DynamoDB control table through the AWS SDK. Query HTTP requests traverse VPC Link and an internal ALB to an ECS query Service. A separate ECS writer Service consumes SQS without an ALB and persists native DuckDB data in S3. An independent VPC synchronous Lambda uses private port 8082 and waits for the approved writer's native receipt. Receipt-conditioned queries invoke the private Writer Control Lambda for a bounded Native copy; user SQL runs only on the query process's sealed snapshot. A scheduling Lambda invokes versioned Lambda functions or starts independent ECS RunTask compute; their Parquet results are published through the writer.</desc>
+<title id="title">Colvenna Isle：AWS 数据接入与分析架构</title>
+<desc id="desc">The S3/CloudFront Query Editor retains its key in page memory and forwards authenticated API requests to API Gateway without caching API responses. API Gateway and intake Lambda buffer writes through SQS FIFO. Authorizer and management Lambda functions access the DynamoDB control table through the AWS SDK. Query HTTP requests traverse VPC Link and an internal ALB to an ECS query Service. A separate ECS writer Service consumes SQS without an ALB and persists native DuckDB data in S3. An independent VPC synchronous Lambda uses private port 8082 and waits for the approved writer's native receipt. Receipt-conditioned queries invoke the private Writer Control Lambda for a bounded Native copy; user SQL runs only on the query process's sealed snapshot. A scheduling Lambda invokes versioned Lambda functions or starts independent ECS RunTask compute; their Parquet results are published through the writer. DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.</desc>
 <defs>
 <marker id="arrow-default" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#718799"/></marker>
 <marker id="arrow-emphasis" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9z" fill="#059669"/></marker>
@@ -9,7 +9,7 @@
 </defs>
 <rect width="1240" height="1060" rx="18" fill="#ffffff"/>
 <g font-family="Noto Sans SC, Microsoft YaHei, Arial, sans-serif" fill="#173641">
-<text x="40" y="24" font-size="18" font-weight="700">Cove DuckDB：AWS 数据接入与分析架构</text>
+<text x="40" y="24" font-size="18" font-weight="700">Colvenna Isle：AWS 数据接入与分析架构</text>
 <g transform="translate(0 36)">
 <g id="connections" fill="none" stroke-linecap="round" stroke-linejoin="round">
 <path id="client-api" d="M240 88 L350 88" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emphasis)"/>

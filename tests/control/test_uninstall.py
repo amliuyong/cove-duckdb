@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts/aws"))
 import uninstall  # noqa: E402
 
-PREFIX = "cove-duck-qa-env-"
+PREFIX = "colvenna-isle-qa-env-"
 
 
 class Paginator:
@@ -39,7 +39,7 @@ class Clients:
         self.calls = []
         self.definitions = DefinitionPaginator()
         self.roles = [{"RoleName": PREFIX + "task", "Arn": "arn:role/" + PREFIX + "task"},
-                      {"RoleName": "cove-duck-other-env-task", "Arn": "arn:role/other"}]
+                      {"RoleName": "colvenna-isle-other-env-task", "Arn": "arn:role/other"}]
 
     def client(self, name):
         return self
@@ -54,16 +54,16 @@ class Clients:
         return Paginator([{"Roles": self.roles}])
 
     def list_tags(self, Resource):
-        return {"Tags": {"Project": "cove-duckdb"}}
+        return {"Tags": {"Project": "colvenna-isle"}}
 
     def delete_function(self, FunctionName):
         self.calls.append(("delete_function", FunctionName))
 
     def describe_task_definition(self, taskDefinition, include):
-        return {"tags": [{"key": "Project", "value": "cove-duckdb"}]}
+        return {"tags": [{"key": "Project", "value": "colvenna-isle"}]}
 
     def list_role_tags(self, RoleName):
-        return {"Tags": [{"Key": "Project", "Value": "cove-duckdb"}]}
+        return {"Tags": [{"Key": "Project", "Value": "colvenna-isle"}]}
 
     def list_role_policies(self, RoleName):
         return {"PolicyNames": ["inline"]}
@@ -91,7 +91,7 @@ class Uninstall(unittest.TestCase):
             ("delete_role_permissions_boundary", role), ("delete_role", role)])
         self.assertEqual(removed["roles"], ["arn:role/" + role])
         self.assertEqual(removed["task_definitions"], ["arn:td/" + PREFIX + "task:1"])
-        self.assertNotIn("cove-duck-other-env-task", [call[1] for call in clients.calls])
+        self.assertNotIn("colvenna-isle-other-env-task", [call[1] for call in clients.calls])
 
     def test_runtime_resources_go_before_the_builder_stack(self):
         order = []

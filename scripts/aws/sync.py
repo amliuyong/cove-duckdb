@@ -90,7 +90,7 @@ def main():
     dispatched = update_stack(
         cf, StackName=baseline["StackId"], **template_arguments(current, body), Capabilities=["CAPABILITY_IAM"],
         Parameters=parameters, ClientRequestToken=token,
-        Tags=[{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "core"},
+        Tags=[{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "core"},
               {"Key": "SourceCommit", "Value": head}])
     save("deployment-dispatch", dispatched)
     if wait(cf, dispatched["StackId"], directory / "deployment-terminal.json") != "UPDATE_COMPLETE":

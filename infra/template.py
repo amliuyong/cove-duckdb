@@ -36,10 +36,10 @@ def template():
     parameters = {
         "SourceCommit": {"Type": "String", "AllowedPattern": "[0-9a-f]{40}"},
         "StorageImage": {"Type": "String", "AllowedPattern":
-                         "[0-9]{12}.dkr.ecr.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*.amazonaws.com/cove-duckdb-images@sha256:[0-9a-f]{64}"},
+                         "[0-9]{12}.dkr.ecr.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*.amazonaws.com/colvenna-isle-images@sha256:[0-9a-f]{64}"},
         "QueryDesired": {"Type": "Number", "Default": 0, "AllowedValues": [0, 1, 2, 3, 4]},
         "QueryImage": {"Type": "String", "Default": "", "AllowedPattern":
-                       "(|[0-9]{12}.dkr.ecr.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*.amazonaws.com/cove-duckdb-images@sha256:[0-9a-f]{64})"},
+                       "(|[0-9]{12}.dkr.ecr.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*.amazonaws.com/colvenna-isle-images@sha256:[0-9a-f]{64})"},
         "QuerySourceCommit": {"Type": "String", "Default": "", "AllowedPattern": "(|[0-9a-f]{40})"},
         "BrowserSourceCommit": {"Type": "String", "Default": "", "AllowedPattern": "(|[0-9a-f]{40})"},
         "AuthCodeBucket": {"Type": "String", "Default": ""},
@@ -58,7 +58,7 @@ def template():
         "SyncSourceCommit": {"Type": "String", "Default": "", "AllowedPattern": "(|[0-9a-f]{40})"},
         "SyncEnabled": {"Type": "String", "Default": "false", "AllowedValues": ["false", "true"]},
         "WriterImage": {"Type": "String", "Default": "", "AllowedPattern":
-                        "(|[0-9]{12}.dkr.ecr.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*.amazonaws.com/cove-duckdb-images@sha256:[0-9a-f]{64})"},
+                        "(|[0-9]{12}.dkr.ecr.[a-z]{2}(?:-[a-z]+)+-[1-9][0-9]*.amazonaws.com/colvenna-isle-images@sha256:[0-9a-f]{64})"},
         "WriterSourceCommit": {"Type": "String", "Default": "", "AllowedPattern": "(|[0-9a-f]{40})"},
         "WriterEnvironmentPolicy": {"Type": "String", "Default": "{}"},
         "WriterCodeBucket": {"Type": "String", "Default": ""},
@@ -71,7 +71,7 @@ def template():
         # The account-level backup vault (infra/backups.py); empty grants no backup access.
         "BackupBucket": {"Type": "String", "Default": "", "AllowedPattern": "(|[a-z0-9][a-z0-9.-]{1,61}[a-z0-9])"},
     }
-    tags = [{"Key": "Project", "Value": "cove-duckdb"}, {"Key": "Component", "Value": "core"},
+    tags = [{"Key": "Project", "Value": "colvenna-isle"}, {"Key": "Component", "Value": "core"},
             {"Key": "SourceCommit", "Value": ref("SourceCommit")}]
     add("Vpc", "AWS::EC2::VPC", CidrBlock="10.87.0.0/16", EnableDnsSupport=True,
         EnableDnsHostnames=True, Tags=tags)
@@ -189,7 +189,7 @@ def template():
     role("ExecutionRole", "ecs-tasks.amazonaws.com", [
         allow(["ecr:GetAuthorizationToken"], "*"),
         allow(["ecr:BatchCheckLayerAvailability", "ecr:GetDownloadUrlForLayer", "ecr:BatchGetImage"],
-              [sub("arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/cove-duckdb-images"),
+              [sub("arn:${AWS::Partition}:ecr:${AWS::Region}:${AWS::AccountId}:repository/colvenna-isle-images"),
                "arn:aws:ecr:${AWS::Region}:*:repository/aws-guardduty-agent-fargate"]),
         log_allow("TaskLogs")])
     role("WriterRole", "ecs-tasks.amazonaws.com", [
@@ -425,7 +425,7 @@ def template():
         SubnetIds=[ref("PrivateSubnet1"), ref("PrivateSubnet2")], SecurityGroupIds=[ref("LinkSecurityGroup")])
     add("Api", "AWS::ApiGatewayV2::Api", Name=sub("${AWS::StackName}-api"), ProtocolType="HTTP",
         DisableExecuteApiEndpoint=False)
-    add("ApiAuthorizer", "AWS::ApiGatewayV2::Authorizer", ApiId=ref("Api"), Name="CoveBearer",
+    add("ApiAuthorizer", "AWS::ApiGatewayV2::Authorizer", ApiId=ref("Api"), Name="ColvennaIsleBearer",
         AuthorizerType="REQUEST", AuthorizerPayloadFormatVersion="2.0", EnableSimpleResponses=True,
         IdentitySource=["$request.header.Authorization"], AuthorizerResultTtlInSeconds=0,
         AuthorizerUri=sub("arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Authorizer.Arn}/invocations"))
@@ -560,7 +560,7 @@ def template():
     for resource in resources.values():
         if resource["Type"] == "AWS::Lambda::Function":
             resource["Properties"].setdefault("Environment", {}).setdefault("Variables", {})["COVE_REGION"] = ref("AWS::Region")
-    return regional({"AWSTemplateFormatVersion": "2010-09-09", "Description": "Cove DuckDB private AWS baseline",
+    return regional({"AWSTemplateFormatVersion": "2010-09-09", "Description": "Colvenna Isle private AWS baseline",
             "Parameters": parameters,
             "Conditions": {
                 "HasAuthCode": {"Fn::Not": [{"Fn::Equals": [ref("AuthCodeKey"), ""]}]},

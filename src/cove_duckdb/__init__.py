@@ -1,1 +1,1 @@
-"""Cove DuckDB: API contracts, control plane, intake, writer, query and pipeline runtime."""
+"""Colvenna Isle: API contracts, control plane, intake, writer, query and pipeline runtime."""

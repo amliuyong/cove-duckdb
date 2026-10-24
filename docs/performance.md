@@ -273,3 +273,5 @@
 - 成本报告：通过 Admin Console 或成本接口获取，见[用户手册](user-guide.md)。
 
 完整的测试矩阵、方法与判定规则见[性能测试说明](performance-tests.md)。
+
+DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of the DuckDB Foundation and is not endorsed by it.
