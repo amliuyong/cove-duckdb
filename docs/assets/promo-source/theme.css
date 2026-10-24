@@ -9,7 +9,8 @@
     linear-gradient(170deg, #0b2a31 0%, #07181d 56%, #081f25 100%);
 
   /* 品牌结构色 */
-  --brand: #11556B;          /* logo 方块底 */
+  --brand: #11556B;
+  --mark-bg-end: #062533;          /* logo 方块底 */
   --teal: #1BB59E;           /* 结构、连线 */
   --teal-rgb: 8,127,128;
   --aqua: #4FF2D6;           /* 数据流动 */

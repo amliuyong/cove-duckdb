@@ -22,7 +22,7 @@
 
 [中文说明](README.zh-CN.md) · [Release notes](docs/release-notes.md) · [Installation guide](docs/installation.md) · [User guide](docs/user-guide.md) · [Quickstart](examples/quickstart/README.md) · [Documentation](docs/README.md) · [Contributing](CONTRIBUTING.md)
 
-Colvenna Isle is a database and analytics product for AWS. Applications write through an API, data teams transform with SQL and Python pipelines, and analysts query durable DuckDB databases stored in Amazon S3 from a Query Editor, with an Admin Console for keys, pipelines, runtime environments and operations.
+Colvenna Isle is a database and analytics product for AWS. Applications write through an API, data teams transform with SQL and Python pipelines, and analysts query durable analytics databases stored in Amazon S3 from a Query Editor, with an Admin Console for keys, pipelines, runtime environments and operations.
 
 ## Release 1.1.0
 

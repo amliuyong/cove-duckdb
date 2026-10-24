@@ -23,7 +23,7 @@
 
 ## 验收
 
-1.1.0 的运行时代码（`src/`、`infra/`、`runtime/`、`scripts/`、`install.sh`）与下表的验收源码 `7005fee` 相同，只有版本号不同。之后的提交只改文档和测试。
+tag `v1.1.0` 的运行时代码（`src/`、`infra/`、`runtime/`、`scripts/`、`install.sh`）与下表的验收源码 `7005fee` 相同，只有版本号不同。从该验收源码到历史 tag 的其他变更只涉及文档和测试；当前改名候选的资源与部署代码另有变更，不能沿用这项源码等同结论。
 
 2026-10-21 的区域验收：
 
@@ -48,7 +48,7 @@
 
 | 项目 | 值 |
 | --- | --- |
-| 版本 | `1.1.0`（`src/cove_duckdb/_version.py`） |
+| 版本 | `1.1.0`（tag `v1.1.0` 中的 `src/cove_duckdb/_version.py`；当前源码为 `1.2.0.dev0`） |
 | Git tag | `v1.1.0` |
 | GitHub Release | [v1.1.0](https://github.com/amliuyong/colvenna-isle/releases/tag/v1.1.0) |
 | 源码 | tag 指向的提交；release `manifest.json` 记录其 commit / tree |

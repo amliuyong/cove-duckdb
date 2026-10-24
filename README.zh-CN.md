@@ -22,7 +22,7 @@
 
 [English](README.md) · [发行说明](docs/release-notes.md) · [安装部署手册](docs/installation.md) · [用户手册](docs/user-guide.md) · [Quickstart](examples/quickstart/README.md) · [文档目录](docs/README.md) · [完整产品发布文档](docs/product/press-release.md) · [贡献说明](CONTRIBUTING.md)
 
-Colvenna Isle 是面向 AWS 的数据库与分析产品，整合 API 接入、S3 上的 DuckDB、SQL/Python 分层加工、Query Editor 和 Admin Console。
+Colvenna Isle 是面向 AWS 的数据库与分析产品，整合 API 接入、S3 上的持久化分析数据库、SQL/Python 分层加工、Query Editor 和 Admin Console。
 
 ## 1.1.0 发行
 

@@ -22,8 +22,8 @@
   ],
   "files": {
     "docs/assets/architecture.svg": {
-      "sha256": "6df88f093f9dbbe86121a51468c8a5f5ab86b8f68671ba6209dece92c0767d46",
-      "bytes": 14303
+      "sha256": "68e6afaccc8524e1df9e9c8c9fe27a94d4a237d83eb9ae06d8d29e33fe8d9eda",
+      "bytes": 14432
     },
     "docs/assets/icon.svg": {
       "sha256": "ad156ae1685a72c33c35a3957262618e88df795fd1c7b672f39b937d871c11a9",
@@ -48,6 +48,18 @@
     "docs/assets/brand-preview.svg": {
       "sha256": "3c36c8579c47c2db821a6a0bbaf38707bacd951805c5d5d7963f7add571c1ab4",
       "bytes": 6120
+    },
+    "docs/assets/promo.gif": {
+      "sha256": "bbbac63cedb52493006aa9554b82ffa95848d239964cbda9d7f6163238bd9aa6",
+      "bytes": 14511078
+    },
+    "docs/assets/promo.mp4": {
+      "sha256": "4214ce386cc678875d046d2b05ecb140d864b1e7eb06c34c3e32dafcf7187d36",
+      "bytes": 7568962
+    },
+    "docs/design/evidence/promo-contact.jpg": {
+      "sha256": "b550937823f24627090ecf2ff5028e9a8603808c47796aeb4098cb8a83eef72f",
+      "bytes": 194724
     }
   },
   "architecture_visual_review": {
@@ -59,5 +71,32 @@
     ],
     "scope": "Integrated Query Editor and controlled receipt-read path; actual complete screenshot inspected"
   },
-  "logo_evidence_date": "2026-10-24"
+  "logo_evidence_date": "2026-10-24",
+  "promotion": {
+    "date": "2026-10-24",
+    "render_channel": "PNG-fast",
+    "mp4": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30,
+      "frames": 1660,
+      "duration_seconds": 55.333333,
+      "audio_seconds": 55.17
+    },
+    "gif": {
+      "width": 960,
+      "height": 540,
+      "fps": 12,
+      "audio": false
+    },
+    "layout_errors": 0,
+    "layout_warnings": 0,
+    "frame_lint": "PASS",
+    "beat_references": "PASS",
+    "single_frame_jitter": "NONE_DETECTED",
+    "authored_scene_cuts": 1,
+    "visual_review": "PASS",
+    "review_contact_sheet": "docs/design/evidence/promo-contact.jpg",
+    "runtime_acceptance": "NOT_RUN"
+  }
 }

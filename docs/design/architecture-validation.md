@@ -24,7 +24,7 @@ Evidence: [SVG render](evidence/architecture-svg.png), [logo render](evidence/lo
 SVG SHA-256:
 
 ```text
-6df88f093f9dbbe86121a51468c8a5f5ab86b8f68671ba6209dece92c0767d46
+68e6afaccc8524e1df9e9c8c9fe27a94d4a237d83eb9ae06d8d29e33fe8d9eda
 ```
 
 ## Supplementary interactive viewer

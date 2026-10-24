@@ -88,7 +88,9 @@ def render() -> None:
         "Receipt-conditioned queries invoke the private Writer Control Lambda for a bounded Native copy; "
         "user SQL runs only on the query process's sealed snapshot. "
         "A scheduling Lambda invokes versioned Lambda functions or starts independent ECS RunTask compute; "
-        "their Parquet results are published through the writer.</desc>",
+        "their Parquet results are published through the writer. "
+        "DuckDB is a trademark of the DuckDB Foundation. Colvenna Isle is independent of "
+        "the DuckDB Foundation and is not endorsed by it.</desc>",
         "<defs>",
     ]
     for variant, color in LINE_COLORS.items():
