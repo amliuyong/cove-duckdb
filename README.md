@@ -1,13 +1,9 @@
-<p align="center">
+<h1 align="center" id="colvenna-isle">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
-    <img src="docs/assets/logo-light.svg" alt="Colvenna Isle" width="480">
+    <img src="docs/assets/logo-light.svg" alt="Colvenna Isle — Durable analytics databases on S3" width="480">
   </picture>
-</p>
-
-# Colvenna Isle
-
-<p align="center"><strong>Durable analytics databases on S3</strong></p>
+</h1>
 
 <p align="center">
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-0b6b69"></a>

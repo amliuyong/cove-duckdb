@@ -1,13 +1,11 @@
-<p align="center">
+<h1 align="center" id="colvenna-isle">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/logo-dark.svg">
     <img src="docs/assets/logo-light.svg" alt="Colvenna Isle" width="480">
   </picture>
-</p>
+</h1>
 
-# Colvenna Isle
-
-**S3 上的持久化分析数据库**
+<p align="center"><strong>S3 上的持久化分析数据库</strong></p>
 
 <p align="center">
   <a href="LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/License-Apache--2.0-0b6b69"></a>
